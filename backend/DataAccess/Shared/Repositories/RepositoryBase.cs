@@ -13,7 +13,7 @@ public class RepositoryBase<TEntity, TKey> : IRepositoryBase<TEntity, TKey>
     {
         _dbSet = dbContext.Set<TEntity>();
     }
-    
+
     public void Add(TEntity entity)
     {
         _dbSet.Add(entity);

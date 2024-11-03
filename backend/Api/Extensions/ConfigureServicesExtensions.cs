@@ -15,17 +15,17 @@ public static class ConfigureServicesExtensions
         services.AddControllers();
         services.AddEndpointsApiExplorer();
         services.AddSwaggerGen();
-        
+
         return services;
     }
 
     public static IServiceCollection AddBusinessLogicLayer(this IServiceCollection services)
     {
         services.AddScoped<ITaxService, TaxService>();
-        
+
         return services;
     }
-    
+
     public static IServiceCollection AddDataAccessLayer(this IServiceCollection services, IConfiguration configuration)
     {
         var connectionString = configuration.GetConnectionString("DefaultConnection");
@@ -33,7 +33,7 @@ public static class ConfigureServicesExtensions
 
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped<ITaxRepository, TaxRepository>();
-        
+
         return services;
     }
 }

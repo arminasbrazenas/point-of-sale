@@ -16,12 +16,8 @@ public class TaxService : ITaxService
 
     public async Task<TaxDTO> CreateTax(CreateTaxDTO createTaxDTO)
     {
-        var tax = new Tax
-        {
-            Name = createTaxDTO.Name,
-            Rate = createTaxDTO.Rate
-        };
-        
+        var tax = new Tax { Name = createTaxDTO.Name, Rate = createTaxDTO.Rate };
+
         _unitOfWork.Taxes.Add(tax);
         await _unitOfWork.SaveChanges();
 

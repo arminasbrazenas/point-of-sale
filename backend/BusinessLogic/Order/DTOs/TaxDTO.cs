@@ -14,7 +14,7 @@ public record TaxDTO
         {
             Id = tax.Id,
             Name = tax.Name,
-            Rate = tax.Rate
+            Rate = tax.Rate,
         };
     }
 }

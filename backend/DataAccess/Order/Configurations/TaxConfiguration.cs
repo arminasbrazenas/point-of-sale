@@ -12,12 +12,9 @@ public class TaxConfiguration : IEntityTypeConfiguration<Tax>
     {
         builder.HasKey(t => t.Id);
 
-        builder.Property(t => t.Name)
-            .HasMaxLength(TaxConstants.NameMaxLength)
-            .IsRequired();
+        builder.Property(t => t.Name).HasMaxLength(TaxConstants.NameMaxLength).IsRequired();
 
-        builder.Property(t => t.Rate)
-            .IsRequired();
+        builder.Property(t => t.Rate).IsRequired();
 
         builder.ToTable(TaxConstants.TableName, SharedConstants.OrderSchema);
     }

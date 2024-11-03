@@ -2,10 +2,7 @@ using PointOfSale.Api.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services
-    .AddDataAccessLayer(builder.Configuration)
-    .AddBusinessLogicLayer()
-    .AddApiLayer();
+builder.Services.AddDataAccessLayer(builder.Configuration).AddBusinessLogicLayer().AddApiLayer();
 
 var app = builder.Build();
 

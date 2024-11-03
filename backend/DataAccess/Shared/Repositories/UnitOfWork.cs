@@ -16,7 +16,7 @@ public class UnitOfWork : IUnitOfWork
     }
 
     public ITaxRepository Taxes => _serviceProvider.GetRequiredService<ITaxRepository>();
-    
+
     public async Task SaveChanges()
     {
         await _dbContext.SaveChangesAsync();
