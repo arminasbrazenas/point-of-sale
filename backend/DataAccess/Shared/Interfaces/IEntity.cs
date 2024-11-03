@@ -1,7 +1,7 @@
 namespace PointOfSale.DataAccess.Shared.Interfaces;
 
 public interface IEntity<TKey> : IAuditable
-    where TKey : notnull
+    where TKey : IEquatable<TKey>
 {
     TKey Id { get; set; }
 }

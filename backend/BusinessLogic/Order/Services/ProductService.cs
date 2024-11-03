@@ -22,17 +22,17 @@ public class ProductService : IProductService
     public async Task<ProductDTO> CreateProduct(CreateProductDTO createProductDTO)
     {
         // TODO: validation
-        
+
         var taxes = await _taxRepository.GetMany(createProductDTO.TaxIds);
-        
+
         var product = new Product
         {
             Name = createProductDTO.Name,
             Price = createProductDTO.Price,
             Stock = createProductDTO.Stock,
-            Taxes = taxes
+            Taxes = taxes,
         };
-        
+
         _productRepository.Add(product);
         await _unitOfWork.SaveChanges();
 

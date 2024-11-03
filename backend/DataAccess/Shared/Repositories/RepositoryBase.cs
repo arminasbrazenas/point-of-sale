@@ -1,11 +1,12 @@
 using Microsoft.EntityFrameworkCore;
+using PointOfSale.DataAccess.Shared.Exceptions;
 using PointOfSale.DataAccess.Shared.Interfaces;
 
 namespace PointOfSale.DataAccess.Shared.Repositories;
 
-public class RepositoryBase<TEntity, TKey> : IRepositoryBase<TEntity, TKey>
+public abstract class RepositoryBase<TEntity, TKey> : IRepositoryBase<TEntity, TKey>
     where TEntity : class, IEntity<TKey>
-    where TKey : notnull
+    where TKey : IEquatable<TKey>
 {
     private readonly DbSet<TEntity> _dbSet;
 
@@ -19,6 +20,18 @@ public class RepositoryBase<TEntity, TKey> : IRepositoryBase<TEntity, TKey>
         _dbSet.Add(entity);
     }
 
+    public async Task<TEntity> Get(TKey id)
+    {
+        var entity = await _dbSet.FindAsync(id);
+        if (entity is not null)
+        {
+            return entity;
+        }
+
+        var errorMessage = CreateEntityNotFoundErrorMessage(id);
+        throw new EntityNotFoundException(errorMessage);
+    }
+
     public async Task<List<TEntity>> GetMany(IEnumerable<TKey> ids)
     {
         var distinctIds = ids.Distinct().ToList();
@@ -26,7 +39,19 @@ public class RepositoryBase<TEntity, TKey> : IRepositoryBase<TEntity, TKey>
         {
             return [];
         }
-        
+
         return await _dbSet.Join(distinctIds, e => e.Id, id => id, (e, _) => e).ToListAsync();
     }
+
+    public async Task Delete(TKey id)
+    {
+        await _dbSet.Where(e => e.Id.Equals(id)).ExecuteDeleteAsync();
+    }
+
+    public void Delete(TEntity entity)
+    {
+        _dbSet.Remove(entity);
+    }
+
+    protected abstract IPointOfSaleErrorMessage CreateEntityNotFoundErrorMessage(TKey id);
 }

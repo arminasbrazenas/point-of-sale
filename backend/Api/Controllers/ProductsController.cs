@@ -5,7 +5,7 @@ using PointOfSale.BusinessLogic.Order.Interfaces;
 namespace PointOfSale.Api.Controllers;
 
 [ApiController]
-[Route("[controller]")]
+[Route("products")]
 public class ProductsController : ControllerBase
 {
     private readonly IProductService _productService;

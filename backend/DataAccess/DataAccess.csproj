@@ -9,10 +9,4 @@
     <ItemGroup>
       <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.10" />
     </ItemGroup>
-    <ItemGroup>
-      <Folder Include="Business\" />
-      <Folder Include="Payment\" />
-      <Folder Include="Shared\Migrations\" />
-      <Folder Include="User\" />
-    </ItemGroup>
 </Project>

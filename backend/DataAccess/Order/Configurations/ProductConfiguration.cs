@@ -17,9 +17,7 @@ public class ProductConfiguration : IEntityTypeConfiguration<Product>
 
         builder.Property(p => p.Price).HasPrecision(10, 2).IsRequired();
 
-        builder
-            .HasMany(p => p.Taxes)
-            .WithMany(t => t.Products);
+        builder.HasMany(p => p.Taxes).WithMany(t => t.Products);
 
         builder.ToTable("Products", OrderConstants.SchemaName);
     }

@@ -5,7 +5,7 @@ using PointOfSale.BusinessLogic.Order.Interfaces;
 namespace PointOfSale.Api.Controllers;
 
 [ApiController]
-[Route("[controller]")]
+[Route("taxes")]
 public class TaxesController : ControllerBase
 {
     private readonly ITaxService _taxService;
@@ -20,5 +20,21 @@ public class TaxesController : ControllerBase
     {
         var tax = await _taxService.CreateTax(createTaxDTO);
         return Ok(tax);
+    }
+
+    [HttpGet]
+    [Route("{taxId:int}")]
+    public async Task<ActionResult<TaxDTO>> GetTax([FromRoute] int taxId)
+    {
+        var tax = await _taxService.GetTax(taxId);
+        return Ok(tax);
+    }
+
+    [HttpDelete]
+    [Route("{taxId:int}")]
+    public async Task<IActionResult> DeleteTax([FromRoute] int taxId)
+    {
+        await _taxService.DeleteTax(taxId);
+        return NoContent();
     }
 }

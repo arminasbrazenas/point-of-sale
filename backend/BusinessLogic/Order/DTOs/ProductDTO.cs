@@ -14,10 +14,10 @@ public record ProductDTO
         {
             Name = product.Name,
             Price = product.Price + CalculateTaxTotal(product),
-            Stock = product.Stock
+            Stock = product.Stock,
         };
     }
-    
+
     private static decimal CalculateTaxTotal(Product product)
     {
         return product.Taxes.Sum(tax => product.Price * tax.Rate);

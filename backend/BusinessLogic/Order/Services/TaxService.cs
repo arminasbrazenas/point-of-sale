@@ -20,7 +20,7 @@ public class TaxService : ITaxService
     public async Task<TaxDTO> CreateTax(CreateTaxDTO createTaxDTO)
     {
         // TODO: validation
-        
+
         var tax = new Tax
         {
             Name = createTaxDTO.Name,
@@ -32,5 +32,16 @@ public class TaxService : ITaxService
         await _unitOfWork.SaveChanges();
 
         return TaxDTO.Create(tax);
+    }
+
+    public async Task<TaxDTO> GetTax(int taxId)
+    {
+        var tax = await _taxRepository.Get(taxId);
+        return TaxDTO.Create(tax);
+    }
+
+    public async Task DeleteTax(int taxId)
+    {
+        await _taxRepository.Delete(taxId);
     }
 }

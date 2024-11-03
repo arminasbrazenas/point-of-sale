@@ -7,11 +7,6 @@
         <AssemblyName>PointOfSale.BusinessLogic</AssemblyName>
     </PropertyGroup>
     <ItemGroup>
-      <Folder Include="Business\" />
-      <Folder Include="Payment\" />
-      <Folder Include="User\" />
-    </ItemGroup>
-    <ItemGroup>
       <ProjectReference Include="..\DataAccess\DataAccess.csproj" />
     </ItemGroup>
 </Project>
