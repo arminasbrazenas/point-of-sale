@@ -4,6 +4,7 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <RootNamespace>PointOfSale.DataAccess</RootNamespace>
+        <AssemblyName>PointOfSale.DataAccess</AssemblyName>
     </PropertyGroup>
     <ItemGroup>
       <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.10" />

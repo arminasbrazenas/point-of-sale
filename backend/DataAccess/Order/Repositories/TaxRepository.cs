@@ -6,6 +6,6 @@ namespace PointOfSale.DataAccess.Order.Repositories;
 
 public class TaxRepository : RepositoryBase<Tax, int>, ITaxRepository
 {
-    public TaxRepository(PointOfSaleDbContext dbContext)
+    public TaxRepository(ApplicationDbContext dbContext)
         : base(dbContext) { }
 }

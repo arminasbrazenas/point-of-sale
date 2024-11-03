@@ -9,7 +9,7 @@ public class RepositoryBase<TEntity, TKey> : IRepositoryBase<TEntity, TKey>
 {
     private readonly DbSet<TEntity> _dbSet;
 
-    public RepositoryBase(PointOfSaleDbContext dbContext)
+    public RepositoryBase(ApplicationDbContext dbContext)
     {
         _dbSet = dbContext.Set<TEntity>();
     }

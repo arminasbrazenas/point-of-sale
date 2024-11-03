@@ -5,13 +5,13 @@ using PointOfSale.DataAccess.Shared.Interceptors;
 
 namespace PointOfSale.DataAccess.Shared.Repositories;
 
-public class PointOfSaleDbContext : DbContext
+public class ApplicationDbContext : DbContext
 {
     private static readonly AuditingInterceptor AuditingInterceptor = new();
 
     public DbSet<Tax> Taxes { get; set; }
 
-    public PointOfSaleDbContext(DbContextOptions<PointOfSaleDbContext> options)
+    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         : base(options) { }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

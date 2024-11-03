@@ -28,8 +28,8 @@ public static class ConfigureServicesExtensions
 
     public static IServiceCollection AddDataAccessLayer(this IServiceCollection services, IConfiguration configuration)
     {
-        var connectionString = configuration.GetConnectionString("DefaultConnection");
-        services.AddDbContext<PointOfSaleDbContext>(o => o.UseNpgsql(connectionString));
+        var connectionString = configuration.GetConnectionString("Database");
+        services.AddDbContext<ApplicationDbContext>(o => o.UseNpgsql(connectionString));
 
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped<ITaxRepository, TaxRepository>();

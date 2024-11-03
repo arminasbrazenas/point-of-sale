@@ -10,7 +10,7 @@ using PointOfSale.DataAccess.Shared.Repositories;
 
 namespace PointOfSale.DataAccess.Shared.Migrations
 {
-    [DbContext(typeof(PointOfSaleDbContext))]
+    [DbContext(typeof(ApplicationDbContext))]
     partial class PointOfSaleDbContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)

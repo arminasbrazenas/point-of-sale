@@ -4,6 +4,7 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <RootNamespace>PointOfSale.BusinessLogic</RootNamespace>
+        <AssemblyName>PointOfSale.BusinessLogic</AssemblyName>
     </PropertyGroup>
     <ItemGroup>
       <Folder Include="Business\" />

@@ -6,10 +6,10 @@ namespace PointOfSale.DataAccess.Shared.Repositories;
 
 public class UnitOfWork : IUnitOfWork
 {
-    private readonly PointOfSaleDbContext _dbContext;
+    private readonly ApplicationDbContext _dbContext;
     private readonly IServiceProvider _serviceProvider;
 
-    public UnitOfWork(PointOfSaleDbContext dbContext, IServiceProvider serviceProvider)
+    public UnitOfWork(ApplicationDbContext dbContext, IServiceProvider serviceProvider)
     {
         _dbContext = dbContext;
         _serviceProvider = serviceProvider;

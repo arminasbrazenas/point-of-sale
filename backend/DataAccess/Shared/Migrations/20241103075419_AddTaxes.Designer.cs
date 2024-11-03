@@ -11,7 +11,7 @@ using PointOfSale.DataAccess.Shared.Repositories;
 
 namespace PointOfSale.DataAccess.Shared.Migrations
 {
-    [DbContext(typeof(PointOfSaleDbContext))]
+    [DbContext(typeof(ApplicationDbContext))]
     [Migration("20241103075419_AddTaxes")]
     partial class AddTaxes
     {

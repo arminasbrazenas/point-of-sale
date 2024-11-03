@@ -1,4 +1,5 @@
 .idea
+.containers
 
 *.suo
 *.user

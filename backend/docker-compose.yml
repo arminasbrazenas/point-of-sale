@@ -1,0 +1,25 @@
+﻿services:
+  pos.api:
+    image: pos-api:latest
+    container_name: pos.api
+    environment:
+      ASPNETCORE_ENVIRONMENT: "Development"
+    build:
+      context: .
+      dockerfile: Api/Dockerfile
+    ports:
+      - "8080:8080"
+      - "8081:8081"
+
+  pos.database:
+    image: postgres:latest
+    container_name: pos.database
+    environment:
+      - PGPORT=5433
+      - POSTGRES_DB=PointOfSale
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - ./.containers/pointofsale-db:/var/lib/postgresql/data
+    ports:
+      - "5433:5433"
