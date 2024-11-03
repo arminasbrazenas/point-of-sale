@@ -18,4 +18,15 @@ public class RepositoryBase<TEntity, TKey> : IRepositoryBase<TEntity, TKey>
     {
         _dbSet.Add(entity);
     }
+
+    public async Task<List<TEntity>> GetMany(IEnumerable<TKey> ids)
+    {
+        var distinctIds = ids.Distinct().ToList();
+        if (distinctIds.Count == 0)
+        {
+            return [];
+        }
+        
+        return await _dbSet.Join(distinctIds, e => e.Id, id => id, (e, _) => e).ToListAsync();
+    }
 }

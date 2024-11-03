@@ -5,4 +5,5 @@ public interface IRepositoryBase<TEntity, TKey>
     where TKey : notnull
 {
     void Add(TEntity entity);
+    Task<List<TEntity>> GetMany(IEnumerable<TKey> ids);
 }

@@ -22,6 +22,7 @@ public static class ConfigureServicesExtensions
     public static IServiceCollection AddBusinessLogicLayer(this IServiceCollection services)
     {
         services.AddScoped<ITaxService, TaxService>();
+        services.AddScoped<IProductService, ProductService>();
 
         return services;
     }
@@ -33,6 +34,7 @@ public static class ConfigureServicesExtensions
 
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped<ITaxRepository, TaxRepository>();
+        services.AddScoped<IProductRepository, ProductRepository>();
 
         return services;
     }

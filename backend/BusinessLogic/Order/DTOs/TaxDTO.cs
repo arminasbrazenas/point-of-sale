@@ -8,7 +8,7 @@ public record TaxDTO
     public required string Name { get; init; }
     public required decimal Rate { get; init; }
 
-    public static TaxDTO FromEntity(Tax tax)
+    public static TaxDTO Create(Tax tax)
     {
         return new TaxDTO
         {
