@@ -11,7 +11,7 @@ public class ProductRepository : RepositoryBase<Product, int>, IProductRepositor
     public ProductRepository(ApplicationDbContext dbContext)
         : base(dbContext) { }
 
-    protected override IPointOfSaleErrorMessage CreateEntityNotFoundErrorMessage(int id)
+    protected override IPointOfSaleErrorMessage GetEntityNotFoundErrorMessage(int id)
     {
         return new ProductNotFoundErrorMessage(id);
     }

@@ -11,7 +11,7 @@ public class TaxRepository : RepositoryBase<Tax, int>, ITaxRepository
     public TaxRepository(ApplicationDbContext dbContext)
         : base(dbContext) { }
 
-    protected override IPointOfSaleErrorMessage CreateEntityNotFoundErrorMessage(int id)
+    protected override IPointOfSaleErrorMessage GetEntityNotFoundErrorMessage(int id)
     {
         return new TaxNotFoundErrorMessage(id);
     }

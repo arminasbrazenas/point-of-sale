@@ -28,7 +28,7 @@ public abstract class RepositoryBase<TEntity, TKey> : IRepositoryBase<TEntity, T
             return entity;
         }
 
-        var errorMessage = CreateEntityNotFoundErrorMessage(id);
+        var errorMessage = GetEntityNotFoundErrorMessage(id);
         throw new EntityNotFoundException(errorMessage);
     }
 
@@ -53,5 +53,5 @@ public abstract class RepositoryBase<TEntity, TKey> : IRepositoryBase<TEntity, T
         _dbSet.Remove(entity);
     }
 
-    protected abstract IPointOfSaleErrorMessage CreateEntityNotFoundErrorMessage(TKey id);
+    protected abstract IPointOfSaleErrorMessage GetEntityNotFoundErrorMessage(TKey id);
 }
