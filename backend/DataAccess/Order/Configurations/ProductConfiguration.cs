@@ -19,6 +19,6 @@ public class ProductConfiguration : IEntityTypeConfiguration<Product>
 
         builder.HasMany(p => p.Taxes).WithMany(t => t.Products);
 
-        builder.ToTable("Products", OrderConstants.SchemaName);
+        builder.ToTable(ProductConstants.TableName, OrderConstants.SchemaName);
     }
 }

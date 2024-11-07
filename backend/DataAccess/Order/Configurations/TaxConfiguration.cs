@@ -15,6 +15,6 @@ public class TaxConfiguration : IEntityTypeConfiguration<Tax>
 
         builder.Property(t => t.Rate).IsRequired();
 
-        builder.ToTable("Taxes", OrderConstants.SchemaName);
+        builder.ToTable(TaxConstants.TableName, OrderConstants.SchemaName);
     }
 }
