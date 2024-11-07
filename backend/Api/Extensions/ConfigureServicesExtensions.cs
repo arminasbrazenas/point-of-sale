@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using PointOfSale.BusinessLogic.Order.Interfaces;
 using PointOfSale.BusinessLogic.Order.Services;
+using PointOfSale.BusinessLogic.Order.Validation;
 using PointOfSale.DataAccess.Order.Interfaces;
 using PointOfSale.DataAccess.Order.Repositories;
 using PointOfSale.DataAccess.Shared.Interfaces;
@@ -23,6 +24,7 @@ public static class ConfigureServicesExtensions
     {
         services.AddScoped<ITaxService, TaxService>();
         services.AddScoped<IProductService, ProductService>();
+        services.AddScoped<IProductValidator, ProductValidator>();
 
         return services;
     }

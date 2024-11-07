@@ -4,6 +4,7 @@ namespace PointOfSale.BusinessLogic.Order.DTOs;
 
 public record ProductDTO
 {
+    public required int Id { get; init; }
     public required string Name { get; init; }
     public required decimal Price { get; init; }
     public required int Stock { get; init; }
@@ -12,6 +13,7 @@ public record ProductDTO
     {
         return new ProductDTO
         {
+            Id = product.Id,
             Name = product.Name,
             Price = product.Price + CalculateTaxTotal(product),
             Stock = product.Stock,

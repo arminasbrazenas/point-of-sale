@@ -45,6 +45,7 @@ public class ExceptionHandlingMiddleware
         ex switch
         {
             EntityNotFoundException => StatusCodes.Status404NotFound,
+            ValidationException => StatusCodes.Status422UnprocessableEntity,
             _ => StatusCodes.Status500InternalServerError,
         };
 
