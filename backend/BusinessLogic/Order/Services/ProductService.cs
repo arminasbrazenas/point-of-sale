@@ -14,7 +14,11 @@ public class ProductService : IProductService
     private readonly IProductRepository _productRepository;
     private readonly IProductValidator _productValidator;
 
-    public ProductService(IUnitOfWork unitOfWork, IProductRepository productRepository, IProductValidator productValidator)
+    public ProductService(
+        IUnitOfWork unitOfWork,
+        IProductRepository productRepository,
+        IProductValidator productValidator
+    )
     {
         _unitOfWork = unitOfWork;
         _productRepository = productRepository;
@@ -45,7 +49,7 @@ public class ProductService : IProductService
     public async Task<ProductDTO> UpdateProduct(int productId, UpdateProductDTO updateProductDTO)
     {
         var product = await _productRepository.GetWithTaxes(productId);
-        
+
         if (updateProductDTO.Name is not null)
         {
             product.Name = await _productValidator.ValidateName(updateProductDTO.Name);
@@ -65,7 +69,7 @@ public class ProductService : IProductService
         {
             product.Taxes = await _productValidator.ValidateTaxes(updateProductDTO.TaxIds);
         }
-        
+
         _productRepository.Update(product);
         await _unitOfWork.SaveChanges();
 
@@ -82,7 +86,7 @@ public class ProductService : IProductService
     {
         var paginationFilter = PaginationFilter.Create(paginationFilterDTO.Page, paginationFilterDTO.ItemsPerPage);
         var products = await _productRepository.GetPaginatedWithTaxes(paginationFilter);
-        
+
         return new PaginatedResponseDTO<ProductDTO>
         {
             Page = paginationFilter.Page,

@@ -60,7 +60,7 @@ public abstract class RepositoryBase<TEntity, TKey> : IRepositoryBase<TEntity, T
             .Skip((paginationFilter.Page - 1) * paginationFilter.ItemsPerPage)
             .Take(paginationFilter.ItemsPerPage)
             .AsNoTracking();
-        
+
         return await query.ToListAsync();
     }
 

@@ -16,10 +16,7 @@ public class ProductRepository : RepositoryBase<Product, int>, IProductRepositor
 
     public async Task<Product> GetWithTaxes(int productId)
     {
-        var product = await DbSet
-            .Include(p => p.Taxes)
-            .Where(p => p.Id == productId)
-            .FirstOrDefaultAsync();
+        var product = await DbSet.Include(p => p.Taxes).Where(p => p.Id == productId).FirstOrDefaultAsync();
 
         return product ?? throw new EntityNotFoundException(GetEntityNotFoundErrorMessage(productId));
     }

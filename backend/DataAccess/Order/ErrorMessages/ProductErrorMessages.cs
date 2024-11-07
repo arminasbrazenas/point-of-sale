@@ -22,7 +22,7 @@ public class ProductNameEmptyErrorMessage : IPointOfSaleErrorMessage
 public class ProductNameTooLongErrorMessage : IPointOfSaleErrorMessage
 {
     private readonly int _maxLength;
-    
+
     public ProductNameTooLongErrorMessage(int maxLength)
     {
         _maxLength = maxLength;

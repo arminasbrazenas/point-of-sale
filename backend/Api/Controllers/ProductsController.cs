@@ -33,7 +33,8 @@ public class ProductsController : ControllerBase
 
     [HttpGet]
     public async Task<ActionResult<PaginatedResponseDTO<ProductDTO>>> GetProducts(
-        [FromQuery] PaginationFilterDTO paginationFilterDTO)
+        [FromQuery] PaginationFilterDTO paginationFilterDTO
+    )
     {
         var products = await _productService.GetProducts(paginationFilterDTO);
         return Ok(products);
@@ -41,7 +42,10 @@ public class ProductsController : ControllerBase
 
     [HttpPatch]
     [Route("{productId:int}")]
-    public async Task<ActionResult<ProductDTO>> UpdateProduct([FromRoute] int productId, [FromBody] UpdateProductDTO updateProductDTO)
+    public async Task<ActionResult<ProductDTO>> UpdateProduct(
+        [FromRoute] int productId,
+        [FromBody] UpdateProductDTO updateProductDTO
+    )
     {
         var product = await _productService.UpdateProduct(productId, updateProductDTO);
         return Ok(product);

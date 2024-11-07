@@ -17,7 +17,7 @@ public class ProductValidator : IProductValidator
         _productRepository = productRepository;
         _taxRepository = taxRepository;
     }
-    
+
     public async Task<string> ValidateName(string name)
     {
         if (string.IsNullOrWhiteSpace(name))
@@ -30,7 +30,7 @@ public class ProductValidator : IProductValidator
         {
             throw new ValidationException(new ProductNameTooLongErrorMessage(ProductConstants.NameMaxLength));
         }
-        
+
         // TODO: check by (business id, name)
         var existingProduct = await _productRepository.GetByNameOptional(name);
         if (existingProduct is not null)
@@ -67,7 +67,7 @@ public class ProductValidator : IProductValidator
         {
             return [];
         }
-        
+
         if (taxIds.Count != taxIds.Distinct().Count())
         {
             throw new ValidationException(new ProductDuplicateTaxErrorMessage());

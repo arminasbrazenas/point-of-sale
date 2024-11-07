@@ -22,6 +22,6 @@ public class TaxesNotFoundErrorMessage : IPointOfSaleErrorMessage
     {
         _taxIds = taxIds;
     }
-    
+
     public string En => $"Tax with ids '{string.Join("; ", _taxIds)}' were not found.";
 }

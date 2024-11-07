@@ -6,13 +6,11 @@ namespace PointOfSale.DataAccess.Shared.DTOs;
 public record PaginationFilter
 {
     private const int MaxItemsPerPage = 50;
-    
+
     public required int Page { get; init; }
     public required int ItemsPerPage { get; init; }
 
-    private PaginationFilter()
-    {
-    }
+    private PaginationFilter() { }
 
     public static PaginationFilter Create(int page, int itemsPerPage)
     {
@@ -31,10 +29,6 @@ public record PaginationFilter
             throw new ValidationException(new PaginationFilterItemCountTooBigErrorMessage(MaxItemsPerPage));
         }
 
-        return new PaginationFilter
-        {
-            Page = page,
-            ItemsPerPage = itemsPerPage
-        };
+        return new PaginationFilter { Page = page, ItemsPerPage = itemsPerPage };
     }
 }
