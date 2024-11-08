@@ -1,3 +1,5 @@
+using PointOfSale.Models.Shared.Interfaces;
+
 namespace PointOfSale.DataAccess.Shared.Interfaces;
 
 public interface IRepositoryBase<TEntity, TKey>

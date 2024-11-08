@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using PointOfSale.DataAccess.Shared.Interfaces;
+using PointOfSale.Models.Shared.Interfaces;
 
 namespace PointOfSale.DataAccess.Shared.Interceptors;
 

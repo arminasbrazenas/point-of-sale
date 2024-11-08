@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using PointOfSale.DataAccess;
 using PointOfSale.DataAccess.Shared.Repositories;
 
 namespace PointOfSale.Api.Extensions;

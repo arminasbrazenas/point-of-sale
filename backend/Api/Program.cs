@@ -3,7 +3,7 @@ using PointOfSale.Api.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddDataAccessLayer(builder.Configuration).AddBusinessLogicLayer().AddApiLayer();
+builder.Services.AddSharedServices(builder.Configuration).AddOrderManagement();
 
 var app = builder.Build();
 

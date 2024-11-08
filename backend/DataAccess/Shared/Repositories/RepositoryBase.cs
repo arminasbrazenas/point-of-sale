@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using PointOfSale.DataAccess.Shared.DTOs;
 using PointOfSale.DataAccess.Shared.Exceptions;
 using PointOfSale.DataAccess.Shared.Interfaces;
+using PointOfSale.Models.Shared.Interfaces;
 
 namespace PointOfSale.DataAccess.Shared.Repositories;
 

@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
-using PointOfSale.BusinessLogic.Order.DTOs;
-using PointOfSale.BusinessLogic.Order.Interfaces;
+using PointOfSale.BusinessLogic.OrderManagement.DTOs;
+using PointOfSale.BusinessLogic.OrderManagement.Interfaces;
 using PointOfSale.BusinessLogic.Shared.DTOs;
 
 namespace PointOfSale.Api.Controllers;
