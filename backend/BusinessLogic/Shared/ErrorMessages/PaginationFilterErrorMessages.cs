@@ -1,6 +1,6 @@
 using PointOfSale.DataAccess.Shared.Interfaces;
 
-namespace PointOfSale.DataAccess.Shared.ErrorMessages;
+namespace PointOfSale.BusinessLogic.Shared.ErrorMessages;
 
 public class PaginationFilterPageNotPositiveErrorMessage : IPointOfSaleErrorMessage
 {

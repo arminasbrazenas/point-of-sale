@@ -1,9 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using PointOfSale.DataAccess.OrderManagement.ErrorMessages;
 using PointOfSale.DataAccess.OrderManagement.Interfaces;
-using PointOfSale.DataAccess.Shared.DTOs;
 using PointOfSale.DataAccess.Shared.Exceptions;
 using PointOfSale.DataAccess.Shared.Interfaces;
+using PointOfSale.DataAccess.Shared.Models;
 using PointOfSale.DataAccess.Shared.Repositories;
 using PointOfSale.Models.OrderManagement.Entities;
 

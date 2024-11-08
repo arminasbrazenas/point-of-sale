@@ -7,9 +7,8 @@ namespace PointOfSale.DataAccess.OrderManagement.Repositories;
 
 public class OrderItemRepository : RepositoryBase<OrderItem, int>, IOrderItemRepository
 {
-    public OrderItemRepository(ApplicationDbContext dbContext) : base(dbContext)
-    {
-    }
+    public OrderItemRepository(ApplicationDbContext dbContext)
+        : base(dbContext) { }
 
     protected override IPointOfSaleErrorMessage GetEntityNotFoundErrorMessage(int id)
     {

@@ -1,4 +1,5 @@
 using PointOfSale.Api.DTOs;
+using PointOfSale.BusinessLogic.Shared.Exceptions;
 using PointOfSale.DataAccess.Shared.Exceptions;
 
 namespace PointOfSale.Api.Middlewares;

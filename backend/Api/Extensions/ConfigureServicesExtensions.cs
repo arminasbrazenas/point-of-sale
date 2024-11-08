@@ -17,11 +17,11 @@ public static class ConfigureServicesExtensions
         var connectionString = configuration.GetConnectionString("Database");
         services.AddDbContext<ApplicationDbContext>(o => o.UseNpgsql(connectionString));
         services.AddScoped<IUnitOfWork, UnitOfWork>();
-        
+
         services.AddControllers();
         services.AddEndpointsApiExplorer();
         services.AddSwaggerGen();
-        
+
         return services;
     }
 
@@ -31,11 +31,11 @@ public static class ConfigureServicesExtensions
         services.AddScoped<IProductRepository, ProductRepository>();
         services.AddScoped<IOrderItemRepository, OrderItemRepository>();
         services.AddScoped<IOrderRepository, OrderRepository>();
-        
+
         services.AddScoped<ITaxService, TaxService>();
         services.AddScoped<IProductService, ProductService>();
         services.AddScoped<IOrderService, OrderService>();
-        
+
         services.AddScoped<IProductValidator, ProductValidator>();
 
         return services;

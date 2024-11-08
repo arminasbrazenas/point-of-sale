@@ -1,6 +1,7 @@
+using PointOfSale.DataAccess.Shared.Exceptions;
 using PointOfSale.DataAccess.Shared.Interfaces;
 
-namespace PointOfSale.DataAccess.Shared.Exceptions;
+namespace PointOfSale.BusinessLogic.Shared.Exceptions;
 
 public class ValidationException : PointOfSaleException
 {

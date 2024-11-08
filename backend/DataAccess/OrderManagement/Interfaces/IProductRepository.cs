@@ -1,5 +1,5 @@
-using PointOfSale.DataAccess.Shared.DTOs;
 using PointOfSale.DataAccess.Shared.Interfaces;
+using PointOfSale.DataAccess.Shared.Models;
 using PointOfSale.Models.OrderManagement.Entities;
 
 namespace PointOfSale.DataAccess.OrderManagement.Interfaces;

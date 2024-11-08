@@ -7,7 +7,7 @@ namespace PointOfSale.BusinessLogic.OrderManagement.Services;
 public class OrderService : IOrderService
 {
     private readonly IUnitOfWork _unitOfWork;
-    
+
     public Task<OrderDTO> CreateOrder(CreateOrderDTO createOrderDTO)
     {
         throw new NotImplementedException();

@@ -5,5 +5,5 @@ public enum OrderStatus
     Open = 1,
     Closed,
     Canceled,
-    Refunded
+    Refunded,
 }

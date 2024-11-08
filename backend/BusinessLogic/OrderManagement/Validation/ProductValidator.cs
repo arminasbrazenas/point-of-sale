@@ -1,8 +1,8 @@
 using PointOfSale.BusinessLogic.OrderManagement.Interfaces;
+using PointOfSale.BusinessLogic.Shared.Exceptions;
 using PointOfSale.DataAccess.OrderManagement;
 using PointOfSale.DataAccess.OrderManagement.ErrorMessages;
 using PointOfSale.DataAccess.OrderManagement.Interfaces;
-using PointOfSale.DataAccess.Shared.Exceptions;
 using PointOfSale.Models.OrderManagement.Entities;
 
 namespace PointOfSale.BusinessLogic.OrderManagement.Validation;

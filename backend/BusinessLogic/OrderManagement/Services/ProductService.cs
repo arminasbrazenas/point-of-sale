@@ -1,8 +1,8 @@
 using PointOfSale.BusinessLogic.OrderManagement.DTOs;
 using PointOfSale.BusinessLogic.OrderManagement.Interfaces;
 using PointOfSale.BusinessLogic.Shared.DTOs;
+using PointOfSale.BusinessLogic.Shared.Factories;
 using PointOfSale.DataAccess.OrderManagement.Interfaces;
-using PointOfSale.DataAccess.Shared.DTOs;
 using PointOfSale.DataAccess.Shared.Interfaces;
 using PointOfSale.Models.OrderManagement.Entities;
 
@@ -84,7 +84,7 @@ public class ProductService : IProductService
 
     public async Task<PaginatedResponseDTO<ProductDTO>> GetProducts(PaginationFilterDTO paginationFilterDTO)
     {
-        var paginationFilter = PaginationFilter.Create(paginationFilterDTO.Page, paginationFilterDTO.ItemsPerPage);
+        var paginationFilter = PaginationFilterFactory.Create(paginationFilterDTO);
         var products = await _productRepository.GetPaginatedWithTaxes(paginationFilter);
 
         return new PaginatedResponseDTO<ProductDTO>

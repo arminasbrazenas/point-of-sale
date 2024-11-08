@@ -13,7 +13,11 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
     {
         builder.HasKey(o => o.Id);
 
-        builder.Property(o => o.Status).HasConversion(new EnumToStringConverter<OrderStatus>()).HasMaxLength(SharedConstants.EnumMaxLength).IsRequired();
+        builder
+            .Property(o => o.Status)
+            .HasConversion(new EnumToStringConverter<OrderStatus>())
+            .HasMaxLength(SharedConstants.EnumMaxLength)
+            .IsRequired();
 
         builder.HasMany(o => o.Items).WithOne(i => i.Order).HasForeignKey(i => i.OrderId).IsRequired();
 
