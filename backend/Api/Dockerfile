@@ -10,6 +10,7 @@ WORKDIR /src
 COPY ["Api/Api.csproj", "Api/"]
 COPY ["BusinessLogic/BusinessLogic.csproj", "BusinessLogic/"]
 COPY ["DataAccess/DataAccess.csproj", "DataAccess/"]
+COPY ["Models/Models.csproj", "Models/"]
 RUN dotnet restore "Api/Api.csproj"
 COPY . .
 WORKDIR "/src/Api"
