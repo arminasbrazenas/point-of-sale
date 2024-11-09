@@ -39,4 +39,23 @@ public class OrdersController : ControllerBase
         var order = await _orderService.GetOrder(orderId);
         return Ok(order);
     }
+
+    [HttpPatch]
+    [Route("{orderId:int}")]
+    public async Task<ActionResult<OrderDTO>> UpdateOrder(
+        [FromRoute] int orderId,
+        [FromBody] UpdateOrderDTO updateOrderDTO
+    )
+    {
+        var order = await _orderService.UpdateOrder(orderId, updateOrderDTO);
+        return Ok(order);
+    }
+
+    [HttpPost]
+    [Route("{orderId:int}/cancel")]
+    public async Task<IActionResult> CancelOrder([FromRoute] int orderId)
+    {
+        await _orderService.CancelOrder(orderId);
+        return NoContent();
+    }
 }

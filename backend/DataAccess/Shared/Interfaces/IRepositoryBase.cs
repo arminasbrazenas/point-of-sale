@@ -10,5 +10,6 @@ public interface IRepositoryBase<TEntity, TKey>
     Task<TEntity> Get(TKey id);
     Task<List<TEntity>> GetMany(IEnumerable<TKey> ids);
     Task Delete(TKey id);
+    void DeleteMany(IEnumerable<TEntity> entities);
     void Update(TEntity entity);
 }

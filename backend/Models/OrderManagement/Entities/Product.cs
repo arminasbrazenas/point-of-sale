@@ -8,4 +8,5 @@ public class Product : EntityBase<int>
     public required decimal Price { get; set; }
     public required int Stock { get; set; }
     public required List<Tax> Taxes { get; set; }
+    public byte[] RowVersion { get; set; } = null!;
 }

@@ -17,6 +17,8 @@ public class ProductConfiguration : IEntityTypeConfiguration<Product>
 
         builder.Property(p => p.Stock).IsRequired();
 
+        builder.Property(p => p.RowVersion).IsRowVersion();
+
         builder
             .Property(p => p.Price)
             .HasPrecision(SharedConstants.MoneyPrecision, SharedConstants.MoneyScale)

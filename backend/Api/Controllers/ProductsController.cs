@@ -56,6 +56,6 @@ public class ProductsController : ControllerBase
     public async Task<IActionResult> DeleteProduct([FromRoute] int productId)
     {
         await _productService.DeleteProduct(productId);
-        return Ok();
+        return NoContent();
     }
 }

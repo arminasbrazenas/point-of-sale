@@ -50,6 +50,11 @@ public abstract class RepositoryBase<TEntity, TKey> : IRepositoryBase<TEntity, T
         await DbSet.Where(e => e.Id.Equals(id)).ExecuteDeleteAsync();
     }
 
+    public void DeleteMany(IEnumerable<TEntity> entities)
+    {
+        DbSet.RemoveRange(entities);
+    }
+
     public void Update(TEntity entity)
     {
         DbSet.Update(entity);
