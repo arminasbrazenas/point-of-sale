@@ -5,6 +5,6 @@ namespace PointOfSale.Models.OrderManagement.Entities;
 
 public class Order : EntityBase<int>
 {
-    public OrderStatus Status { get; set; }
-    public List<OrderItem> Items { get; set; }
+    public required OrderStatus Status { get; set; }
+    public required List<OrderItem> Items { get; set; }
 }

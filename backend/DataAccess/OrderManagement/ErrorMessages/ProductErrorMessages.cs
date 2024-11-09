@@ -57,3 +57,17 @@ public class ProductDuplicateTaxErrorMessage : IPointOfSaleErrorMessage
 {
     public string En => "Same tax cannot be applied to the same product multiple times.";
 }
+
+public class ProductOutOfStockErrorMessage : IPointOfSaleErrorMessage
+{
+    private readonly string _productName;
+    private readonly int _availableStock;
+
+    public ProductOutOfStockErrorMessage(string productName, int availableStock)
+    {
+        _productName = productName;
+        _availableStock = availableStock;
+    }
+
+    public string En => $"Product '{_productName}' is out of stock. Available stock is {_availableStock}.";
+}

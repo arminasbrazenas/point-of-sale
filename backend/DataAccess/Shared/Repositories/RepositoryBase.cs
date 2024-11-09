@@ -55,7 +55,7 @@ public abstract class RepositoryBase<TEntity, TKey> : IRepositoryBase<TEntity, T
         DbSet.Update(entity);
     }
 
-    protected async Task<List<TEntity>> GetPaginated(IQueryable<TEntity> query, PaginationFilter paginationFilter)
+    protected async Task<List<TEntity>> GetPaged(IQueryable<TEntity> query, PaginationFilter paginationFilter)
     {
         query = query
             .Skip((paginationFilter.Page - 1) * paginationFilter.ItemsPerPage)

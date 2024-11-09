@@ -10,11 +10,13 @@ public class TaxService : ITaxService
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly ITaxRepository _taxRepository;
+    private readonly ITaxMappingService _taxMappingService;
 
-    public TaxService(IUnitOfWork unitOfWork, ITaxRepository taxRepository)
+    public TaxService(IUnitOfWork unitOfWork, ITaxRepository taxRepository, ITaxMappingService taxMappingService)
     {
         _unitOfWork = unitOfWork;
         _taxRepository = taxRepository;
+        _taxMappingService = taxMappingService;
     }
 
     public async Task<TaxDTO> CreateTax(CreateTaxDTO createTaxDTO)
@@ -31,13 +33,13 @@ public class TaxService : ITaxService
         _taxRepository.Add(tax);
         await _unitOfWork.SaveChanges();
 
-        return TaxDTO.Create(tax);
+        return _taxMappingService.MapToTaxDTO(tax);
     }
 
     public async Task<TaxDTO> GetTax(int taxId)
     {
         var tax = await _taxRepository.Get(taxId);
-        return TaxDTO.Create(tax);
+        return _taxMappingService.MapToTaxDTO(tax);
     }
 
     public async Task DeleteTax(int taxId)

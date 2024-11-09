@@ -8,6 +8,6 @@ public interface IProductService
     Task<ProductDTO> CreateProduct(CreateProductDTO createProductDTO);
     Task<ProductDTO> UpdateProduct(int productId, UpdateProductDTO updateProductDTO);
     Task<ProductDTO> GetProduct(int productId);
-    Task<PaginatedResponseDTO<ProductDTO>> GetProducts(PaginationFilterDTO paginationFilterDTO);
+    Task<PagedResponseDTO<ProductDTO>> GetProducts(PaginationFilterDTO paginationFilterDTO);
     Task DeleteProduct(int productId);
 }

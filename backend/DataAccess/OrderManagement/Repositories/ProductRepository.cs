@@ -29,7 +29,7 @@ public class ProductRepository : RepositoryBase<Product, int>, IProductRepositor
     public async Task<List<Product>> GetPaginatedWithTaxes(PaginationFilter paginationFilter)
     {
         var query = DbSet.Include(p => p.Taxes).AsQueryable();
-        return await GetPaginated(query, paginationFilter);
+        return await GetPaged(query, paginationFilter);
     }
 
     protected override IPointOfSaleErrorMessage GetEntityNotFoundErrorMessage(int id)

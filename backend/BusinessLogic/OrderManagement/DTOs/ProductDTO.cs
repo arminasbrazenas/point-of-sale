@@ -1,5 +1,3 @@
-using PointOfSale.Models.OrderManagement.Entities;
-
 namespace PointOfSale.BusinessLogic.OrderManagement.DTOs;
 
 public record ProductDTO
@@ -8,20 +6,4 @@ public record ProductDTO
     public required string Name { get; init; }
     public required decimal Price { get; init; }
     public required int Stock { get; init; }
-
-    public static ProductDTO Create(Product product)
-    {
-        return new ProductDTO
-        {
-            Id = product.Id,
-            Name = product.Name,
-            Price = product.Price + CalculateTaxTotal(product),
-            Stock = product.Stock,
-        };
-    }
-
-    private static decimal CalculateTaxTotal(Product product)
-    {
-        return product.Taxes.Sum(tax => product.Price * tax.Rate);
-    }
 }

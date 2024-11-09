@@ -1,7 +1,7 @@
+using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 using PointOfSale.BusinessLogic.OrderManagement.Interfaces;
 using PointOfSale.BusinessLogic.OrderManagement.Services;
-using PointOfSale.BusinessLogic.OrderManagement.Validation;
 using PointOfSale.DataAccess;
 using PointOfSale.DataAccess.OrderManagement.Interfaces;
 using PointOfSale.DataAccess.OrderManagement.Repositories;
@@ -18,7 +18,14 @@ public static class ConfigureServicesExtensions
         services.AddDbContext<ApplicationDbContext>(o => o.UseNpgsql(connectionString));
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
-        services.AddControllers();
+        services
+            .AddControllers()
+            .AddJsonOptions(options =>
+            {
+                options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+                options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+            });
+
         services.AddEndpointsApiExplorer();
         services.AddSwaggerGen();
 
@@ -33,10 +40,12 @@ public static class ConfigureServicesExtensions
         services.AddScoped<IOrderRepository, OrderRepository>();
 
         services.AddScoped<ITaxService, TaxService>();
+        services.AddScoped<ITaxMappingService, TaxMappingService>();
         services.AddScoped<IProductService, ProductService>();
+        services.AddScoped<IProductValidationService, ProductValidationService>();
+        services.AddScoped<IProductMappingService, ProductMappingService>();
         services.AddScoped<IOrderService, OrderService>();
-
-        services.AddScoped<IProductValidator, ProductValidator>();
+        services.AddScoped<IOrderMappingService, OrderMappingService>();
 
         return services;
     }

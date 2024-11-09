@@ -2,5 +2,5 @@ namespace PointOfSale.BusinessLogic.OrderManagement.DTOs;
 
 public record CreateOrderDTO
 {
-    public required List<CreateOrderOrderItemDTO> OrderItems { get; init; }
+    public required List<CreateOrderItemDTO> OrderItems { get; init; }
 }

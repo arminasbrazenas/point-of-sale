@@ -9,6 +9,8 @@ namespace PointOfSale.DataAccess.OrderManagement.Configurations;
 
 public class OrderConfiguration : IEntityTypeConfiguration<Order>
 {
+    public const string TableName = "Orders";
+
     public void Configure(EntityTypeBuilder<Order> builder)
     {
         builder.HasKey(o => o.Id);
@@ -21,6 +23,6 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
 
         builder.HasMany(o => o.Items).WithOne(i => i.Order).HasForeignKey(i => i.OrderId).IsRequired();
 
-        builder.ToTable(Constants.OrderTableName, Constants.SchemaName);
+        builder.ToTable(TableName, Constants.SchemaName);
     }
 }

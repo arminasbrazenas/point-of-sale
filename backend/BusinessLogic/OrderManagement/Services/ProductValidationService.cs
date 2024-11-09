@@ -5,14 +5,14 @@ using PointOfSale.DataAccess.OrderManagement.ErrorMessages;
 using PointOfSale.DataAccess.OrderManagement.Interfaces;
 using PointOfSale.Models.OrderManagement.Entities;
 
-namespace PointOfSale.BusinessLogic.OrderManagement.Validation;
+namespace PointOfSale.BusinessLogic.OrderManagement.Services;
 
-public class ProductValidator : IProductValidator
+public class ProductValidationService : IProductValidationService
 {
     private readonly IProductRepository _productRepository;
     private readonly ITaxRepository _taxRepository;
 
-    public ProductValidator(IProductRepository productRepository, ITaxRepository taxRepository)
+    public ProductValidationService(IProductRepository productRepository, ITaxRepository taxRepository)
     {
         _productRepository = productRepository;
         _taxRepository = taxRepository;

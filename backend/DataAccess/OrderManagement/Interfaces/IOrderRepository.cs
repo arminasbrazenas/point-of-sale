@@ -1,6 +1,11 @@
 using PointOfSale.DataAccess.Shared.Interfaces;
+using PointOfSale.DataAccess.Shared.Models;
 using PointOfSale.Models.OrderManagement.Entities;
 
 namespace PointOfSale.DataAccess.OrderManagement.Interfaces;
 
-public interface IOrderRepository : IRepositoryBase<Order, int> { }
+public interface IOrderRepository : IRepositoryBase<Order, int>
+{
+    Task<List<Order>> GetMinimalWithFilter(PaginationFilter paginationFilter);
+    Task<Order> GetWithOrderItems(int orderId);
+}

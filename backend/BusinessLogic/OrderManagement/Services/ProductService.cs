@@ -12,25 +12,28 @@ public class ProductService : IProductService
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IProductRepository _productRepository;
-    private readonly IProductValidator _productValidator;
+    private readonly IProductValidationService _productValidationService;
+    private readonly IProductMappingService _productMappingService;
 
     public ProductService(
         IUnitOfWork unitOfWork,
         IProductRepository productRepository,
-        IProductValidator productValidator
+        IProductValidationService productValidationService,
+        IProductMappingService productMappingService
     )
     {
         _unitOfWork = unitOfWork;
         _productRepository = productRepository;
-        _productValidator = productValidator;
+        _productValidationService = productValidationService;
+        _productMappingService = productMappingService;
     }
 
     public async Task<ProductDTO> CreateProduct(CreateProductDTO createProductDTO)
     {
-        var name = await _productValidator.ValidateName(createProductDTO.Name);
-        var price = _productValidator.ValidatePrice(createProductDTO.Price);
-        var stock = _productValidator.ValidateStock(createProductDTO.Stock);
-        var taxes = await _productValidator.ValidateTaxes(createProductDTO.TaxIds);
+        var name = await _productValidationService.ValidateName(createProductDTO.Name);
+        var price = _productValidationService.ValidatePrice(createProductDTO.Price);
+        var stock = _productValidationService.ValidateStock(createProductDTO.Stock);
+        var taxes = await _productValidationService.ValidateTaxes(createProductDTO.TaxIds);
 
         var product = new Product
         {
@@ -43,7 +46,7 @@ public class ProductService : IProductService
         _productRepository.Add(product);
         await _unitOfWork.SaveChanges();
 
-        return ProductDTO.Create(product);
+        return _productMappingService.MapToProductDTO(product);
     }
 
     public async Task<ProductDTO> UpdateProduct(int productId, UpdateProductDTO updateProductDTO)
@@ -52,47 +55,41 @@ public class ProductService : IProductService
 
         if (updateProductDTO.Name is not null)
         {
-            product.Name = await _productValidator.ValidateName(updateProductDTO.Name);
+            product.Name = await _productValidationService.ValidateName(updateProductDTO.Name);
         }
 
         if (updateProductDTO.Price.HasValue)
         {
-            product.Price = _productValidator.ValidatePrice(updateProductDTO.Price.Value);
+            product.Price = _productValidationService.ValidatePrice(updateProductDTO.Price.Value);
         }
 
         if (updateProductDTO.Stock.HasValue)
         {
-            product.Stock = _productValidator.ValidateStock(updateProductDTO.Stock.Value);
+            product.Stock = _productValidationService.ValidateStock(updateProductDTO.Stock.Value);
         }
 
         if (updateProductDTO.TaxIds is not null)
         {
-            product.Taxes = await _productValidator.ValidateTaxes(updateProductDTO.TaxIds);
+            product.Taxes = await _productValidationService.ValidateTaxes(updateProductDTO.TaxIds);
         }
 
         _productRepository.Update(product);
         await _unitOfWork.SaveChanges();
 
-        return ProductDTO.Create(product);
+        return _productMappingService.MapToProductDTO(product);
     }
 
     public async Task<ProductDTO> GetProduct(int productId)
     {
         var product = await _productRepository.GetWithTaxes(productId);
-        return ProductDTO.Create(product);
+        return _productMappingService.MapToProductDTO(product);
     }
 
-    public async Task<PaginatedResponseDTO<ProductDTO>> GetProducts(PaginationFilterDTO paginationFilterDTO)
+    public async Task<PagedResponseDTO<ProductDTO>> GetProducts(PaginationFilterDTO paginationFilterDTO)
     {
         var paginationFilter = PaginationFilterFactory.Create(paginationFilterDTO);
         var products = await _productRepository.GetPaginatedWithTaxes(paginationFilter);
-
-        return new PaginatedResponseDTO<ProductDTO>
-        {
-            Page = paginationFilter.Page,
-            ItemsPerPage = paginationFilter.ItemsPerPage,
-            Items = products.Select(ProductDTO.Create).ToList(),
-        };
+        return _productMappingService.MapToPagedProductDTO(products, paginationFilter);
     }
 
     public async Task DeleteProduct(int productId)

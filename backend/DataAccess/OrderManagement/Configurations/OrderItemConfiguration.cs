@@ -1,17 +1,29 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using PointOfSale.DataAccess.Shared;
 using PointOfSale.Models.OrderManagement.Entities;
 
 namespace PointOfSale.DataAccess.OrderManagement.Configurations;
 
 public class OrderItemConfiguration : IEntityTypeConfiguration<OrderItem>
 {
+    private const string TableName = "OrderItems";
+
     public void Configure(EntityTypeBuilder<OrderItem> builder)
     {
-        builder.HasKey(o => o.Id);
+        builder.HasKey(i => i.Id);
 
-        builder.HasOne(o => o.Product).WithMany().HasForeignKey(o => o.ProductId).IsRequired();
+        builder.Property(i => i.Name).HasMaxLength(Constants.ProductNameMaxLength).IsRequired();
 
-        builder.ToTable(Constants.OrderItemTableName, Constants.SchemaName);
+        builder
+            .Property(i => i.BaseUnitPrice)
+            .HasPrecision(SharedConstants.MoneyPrecision, SharedConstants.MoneyScale)
+            .IsRequired();
+
+        builder.HasOne(i => i.Product).WithMany().HasForeignKey(i => i.ProductId).IsRequired();
+
+        builder.HasMany(i => i.Taxes).WithOne(t => t.OrderItem).HasForeignKey(t => t.OrderItemId).IsRequired();
+
+        builder.ToTable(TableName, Constants.SchemaName);
     }
 }

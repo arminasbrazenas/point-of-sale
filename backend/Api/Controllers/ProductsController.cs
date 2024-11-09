@@ -32,7 +32,7 @@ public class ProductsController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<PaginatedResponseDTO<ProductDTO>>> GetProducts(
+    public async Task<ActionResult<PagedResponseDTO<ProductDTO>>> GetProducts(
         [FromQuery] PaginationFilterDTO paginationFilterDTO
     )
     {

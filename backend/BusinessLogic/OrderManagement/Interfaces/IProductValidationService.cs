@@ -2,7 +2,7 @@ using PointOfSale.Models.OrderManagement.Entities;
 
 namespace PointOfSale.BusinessLogic.OrderManagement.Interfaces;
 
-public interface IProductValidator
+public interface IProductValidationService
 {
     Task<string> ValidateName(string name);
     decimal ValidatePrice(decimal price);

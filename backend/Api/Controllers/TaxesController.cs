@@ -5,7 +5,7 @@ using PointOfSale.BusinessLogic.OrderManagement.Interfaces;
 namespace PointOfSale.Api.Controllers;
 
 [ApiController]
-[Route("taxes")]
+[Route("v1/taxes")]
 public class TaxesController : ControllerBase
 {
     private readonly ITaxService _taxService;
