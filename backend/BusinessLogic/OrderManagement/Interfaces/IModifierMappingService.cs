@@ -5,9 +5,8 @@ using PointOfSale.Models.OrderManagement.Entities;
 
 namespace PointOfSale.BusinessLogic.OrderManagement.Interfaces;
 
-public interface IOrderMappingService
+public interface IModifierMappingService
 {
-    OrderMinimalDTO MapToOrderMinimalDTO(Order order);
-    PagedResponseDTO<OrderMinimalDTO> MapToPagedOrderMinimalDTO(List<Order> orders, PaginationFilter paginationFilter);
-    OrderDTO MapToOrderDTO(Order order);
+    ModifierDTO MapToModifierDTO(Modifier modifier);
+    PagedResponseDTO<ModifierDTO> MapToPagedModifierDTO(List<Modifier> modifiers, PaginationFilter paginationFilter);
 }

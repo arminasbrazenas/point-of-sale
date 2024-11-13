@@ -14,6 +14,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<Order> Orders { get; set; }
     public DbSet<OrderItem> OrderItems { get; set; }
     public DbSet<OrderItemTax> OrderItemTaxes { get; set; }
+    public DbSet<Modifier> Modifiers { get; set; }
 
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         : base(options) { }

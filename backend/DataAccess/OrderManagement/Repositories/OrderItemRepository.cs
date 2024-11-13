@@ -1,3 +1,4 @@
+using PointOfSale.DataAccess.OrderManagement.ErrorMessages;
 using PointOfSale.DataAccess.OrderManagement.Interfaces;
 using PointOfSale.DataAccess.Shared.Interfaces;
 using PointOfSale.DataAccess.Shared.Repositories;
@@ -12,6 +13,6 @@ public class OrderItemRepository : RepositoryBase<OrderItem, int>, IOrderItemRep
 
     protected override IPointOfSaleErrorMessage GetEntityNotFoundErrorMessage(int id)
     {
-        throw new NotImplementedException();
+        return new OrderItemNotFoundErrorMessage(id);
     }
 }

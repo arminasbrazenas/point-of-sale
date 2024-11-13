@@ -1,7 +1,7 @@
 using PointOfSale.BusinessLogic.Shared.DTOs;
 using PointOfSale.BusinessLogic.Shared.ErrorMessages;
 using PointOfSale.BusinessLogic.Shared.Exceptions;
-using PointOfSale.DataAccess.Shared.Models;
+using PointOfSale.DataAccess.Shared.Filters;
 
 namespace PointOfSale.BusinessLogic.Shared.Factories;
 

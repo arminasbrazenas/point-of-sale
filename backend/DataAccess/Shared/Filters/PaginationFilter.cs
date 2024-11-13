@@ -1,4 +1,4 @@
-namespace PointOfSale.DataAccess.Shared.Models;
+namespace PointOfSale.DataAccess.Shared.Filters;
 
 public record PaginationFilter
 {

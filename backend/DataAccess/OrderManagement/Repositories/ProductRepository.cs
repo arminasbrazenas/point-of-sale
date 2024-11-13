@@ -2,8 +2,8 @@ using Microsoft.EntityFrameworkCore;
 using PointOfSale.DataAccess.OrderManagement.ErrorMessages;
 using PointOfSale.DataAccess.OrderManagement.Interfaces;
 using PointOfSale.DataAccess.Shared.Exceptions;
+using PointOfSale.DataAccess.Shared.Filters;
 using PointOfSale.DataAccess.Shared.Interfaces;
-using PointOfSale.DataAccess.Shared.Models;
 using PointOfSale.DataAccess.Shared.Repositories;
 using PointOfSale.Models.OrderManagement.Entities;
 
@@ -18,6 +18,13 @@ public class ProductRepository : RepositoryBase<Product, int>, IProductRepositor
     {
         var product = await DbSet.Include(p => p.Taxes).Where(p => p.Id == productId).FirstOrDefaultAsync();
 
+        return product ?? throw new EntityNotFoundException(GetEntityNotFoundErrorMessage(productId));
+    }
+    
+    public async Task<Product> GetWithModifiers(int productId)
+    {
+        var product = await DbSet.Include(p => p.Modifiers).Where(p => p.Id == productId).FirstOrDefaultAsync();
+        
         return product ?? throw new EntityNotFoundException(GetEntityNotFoundErrorMessage(productId));
     }
 
