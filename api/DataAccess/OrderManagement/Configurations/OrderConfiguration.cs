@@ -9,8 +9,8 @@ namespace PointOfSale.DataAccess.OrderManagement.Configurations;
 
 public class OrderConfiguration : IEntityTypeConfiguration<Order>
 {
-    public const string TableName = "Orders";
-
+    private const string TableName = "Orders";
+ 
     public void Configure(EntityTypeBuilder<Order> builder)
     {
         builder.HasKey(o => o.Id);
