@@ -7,12 +7,12 @@ using PointOfSale.Models.OrderManagement.Entities;
 
 namespace PointOfSale.DataAccess.OrderManagement.Repositories;
 
-public class TaxRepository : RepositoryBase<Tax, int>, ITaxRepository
+public class ServiceChargeRepository : RepositoryBase<ServiceCharge, int>, IServiceChargeRepository
 {
-    public TaxRepository(ApplicationDbContext dbContext)
+    public ServiceChargeRepository(ApplicationDbContext dbContext)
         : base(dbContext) { }
 
-    public async Task<List<Tax>> GetPaged(PaginationFilter paginationFilter)
+    public async Task<List<ServiceCharge>> GetPagedWithTaxes(PaginationFilter paginationFilter)
     {
         var query = DbSet.AsQueryable();
         return await GetPaged(query, paginationFilter);
@@ -20,6 +20,6 @@ public class TaxRepository : RepositoryBase<Tax, int>, ITaxRepository
 
     protected override IPointOfSaleErrorMessage GetEntityNotFoundErrorMessage(int id)
     {
-        return new TaxNotFoundErrorMessage(id);
+        return new ServiceChargeNotFoundErrorMessage(id);
     }
 }

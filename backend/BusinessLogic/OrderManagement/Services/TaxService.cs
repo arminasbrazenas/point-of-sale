@@ -1,5 +1,7 @@
 using PointOfSale.BusinessLogic.OrderManagement.DTOs;
 using PointOfSale.BusinessLogic.OrderManagement.Interfaces;
+using PointOfSale.BusinessLogic.Shared.DTOs;
+using PointOfSale.BusinessLogic.Shared.Factories;
 using PointOfSale.DataAccess.OrderManagement.Interfaces;
 using PointOfSale.DataAccess.Shared.Interfaces;
 using PointOfSale.Models.OrderManagement.Entities;
@@ -40,6 +42,13 @@ public class TaxService : ITaxService
     {
         var tax = await _taxRepository.Get(taxId);
         return _taxMappingService.MapToTaxDTO(tax);
+    }
+
+    public async Task<PagedResponseDTO<TaxDTO>> GetTaxes(PaginationFilterDTO paginationFilterDTO)
+    {
+        var paginationFilter = PaginationFilterFactory.Create(paginationFilterDTO);
+        var taxes = await _taxRepository.GetPaged(paginationFilter);
+        return _taxMappingService.MapToPagedTaxDTO(taxes, paginationFilter);
     }
 
     public async Task DeleteTax(int taxId)

@@ -50,7 +50,7 @@ public class ProductRepository : RepositoryBase<Product, int>, IProductRepositor
         return DbSet.FirstOrDefaultAsync(p => p.Name == name);
     }
 
-    public async Task<List<Product>> GetPaginatedWithTaxes(PaginationFilter paginationFilter)
+    public async Task<List<Product>> GetPagedWithTaxes(PaginationFilter paginationFilter)
     {
         var query = DbSet.Include(p => p.Taxes).AsQueryable();
         return await GetPaged(query, paginationFilter);

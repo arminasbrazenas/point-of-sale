@@ -10,5 +10,5 @@ public interface IProductRepository : IRepositoryBase<Product, int>
     Task<List<Product>> GetManyWithTaxesAndModifiers(IEnumerable<int> productIds);
     Task<Product> GetWithModifiers(int productId);
     Task<Product?> GetByNameOptional(string name);
-    Task<List<Product>> GetPaginatedWithTaxes(PaginationFilter paginationFilter);
+    Task<List<Product>> GetPagedWithTaxes(PaginationFilter paginationFilter);
 }

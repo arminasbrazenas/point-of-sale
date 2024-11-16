@@ -96,7 +96,7 @@ public class ProductService : IProductService
     public async Task<PagedResponseDTO<ProductDTO>> GetProducts(PaginationFilterDTO paginationFilterDTO)
     {
         var paginationFilter = PaginationFilterFactory.Create(paginationFilterDTO);
-        var products = await _productRepository.GetPaginatedWithTaxes(paginationFilter);
+        var products = await _productRepository.GetPagedWithTaxes(paginationFilter);
         return _productMappingService.MapToPagedProductDTO(products, paginationFilter);
     }
 

@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using PointOfSale.BusinessLogic.OrderManagement.DTOs;
 using PointOfSale.BusinessLogic.OrderManagement.Interfaces;
+using PointOfSale.BusinessLogic.Shared.DTOs;
 
 namespace PointOfSale.Api.Controllers;
 
@@ -20,6 +21,15 @@ public class TaxesController : ControllerBase
     {
         var tax = await _taxService.CreateTax(createTaxDTO);
         return Ok(tax);
+    }
+
+    [HttpGet]
+    public async Task<ActionResult<PagedResponseDTO<TaxDTO>>> GetTaxes(
+        [FromQuery] PaginationFilterDTO paginationFilterDTO
+    )
+    {
+        var taxes = await _taxService.GetTaxes(paginationFilterDTO);
+        return Ok(taxes);
     }
 
     [HttpGet]

@@ -4,7 +4,7 @@ using PointOfSale.Models.OrderManagement.Entities;
 
 namespace PointOfSale.DataAccess.OrderManagement.Interfaces;
 
-public interface ITaxRepository : IRepositoryBase<Tax, int>
+public interface IServiceChargeRepository : IRepositoryBase<ServiceCharge, int>
 {
-    Task<List<Tax>> GetPaged(PaginationFilter paginationFilter);
+    Task<List<ServiceCharge>> GetPagedWithTaxes(PaginationFilter paginationFilter);
 }

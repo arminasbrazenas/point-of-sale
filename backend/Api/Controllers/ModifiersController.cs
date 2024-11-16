@@ -29,7 +29,7 @@ public class ModifiersController : ControllerBase
     )
     {
         var modifiers = await _modifierService.GetModifiers(paginationFilterDTO);
-        return modifiers;
+        return Ok(modifiers);
     }
 
     [HttpGet]
