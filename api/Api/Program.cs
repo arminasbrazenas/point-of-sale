@@ -3,7 +3,7 @@ using PointOfSale.Api.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddSharedServices(builder.Configuration).AddOrderManagement();
+builder.Services.AddSharedServices(builder.Configuration, builder.Environment).AddOrderManagement();
 
 var app = builder.Build();
 
@@ -15,9 +15,11 @@ if (app.Environment.IsDevelopment())
 app.UseSwagger();
 app.UseSwaggerUI();
 
-app.UseMiddleware<ExceptionHandlingMiddleware>();
-
 app.UseHttpsRedirection();
+
+app.UseCors();
+
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 app.UseAuthorization();
 

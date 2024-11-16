@@ -1,3 +1,4 @@
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 using PointOfSale.BusinessLogic.OrderManagement.Interfaces;
@@ -12,7 +13,11 @@ namespace PointOfSale.Api.Extensions;
 
 public static class ConfigureServicesExtensions
 {
-    public static IServiceCollection AddSharedServices(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddSharedServices(
+        this IServiceCollection services,
+        IConfiguration configuration,
+        IWebHostEnvironment environment
+    )
     {
         var connectionString = configuration.GetConnectionString("Database");
         services.AddDbContext<ApplicationDbContext>(o => o.UseNpgsql(connectionString));
@@ -22,9 +27,23 @@ public static class ConfigureServicesExtensions
             .AddControllers()
             .AddJsonOptions(options =>
             {
+                options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
                 options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
                 options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
             });
+
+        if (environment.IsDevelopment())
+        {
+            services.AddCors(options =>
+                options.AddDefaultPolicy(policyBuilder =>
+                    policyBuilder
+                        .SetIsOriginAllowed(origin => new Uri(origin).IsLoopback)
+                        .AllowAnyHeader()
+                        .AllowAnyMethod()
+                        .AllowCredentials()
+                )
+            );
+        }
 
         services.AddEndpointsApiExplorer();
         services.AddSwaggerGen();
