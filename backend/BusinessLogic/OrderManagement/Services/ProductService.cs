@@ -24,7 +24,8 @@ public class ProductService : IProductService
         IModifierRepository modifierRepository,
         IProductValidationService productValidationService,
         IProductMappingService productMappingService,
-        IModifierMappingService modifierMappingService)
+        IModifierMappingService modifierMappingService
+    )
     {
         _unitOfWork = unitOfWork;
         _productRepository = productRepository;
@@ -47,7 +48,7 @@ public class ProductService : IProductService
             Price = price,
             Stock = stock,
             Taxes = taxes,
-            Modifiers = []
+            Modifiers = [],
         };
 
         _productRepository.Add(product);
@@ -109,10 +110,10 @@ public class ProductService : IProductService
         var product = await _productRepository.GetWithModifiers(productId);
         var newModifierIds = setModifiersForProductDTO.ModifierIds.Distinct().ToList();
         var existingModifierIds = product.Modifiers.Select(m => m.Id).ToList();
-        
+
         var modifiersToDeleteIds = existingModifierIds.Except(newModifierIds);
         product.Modifiers.RemoveAll(m => modifiersToDeleteIds.Contains(m.Id));
-        
+
         var modifiersToAddIds = newModifierIds.Except(existingModifierIds);
         var modifiersToAdd = await _modifierRepository.GetMany(modifiersToAddIds);
         product.Modifiers.AddRange(modifiersToAdd);
@@ -120,7 +121,10 @@ public class ProductService : IProductService
         await _unitOfWork.SaveChanges();
     }
 
-    public async Task<PagedResponseDTO<ModifierDTO>> GetProductModifiers(int productId, PaginationFilterDTO paginationFilterDTO)
+    public async Task<PagedResponseDTO<ModifierDTO>> GetProductModifiers(
+        int productId,
+        PaginationFilterDTO paginationFilterDTO
+    )
     {
         var paginationFilter = PaginationFilterFactory.Create(paginationFilterDTO);
         var modifierFilter = new ModifierFilter { CompatibleWithProductById = productId };

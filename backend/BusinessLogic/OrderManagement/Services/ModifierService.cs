@@ -15,7 +15,11 @@ public class ModifierService : IModifierService
     private readonly IModifierRepository _modifierRepository;
     private readonly IModifierMappingService _modifierMappingService;
 
-    public ModifierService(IUnitOfWork unitOfWork, IModifierRepository modifierRepository, IModifierMappingService modifierMappingService)
+    public ModifierService(
+        IUnitOfWork unitOfWork,
+        IModifierRepository modifierRepository,
+        IModifierMappingService modifierMappingService
+    )
     {
         _unitOfWork = unitOfWork;
         _modifierRepository = modifierRepository;
@@ -28,8 +32,8 @@ public class ModifierService : IModifierService
         {
             Name = createModifierDTO.Name,
             Price = createModifierDTO.Price,
-            Amount = createModifierDTO.Amount,
-            Products = []
+            Stock = createModifierDTO.Amount,
+            Products = [],
         };
 
         _modifierRepository.Add(modifier);
@@ -67,12 +71,12 @@ public class ModifierService : IModifierService
 
         if (updateModifierDTO.Amount.HasValue)
         {
-            modifier.Amount = updateModifierDTO.Amount.Value;
+            modifier.Stock = updateModifierDTO.Amount.Value;
         }
-        
+
         _modifierRepository.Update(modifier);
         await _unitOfWork.SaveChanges();
-        
+
         return _modifierMappingService.MapToModifierDTO(modifier);
     }
 

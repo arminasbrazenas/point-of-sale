@@ -25,7 +25,8 @@ public class ModifiersController : ControllerBase
 
     [HttpGet]
     public async Task<ActionResult<PagedResponseDTO<ModifierDTO>>> GetModifiers(
-        [FromQuery] PaginationFilterDTO paginationFilterDTO)
+        [FromQuery] PaginationFilterDTO paginationFilterDTO
+    )
     {
         var modifiers = await _modifierService.GetModifiers(paginationFilterDTO);
         return modifiers;
@@ -43,7 +44,8 @@ public class ModifiersController : ControllerBase
     [Route("{modifierId:int}")]
     public async Task<ActionResult<ModifierDTO>> UpdateModifier(
         [FromRoute] int modifierId,
-        [FromBody] UpdateModifierDTO updateModifierDTO)
+        [FromBody] UpdateModifierDTO updateModifierDTO
+    )
     {
         var modifier = await _modifierService.UpdateModifier(modifierId, updateModifierDTO);
         return Ok(modifier);

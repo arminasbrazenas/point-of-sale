@@ -15,17 +15,20 @@ public class ModifierMappingService : IModifierMappingService
             Id = modifier.Id,
             Name = modifier.Name,
             Price = modifier.Price,
-            Amount = modifier.Amount,
+            Amount = modifier.Stock,
         };
     }
 
-    public PagedResponseDTO<ModifierDTO> MapToPagedModifierDTO(List<Modifier> modifiers, PaginationFilter paginationFilter)
+    public PagedResponseDTO<ModifierDTO> MapToPagedModifierDTO(
+        List<Modifier> modifiers,
+        PaginationFilter paginationFilter
+    )
     {
         return new PagedResponseDTO<ModifierDTO>
         {
             Page = paginationFilter.Page,
             ItemsPerPage = paginationFilter.ItemsPerPage,
-            Items = modifiers.Select(MapToModifierDTO).ToList()
+            Items = modifiers.Select(MapToModifierDTO).ToList(),
         };
     }
 }

@@ -27,7 +27,7 @@ public class TaxService : ITaxService
         {
             Name = createTaxDTO.Name,
             Rate = createTaxDTO.Rate,
-            Products = []
+            Products = [],
         };
 
         _taxRepository.Add(tax);

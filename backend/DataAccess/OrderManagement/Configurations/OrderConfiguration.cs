@@ -21,7 +21,12 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
             .HasMaxLength(SharedConstants.EnumMaxLength)
             .IsRequired();
 
-        builder.HasMany(o => o.Items).WithOne(i => i.Order).HasForeignKey(i => i.OrderId).IsRequired();
+        builder
+            .HasMany(o => o.Items)
+            .WithOne(i => i.Order)
+            .HasForeignKey(i => i.OrderId)
+            .OnDelete(DeleteBehavior.Cascade)
+            .IsRequired();
 
         builder.ToTable(TableName, Constants.SchemaName);
     }

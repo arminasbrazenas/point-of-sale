@@ -5,20 +5,18 @@ using PointOfSale.Models.OrderManagement.Entities;
 
 namespace PointOfSale.DataAccess.OrderManagement.Configurations;
 
-public class ModifierConfiguration : IEntityTypeConfiguration<Modifier>
+public class OrderItemModifierConfiguration : IEntityTypeConfiguration<OrderItemModifier>
 {
-    private const string TableName = "Modifiers";
+    private const string TableName = "OrderItemModifiers";
 
-    public void Configure(EntityTypeBuilder<Modifier> builder)
+    public void Configure(EntityTypeBuilder<OrderItemModifier> builder)
     {
-        builder.HasKey(v => v.Id);
+        builder.HasKey(m => m.Id);
 
-        builder.Property(p => p.RowVersion).IsRowVersion();
-
-        builder.Property(v => v.Name).HasMaxLength(Constants.ModifierNameMaxLength).IsRequired();
+        builder.Property(m => m.Name).HasMaxLength(Constants.ModifierNameMaxLength).IsRequired();
 
         builder
-            .Property(v => v.Price)
+            .Property(m => m.Price)
             .HasPrecision(SharedConstants.MoneyPrecision, SharedConstants.MoneyScale)
             .IsRequired();
 

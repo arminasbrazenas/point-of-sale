@@ -20,11 +20,28 @@ public class ProductRepository : RepositoryBase<Product, int>, IProductRepositor
 
         return product ?? throw new EntityNotFoundException(GetEntityNotFoundErrorMessage(productId));
     }
-    
+
+    public async Task<List<Product>> GetManyWithTaxesAndModifiers(IEnumerable<int> productIds)
+    {
+        var distinctIds = productIds.Distinct().ToList();
+        if (distinctIds.Count == 0)
+        {
+            return [];
+        }
+
+        var products = await DbSet
+            .Include(p => p.Taxes)
+            .Include(p => p.Modifiers)
+            .Join(distinctIds, e => e.Id, id => id, (e, _) => e)
+            .ToListAsync();
+
+        return products;
+    }
+
     public async Task<Product> GetWithModifiers(int productId)
     {
         var product = await DbSet.Include(p => p.Modifiers).Where(p => p.Id == productId).FirstOrDefaultAsync();
-        
+
         return product ?? throw new EntityNotFoundException(GetEntityNotFoundErrorMessage(productId));
     }
 

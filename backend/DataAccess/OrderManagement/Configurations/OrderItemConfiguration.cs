@@ -20,9 +20,21 @@ public class OrderItemConfiguration : IEntityTypeConfiguration<OrderItem>
             .HasPrecision(SharedConstants.MoneyPrecision, SharedConstants.MoneyScale)
             .IsRequired();
 
-        builder.HasOne(i => i.Product).WithMany().HasForeignKey(i => i.ProductId).IsRequired();
+        builder.HasOne(i => i.Product).WithMany().HasForeignKey(i => i.ProductId).OnDelete(DeleteBehavior.SetNull);
 
-        builder.HasMany(i => i.Taxes).WithOne(t => t.OrderItem).HasForeignKey(t => t.OrderItemId).IsRequired();
+        builder
+            .HasMany(i => i.Modifiers)
+            .WithOne()
+            .HasForeignKey(i => i.OrderItemId)
+            .OnDelete(DeleteBehavior.Cascade)
+            .IsRequired();
+
+        builder
+            .HasMany(i => i.Taxes)
+            .WithOne(t => t.OrderItem)
+            .HasForeignKey(t => t.OrderItemId)
+            .OnDelete(DeleteBehavior.Cascade)
+            .IsRequired();
 
         builder.ToTable(TableName, Constants.SchemaName);
     }

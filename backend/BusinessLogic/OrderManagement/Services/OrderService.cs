@@ -15,34 +15,34 @@ public class OrderService : IOrderService
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IProductRepository _productRepository;
+    private readonly IModifierRepository _modifierRepository;
     private readonly IOrderRepository _orderRepository;
     private readonly IOrderMappingService _orderMappingService;
-    private readonly IOrderItemRepository _orderItemRepository;
 
     public OrderService(
         IUnitOfWork unitOfWork,
         IProductRepository productRepository,
+        IModifierRepository modifierRepository,
         IOrderRepository orderRepository,
-        IOrderMappingService orderMappingService,
-        IOrderItemRepository orderItemRepository
+        IOrderMappingService orderMappingService
     )
     {
         _unitOfWork = unitOfWork;
         _productRepository = productRepository;
+        _modifierRepository = modifierRepository;
         _orderRepository = orderRepository;
         _orderMappingService = orderMappingService;
-        _orderItemRepository = orderItemRepository;
     }
 
-    public async Task<OrderMinimalDTO> CreateOrder(CreateOrderDTO createOrderDTO)
+    public async Task<OrderDTO> CreateOrder(CreateOrderDTO createOrderDTO)
     {
-        var orderItems = await ReserveOrderItemsFromStock(createOrderDTO.OrderItems);
+        var orderItems = await ReserveOrderItems(createOrderDTO.OrderItems);
         var order = new Order { Items = orderItems, Status = OrderStatus.Open };
 
         _orderRepository.Add(order);
         await _unitOfWork.SaveChanges();
 
-        return _orderMappingService.MapToOrderMinimalDTO(order);
+        return _orderMappingService.MapToOrderDTO(order);
     }
 
     public async Task<PagedResponseDTO<OrderMinimalDTO>> GetOrders(PaginationFilterDTO paginationFilterDTO)
@@ -68,9 +68,8 @@ public class OrderService : IOrderService
 
         if (updateOrderDTO.OrderItems is not null)
         {
-            await ReturnOrderItemsToStock(order.Items);
-            _orderItemRepository.DeleteMany(order.Items);
-            order.Items = await ReserveOrderItemsFromStock(updateOrderDTO.OrderItems);
+            await ReturnOrderItems(order.Items);
+            order.Items = await ReserveOrderItems(updateOrderDTO.OrderItems);
         }
 
         await _unitOfWork.SaveChanges();
@@ -86,41 +85,67 @@ public class OrderService : IOrderService
             throw new ValidationException(new CannotModifyNonOpenOrderErrorMessage());
         }
 
-        await ReturnOrderItemsToStock(order.Items);
+        await ReturnOrderItems(order.Items);
         order.Status = OrderStatus.Canceled;
 
         await _unitOfWork.SaveChanges();
     }
 
-    private async Task<List<OrderItem>> ReserveOrderItemsFromStock(List<CreateOrderItemDTO> createOrderItemDTOs)
+    private async Task<List<OrderItem>> ReserveOrderItems(List<CreateOrderItemDTO> createOrderItemDTOs)
     {
-        var groupedOrderItems = createOrderItemDTOs
-            .GroupBy(
-                o => o.ProductId,
-                o => o.Quantity,
-                (id, quantities) => new { ProductId = id, Quantity = quantities.Sum() }
-            )
-            .ToList();
+        var productIds = createOrderItemDTOs.Select(x => x.ProductId);
+        var products = await _productRepository.GetManyWithTaxesAndModifiers(productIds);
 
         List<OrderItem> orderItems = [];
-        foreach (var groupedOrderItem in groupedOrderItems)
+        foreach (var createOrderItemDTO in createOrderItemDTOs)
         {
-            var product = await _productRepository.GetWithTaxes(groupedOrderItem.ProductId);
-            if (product.Stock < groupedOrderItem.Quantity)
+            var product = products.FirstOrDefault(x => x.Id == createOrderItemDTO.ProductId);
+            if (product is null)
             {
-                throw new ValidationException(new ProductOutOfStockErrorMessage(product.Name, product.Stock));
+                throw new ValidationException(new ProductNotFoundErrorMessage(createOrderItemDTO.ProductId));
             }
 
-            product.Stock -= groupedOrderItem.Quantity;
+            if (product.Stock < createOrderItemDTO.Quantity)
+            {
+                throw new ValidationException(new ProductOutOfStockErrorMessage(product.Id, product.Stock));
+            }
 
-            var taxes = product.Taxes.Select(t => new OrderItemTax { TaxName = t.Name, TaxRate = t.Rate }).ToList();
+            product.Stock -= createOrderItemDTO.Quantity;
+
+            List<OrderItemModifier> orderItemModifiers = [];
+            foreach (var modifierId in createOrderItemDTO.ModifierIds)
+            {
+                var modifier = product.Modifiers.FirstOrDefault(x => x.Id == modifierId);
+                if (modifier is null)
+                {
+                    throw new ValidationException(new IncompatibleProductModifierErrorMessage(product.Id, modifierId));
+                }
+
+                if (modifier.Stock < createOrderItemDTO.Quantity)
+                {
+                    throw new ValidationException(new ModifierOutOfStockErrorMessage(modifier.Id, modifier.Stock));
+                }
+
+                modifier.Stock -= createOrderItemDTO.Quantity;
+
+                var orderItemModifier = new OrderItemModifier
+                {
+                    ModifierId = modifier.Id,
+                    Name = modifier.Name,
+                    Price = modifier.Price,
+                };
+                orderItemModifiers.Add(orderItemModifier);
+            }
+
+            var orderItemTaxes = product.Taxes.Select(t => new OrderItemTax { Name = t.Name, Rate = t.Rate }).ToList();
             var orderItem = new OrderItem
             {
                 Name = product.Name,
-                Quantity = groupedOrderItem.Quantity,
+                Quantity = createOrderItemDTO.Quantity,
                 Product = product,
                 BaseUnitPrice = product.Price,
-                Taxes = taxes,
+                Taxes = orderItemTaxes,
+                Modifiers = orderItemModifiers,
             };
 
             orderItems.Add(orderItem);
@@ -129,29 +154,33 @@ public class OrderService : IOrderService
         return orderItems;
     }
 
-    private async Task ReturnOrderItemsToStock(List<OrderItem> orderItems)
+    private async Task ReturnOrderItems(List<OrderItem> orderItems)
     {
-        var groupedOrderItems = orderItems
-            .GroupBy(
-                i => i.ProductId,
-                i => i.Quantity,
-                (id, quantities) => new { ProductId = id, Quantity = quantities.Sum() }
-            )
-            .ToList();
+        var productIds = orderItems.Where(x => x.ProductId.HasValue).Select(x => x.ProductId!.Value);
+        var modifierIds = orderItems
+            .SelectMany(x => x.Modifiers)
+            .Where(x => x.ModifierId.HasValue)
+            .Select(x => x.ModifierId!.Value);
 
-        var productIds = groupedOrderItems.Select(i => i.ProductId);
         var products = await _productRepository.GetMany(productIds);
+        var modifiers = await _modifierRepository.GetMany(modifierIds);
 
-        var joinResult = groupedOrderItems.Join(
-            products,
-            i => i.ProductId,
-            p => p.Id,
-            (left, right) => new { Quantity = left.Quantity, Product = right }
-        );
-
-        foreach (var joined in joinResult)
+        foreach (var orderItem in orderItems)
         {
-            joined.Product.Stock += joined.Quantity;
+            var product = products.FirstOrDefault(x => x.Id == orderItem.ProductId);
+            if (product is not null)
+            {
+                product.Stock += orderItem.Quantity;
+            }
+
+            foreach (var orderItemModifier in orderItem.Modifiers)
+            {
+                var modifier = modifiers.FirstOrDefault(x => x.Id == orderItemModifier.ModifierId);
+                if (modifier is not null)
+                {
+                    modifier.Stock += orderItem.Quantity;
+                }
+            }
         }
     }
 }

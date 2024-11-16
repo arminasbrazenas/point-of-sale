@@ -10,23 +10,21 @@ namespace PointOfSale.DataAccess.OrderManagement.Repositories;
 
 public class ModifierRepository : RepositoryBase<Modifier, int>, IModifierRepository
 {
-    public ModifierRepository(ApplicationDbContext dbContext) : base(dbContext)
-    {
-    }
-    
+    public ModifierRepository(ApplicationDbContext dbContext)
+        : base(dbContext) { }
+
     public async Task<List<Modifier>> GetWithFilter(
         PaginationFilter paginationFilter,
-        ModifierFilter? modifierFilter = null)
+        ModifierFilter? modifierFilter = null
+    )
     {
         var query = DbSet.AsQueryable();
 
         if (modifierFilter?.CompatibleWithProductById is not null)
         {
-            query = query.Where(
-                m => m.Products.Any(p => p.Id == modifierFilter.CompatibleWithProductById)
-            );
+            query = query.Where(m => m.Products.Any(p => p.Id == modifierFilter.CompatibleWithProductById));
         }
-        
+
         return await GetPaged(query, paginationFilter);
     }
 

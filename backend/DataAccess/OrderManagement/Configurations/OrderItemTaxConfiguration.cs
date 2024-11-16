@@ -12,7 +12,7 @@ public class OrderItemTaxConfiguration : IEntityTypeConfiguration<OrderItemTax>
     {
         builder.HasKey(t => t.Id);
 
-        builder.Property(t => t.TaxName).HasMaxLength(Constants.TaxNameMaxLength).IsRequired();
+        builder.Property(t => t.Name).HasMaxLength(Constants.TaxNameMaxLength).IsRequired();
 
         builder.ToTable(TableName, Constants.SchemaName);
     }

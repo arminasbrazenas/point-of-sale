@@ -17,7 +17,8 @@ namespace PointOfSale.DataAccess.Shared.Migrations
                 type: "xid",
                 rowVersion: true,
                 nullable: false,
-                defaultValue: 0u);
+                defaultValue: 0u
+            );
 
             migrationBuilder.AddColumn<uint>(
                 name: "xmin",
@@ -26,21 +27,16 @@ namespace PointOfSale.DataAccess.Shared.Migrations
                 type: "xid",
                 rowVersion: true,
                 nullable: false,
-                defaultValue: 0u);
+                defaultValue: 0u
+            );
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropColumn(
-                name: "xmin",
-                schema: "Order",
-                table: "Products");
+            migrationBuilder.DropColumn(name: "xmin", schema: "Order", table: "Products");
 
-            migrationBuilder.DropColumn(
-                name: "xmin",
-                schema: "Order",
-                table: "Modifiers");
+            migrationBuilder.DropColumn(name: "xmin", schema: "Order", table: "Modifiers");
         }
     }
 }

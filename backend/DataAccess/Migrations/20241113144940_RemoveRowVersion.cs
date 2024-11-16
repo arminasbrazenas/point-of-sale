@@ -10,15 +10,9 @@ namespace PointOfSale.DataAccess.Shared.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropColumn(
-                name: "RowVersion",
-                schema: "Order",
-                table: "Products");
+            migrationBuilder.DropColumn(name: "RowVersion", schema: "Order", table: "Products");
 
-            migrationBuilder.DropColumn(
-                name: "RowVersion",
-                schema: "Order",
-                table: "Modifiers");
+            migrationBuilder.DropColumn(name: "RowVersion", schema: "Order", table: "Modifiers");
         }
 
         /// <inheritdoc />
@@ -31,7 +25,8 @@ namespace PointOfSale.DataAccess.Shared.Migrations
                 type: "bytea",
                 rowVersion: true,
                 nullable: false,
-                defaultValue: new byte[0]);
+                defaultValue: new byte[0]
+            );
 
             migrationBuilder.AddColumn<byte[]>(
                 name: "RowVersion",
@@ -40,7 +35,8 @@ namespace PointOfSale.DataAccess.Shared.Migrations
                 type: "bytea",
                 rowVersion: true,
                 nullable: false,
-                defaultValue: new byte[0]);
+                defaultValue: new byte[0]
+            );
         }
     }
 }

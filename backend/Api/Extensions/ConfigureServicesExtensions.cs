@@ -39,12 +39,12 @@ public static class ConfigureServicesExtensions
         services.AddScoped<IOrderItemRepository, OrderItemRepository>();
         services.AddScoped<IOrderRepository, OrderRepository>();
         services.AddScoped<IModifierRepository, ModifierRepository>();
-        
+
         services.AddScoped<ITaxMappingService, TaxMappingService>();
         services.AddScoped<IProductMappingService, ProductMappingService>();
         services.AddScoped<IOrderMappingService, OrderMappingService>();
         services.AddScoped<IModifierMappingService, ModifierMappingService>();
-        
+
         services.AddScoped<IProductValidationService, ProductValidationService>();
 
         services.AddScoped<ITaxService, TaxService>();

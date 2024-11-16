@@ -6,7 +6,7 @@ public class Modifier : EntityBase<int>
 {
     public required string Name { get; set; }
     public required decimal Price { get; set; }
-    public required int Amount { get; set; }
-    public required List<Product> Products { get; set; }
+    public required int Stock { get; set; }
+    public List<Product> Products { get; set; } = null!;
     public uint RowVersion { get; set; }
 }
