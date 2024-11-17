@@ -21,7 +21,8 @@ public class OrderMappingService : IOrderMappingService
 
     public PagedResponseDTO<OrderMinimalDTO> MapToPagedOrderMinimalDTO(
         List<Order> orders,
-        PaginationFilter paginationFilter, int totalCount
+        PaginationFilter paginationFilter,
+        int totalCount
     )
     {
         return new PagedResponseDTO<OrderMinimalDTO>

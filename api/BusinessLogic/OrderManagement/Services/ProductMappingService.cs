@@ -26,7 +26,8 @@ public class ProductMappingService : IProductMappingService
     public PagedResponseDTO<ProductDTO> MapToPagedProductDTO(
         List<Product> products,
         PaginationFilter paginationFilter,
-        int totalCount)
+        int totalCount
+    )
     {
         return new PagedResponseDTO<ProductDTO>
         {

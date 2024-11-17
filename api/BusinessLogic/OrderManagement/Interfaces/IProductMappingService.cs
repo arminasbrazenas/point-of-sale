@@ -8,5 +8,9 @@ namespace PointOfSale.BusinessLogic.OrderManagement.Interfaces;
 public interface IProductMappingService
 {
     ProductDTO MapToProductDTO(Product product);
-    PagedResponseDTO<ProductDTO> MapToPagedProductDTO(List<Product> products, PaginationFilter paginationFilter, int totalCount);
+    PagedResponseDTO<ProductDTO> MapToPagedProductDTO(
+        List<Product> products,
+        PaginationFilter paginationFilter,
+        int totalCount
+    );
 }

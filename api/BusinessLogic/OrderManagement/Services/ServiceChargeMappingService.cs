@@ -21,7 +21,8 @@ public class ServiceChargeMappingService : IServiceChargeMappingService
 
     public PagedResponseDTO<ServiceChargeDTO> MapToPagedServiceChargeDTO(
         List<ServiceCharge> serviceCharges,
-        PaginationFilter paginationFilter, int totalCount
+        PaginationFilter paginationFilter,
+        int totalCount
     )
     {
         return new PagedResponseDTO<ServiceChargeDTO>

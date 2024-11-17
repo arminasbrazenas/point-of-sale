@@ -21,7 +21,8 @@ public class ModifierMappingService : IModifierMappingService
 
     public PagedResponseDTO<ModifierDTO> MapToPagedModifierDTO(
         List<Modifier> modifiers,
-        PaginationFilter paginationFilter, int totalCount
+        PaginationFilter paginationFilter,
+        int totalCount
     )
     {
         return new PagedResponseDTO<ModifierDTO>
