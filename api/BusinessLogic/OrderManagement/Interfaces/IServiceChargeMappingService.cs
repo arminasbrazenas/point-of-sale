@@ -10,6 +10,6 @@ public interface IServiceChargeMappingService
     ServiceChargeDTO MapToServiceChargeDTO(ServiceCharge serviceCharge);
     PagedResponseDTO<ServiceChargeDTO> MapToPagedServiceChargeDTO(
         List<ServiceCharge> serviceCharges,
-        PaginationFilter paginationFilter
+        PaginationFilter paginationFilter, int totalCount
     );
 }

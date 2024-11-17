@@ -50,7 +50,8 @@ public class ServiceChargeService : IServiceChargeService
     {
         var paginationFilter = PaginationFilterFactory.Create(paginationFilterDTO);
         var serviceCharges = await _serviceChargeRepository.GetPagedWithTaxes(paginationFilter);
-        return _serviceChargeMappingService.MapToPagedServiceChargeDTO(serviceCharges, paginationFilter);
+        var totalCount = await _serviceChargeRepository.GetTotalCount();
+        return _serviceChargeMappingService.MapToPagedServiceChargeDTO(serviceCharges, paginationFilter, totalCount);
     }
 
     public async Task DeleteServiceCharge(int serviceChargeId)

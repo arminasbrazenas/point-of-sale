@@ -21,13 +21,14 @@ public class ModifierMappingService : IModifierMappingService
 
     public PagedResponseDTO<ModifierDTO> MapToPagedModifierDTO(
         List<Modifier> modifiers,
-        PaginationFilter paginationFilter
+        PaginationFilter paginationFilter, int totalCount
     )
     {
         return new PagedResponseDTO<ModifierDTO>
         {
             Page = paginationFilter.Page,
             ItemsPerPage = paginationFilter.ItemsPerPage,
+            TotalItems = totalCount,
             Items = modifiers.Select(MapToModifierDTO).ToList(),
         };
     }

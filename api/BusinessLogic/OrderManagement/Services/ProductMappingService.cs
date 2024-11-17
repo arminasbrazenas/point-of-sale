@@ -23,12 +23,16 @@ public class ProductMappingService : IProductMappingService
         };
     }
 
-    public PagedResponseDTO<ProductDTO> MapToPagedProductDTO(List<Product> products, PaginationFilter paginationFilter)
+    public PagedResponseDTO<ProductDTO> MapToPagedProductDTO(
+        List<Product> products,
+        PaginationFilter paginationFilter,
+        int totalCount)
     {
         return new PagedResponseDTO<ProductDTO>
         {
             Page = paginationFilter.Page,
             ItemsPerPage = paginationFilter.ItemsPerPage,
+            TotalItems = totalCount,
             Items = products.Select(MapToProductDTO).ToList(),
         };
     }

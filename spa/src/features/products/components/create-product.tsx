@@ -4,9 +4,11 @@ import { CreateProductInput, createProductInputSchema, useCreateProduct } from '
 import { CurrencyInput } from '@/components/inputs/currency-input';
 import { showNotification } from '@/lib/notifications';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { paths } from '@/config/paths';
 
 export const CreateProduct = () => {
-  const [isCreating, setIsCreating] = useState<boolean>(false);
+  const navigate = useNavigate();
 
   const form = useForm<CreateProductInput>({
     mode: 'uncontrolled',
@@ -26,15 +28,13 @@ export const CreateProduct = () => {
           type: 'success',
           title: 'Product added successfully.',
         });
-      },
-      onSettled: () => {
-        setIsCreating(false);
+
+        navigate(paths.management.products.getHref());
       },
     },
   });
 
   const handleSubmit = (values: CreateProductInput) => {
-    setIsCreating(true);
     createProductMutation.mutate({ data: values });
   };
 
@@ -62,7 +62,7 @@ export const CreateProduct = () => {
           key={form.key('price')}
           {...form.getInputProps('price')}
         />
-        <Button type="submit" mt="xs" fullWidth loading={isCreating}>
+        <Button type="submit" mt="xs" fullWidth loading={createProductMutation.isPending}>
           Add
         </Button>
       </Stack>

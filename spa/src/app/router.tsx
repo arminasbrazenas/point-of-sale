@@ -20,12 +20,19 @@ const createAppRouter = (queryClient: QueryClient) =>
         {
           path: paths.management.products.path,
           lazy: async () => {
-            const { ProductManagementRoute } = await import('./routes/management/products');
+            const { ProductManagementRoute } = await import('./routes/management/product-management');
             return { Component: ProductManagementRoute };
           },
         },
         {
-          path: paths.management.products.new.path,
+          path: paths.management.updateProduct.path,
+          lazy: async () => {
+            const { UpdateProductRoute } = await import('./routes/management/update-product');
+            return { Component: UpdateProductRoute };
+          },
+        },
+        {
+          path: paths.management.addProduct.path,
           lazy: async () => {
             const { NewProductManagementRoute } = await import('./routes/management/new-product');
             return { Component: NewProductManagementRoute };

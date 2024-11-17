@@ -8,5 +8,5 @@ namespace PointOfSale.BusinessLogic.OrderManagement.Interfaces;
 public interface ITaxMappingService
 {
     TaxDTO MapToTaxDTO(Tax tax);
-    PagedResponseDTO<TaxDTO> MapToPagedTaxDTO(List<Tax> taxes, PaginationFilter paginationFilter);
+    PagedResponseDTO<TaxDTO> MapToPagedTaxDTO(List<Tax> taxes, PaginationFilter paginationFilter, int totalCount);
 }

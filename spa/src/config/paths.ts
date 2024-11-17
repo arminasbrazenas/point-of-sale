@@ -15,10 +15,14 @@ export const paths = {
     products: {
       path: 'products',
       getHref: () => '/management/products',
-      new: {
-        path: 'products/new',
-        getHref: () => '/management/products/new',
-      },
+    },
+    updateProduct: {
+      path: 'products/:productId',
+      getHref: (productId: number) => `/management/products/${productId}`,
+    },
+    addProduct: {
+      path: 'products/add',
+      getHref: () => '/management/products/add',
     },
   },
 } as const;

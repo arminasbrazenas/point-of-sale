@@ -48,7 +48,8 @@ public class TaxService : ITaxService
     {
         var paginationFilter = PaginationFilterFactory.Create(paginationFilterDTO);
         var taxes = await _taxRepository.GetPaged(paginationFilter);
-        return _taxMappingService.MapToPagedTaxDTO(taxes, paginationFilter);
+        var totalCount = await _taxRepository.GetTotalCount();
+        return _taxMappingService.MapToPagedTaxDTO(taxes, paginationFilter, totalCount);
     }
 
     public async Task DeleteTax(int taxId)

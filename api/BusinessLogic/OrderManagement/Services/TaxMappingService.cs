@@ -18,12 +18,13 @@ public class TaxMappingService : ITaxMappingService
         };
     }
 
-    public PagedResponseDTO<TaxDTO> MapToPagedTaxDTO(List<Tax> taxes, PaginationFilter paginationFilter)
+    public PagedResponseDTO<TaxDTO> MapToPagedTaxDTO(List<Tax> taxes, PaginationFilter paginationFilter, int totalCount)
     {
         return new PagedResponseDTO<TaxDTO>
         {
             Items = taxes.Select(MapToTaxDTO).ToList(),
             ItemsPerPage = paginationFilter.ItemsPerPage,
+            TotalItems = totalCount,
             Page = paginationFilter.Page,
         };
     }

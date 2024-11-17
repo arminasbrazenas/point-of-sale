@@ -8,5 +8,5 @@ namespace PointOfSale.BusinessLogic.OrderManagement.Interfaces;
 public interface IModifierMappingService
 {
     ModifierDTO MapToModifierDTO(Modifier modifier);
-    PagedResponseDTO<ModifierDTO> MapToPagedModifierDTO(List<Modifier> modifiers, PaginationFilter paginationFilter);
+    PagedResponseDTO<ModifierDTO> MapToPagedModifierDTO(List<Modifier> modifiers, PaginationFilter paginationFilter, int totalCount);
 }

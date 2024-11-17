@@ -21,13 +21,14 @@ public class ServiceChargeMappingService : IServiceChargeMappingService
 
     public PagedResponseDTO<ServiceChargeDTO> MapToPagedServiceChargeDTO(
         List<ServiceCharge> serviceCharges,
-        PaginationFilter paginationFilter
+        PaginationFilter paginationFilter, int totalCount
     )
     {
         return new PagedResponseDTO<ServiceChargeDTO>
         {
             Items = serviceCharges.Select(MapToServiceChargeDTO).ToList(),
             ItemsPerPage = paginationFilter.ItemsPerPage,
+            TotalItems = totalCount,
             Page = paginationFilter.Page,
         };
     }

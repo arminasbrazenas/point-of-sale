@@ -97,7 +97,8 @@ public class ProductService : IProductService
     {
         var paginationFilter = PaginationFilterFactory.Create(paginationFilterDTO);
         var products = await _productRepository.GetPagedWithTaxes(paginationFilter);
-        return _productMappingService.MapToPagedProductDTO(products, paginationFilter);
+        var totalCount = await _productRepository.GetTotalCount();
+        return _productMappingService.MapToPagedProductDTO(products, paginationFilter, totalCount);
     }
 
     public async Task DeleteProduct(int productId)
@@ -129,6 +130,7 @@ public class ProductService : IProductService
         var paginationFilter = PaginationFilterFactory.Create(paginationFilterDTO);
         var modifierFilter = new ModifierFilter { CompatibleWithProductById = productId };
         var modifiers = await _modifierRepository.GetWithFilter(paginationFilter, modifierFilter);
-        return _modifierMappingService.MapToPagedModifierDTO(modifiers, paginationFilter);
+        var totalCount = await _modifierRepository.GetTotalCount();
+        return _modifierMappingService.MapToPagedModifierDTO(modifiers, paginationFilter, totalCount);
     }
 }

@@ -21,13 +21,14 @@ public class OrderMappingService : IOrderMappingService
 
     public PagedResponseDTO<OrderMinimalDTO> MapToPagedOrderMinimalDTO(
         List<Order> orders,
-        PaginationFilter paginationFilter
+        PaginationFilter paginationFilter, int totalCount
     )
     {
         return new PagedResponseDTO<OrderMinimalDTO>
         {
             Page = paginationFilter.Page,
             ItemsPerPage = paginationFilter.ItemsPerPage,
+            TotalItems = totalCount,
             Items = orders.Select(MapToOrderMinimalDTO).ToList(),
         };
     }

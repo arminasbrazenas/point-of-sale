@@ -22,5 +22,5 @@ export const CurrencyInput = (props: CurrencyInputProps) => {
     />
   );
 
-  return <TextInput type="number" rightSection={select} rightSectionWidth={92} {...props} />;
+  return <TextInput type="number" step="any" rightSection={select} rightSectionWidth={92} {...props} />;
 };

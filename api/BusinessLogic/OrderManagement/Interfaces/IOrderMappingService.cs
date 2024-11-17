@@ -8,6 +8,6 @@ namespace PointOfSale.BusinessLogic.OrderManagement.Interfaces;
 public interface IOrderMappingService
 {
     OrderMinimalDTO MapToOrderMinimalDTO(Order order);
-    PagedResponseDTO<OrderMinimalDTO> MapToPagedOrderMinimalDTO(List<Order> orders, PaginationFilter paginationFilter);
+    PagedResponseDTO<OrderMinimalDTO> MapToPagedOrderMinimalDTO(List<Order> orders, PaginationFilter paginationFilter, int totalCount);
     OrderDTO MapToOrderDTO(Order order);
 }
