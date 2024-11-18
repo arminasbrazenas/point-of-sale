@@ -1,4 +1,4 @@
-import { Button, Group, Modal, NumberInput, Stack, TextInput, Text } from '@mantine/core';
+import { Button, Group, Modal, NumberInput, Stack, TextInput, Text, Paper } from '@mantine/core';
 import { useProduct } from '../api/get-product';
 import { CurrencyInput } from '@/components/inputs/currency-input';
 import { useNavigate } from 'react-router-dom';
@@ -100,7 +100,7 @@ export const UpdateProduct = ({ productId }: { productId: number }) => {
   };
 
   return (
-    <>
+    <Paper withBorder p="lg">
       <form onSubmit={form.onSubmit(updateProduct)}>
         <Stack>
           <TextInput
@@ -157,6 +157,6 @@ export const UpdateProduct = ({ productId }: { productId: number }) => {
           </Button>
         </Group>
       </Modal>
-    </>
+    </Paper>
   );
 };

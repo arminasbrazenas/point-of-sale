@@ -1,6 +1,6 @@
 import { api } from '@/lib/api-client';
 import { QueryConfig } from '@/lib/react-query';
-import { Product } from '@/types/product';
+import { Product } from '@/types/api';
 import { queryOptions, useQuery } from '@tanstack/react-query';
 
 export const getProduct = ({ productId }: { productId: number }): Promise<Product> => {

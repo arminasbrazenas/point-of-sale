@@ -23,6 +23,14 @@ public class TaxesController : ControllerBase
         return Ok(tax);
     }
 
+    [HttpPatch]
+    [Route("{taxId:int}")]
+    public async Task<ActionResult<TaxDTO>> UpdateTax([FromRoute] int taxId, [FromBody] UpdateTaxDTO updateTaxDTO)
+    {
+        var tax = await _taxService.UpdateTax(taxId, updateTaxDTO);
+        return Ok(tax);
+    }
+
     [HttpGet]
     public async Task<ActionResult<PagedResponseDTO<TaxDTO>>> GetTaxes(
         [FromQuery] PaginationFilterDTO paginationFilterDTO

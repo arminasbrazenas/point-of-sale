@@ -23,3 +23,11 @@ export type PagedResponse<T> = {
 export type ErrorResponse = {
   errorMessage: string;
 };
+
+export type Product = Entity<{
+  name: string;
+  price: number;
+  stock: number;
+}>;
+
+export type Tax = Entity<{ name: string; rate: number }>;

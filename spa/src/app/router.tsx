@@ -13,29 +13,50 @@ const createAppRouter = (queryClient: QueryClient) =>
         {
           path: paths.management.dashboard.path,
           lazy: async () => {
-            const { ManagementDashboardRoute } = await import('./routes/management/dashboard');
+            const { ManagementDashboardRoute } = await import('./routes/management/dashboard/dashboard');
             return { Component: ManagementDashboardRoute };
           },
         },
         {
           path: paths.management.products.path,
           lazy: async () => {
-            const { ProductManagementRoute } = await import('./routes/management/product-management');
-            return { Component: ProductManagementRoute };
+            const { ProductsManagementRoute } = await import('./routes/management/product/products');
+            return { Component: ProductsManagementRoute };
           },
         },
         {
           path: paths.management.updateProduct.path,
           lazy: async () => {
-            const { UpdateProductRoute } = await import('./routes/management/update-product');
-            return { Component: UpdateProductRoute };
+            const { UpdateProductManagementRoute } = await import('./routes/management/product/update-product');
+            return { Component: UpdateProductManagementRoute };
           },
         },
         {
           path: paths.management.addProduct.path,
           lazy: async () => {
-            const { NewProductManagementRoute } = await import('./routes/management/new-product');
-            return { Component: NewProductManagementRoute };
+            const { AddProductManagementRoute } = await import('./routes/management/product/add-product');
+            return { Component: AddProductManagementRoute };
+          },
+        },
+        {
+          path: paths.management.taxes.path,
+          lazy: async () => {
+            const { TaxesManagementRoute } = await import('./routes/management/tax/taxes');
+            return { Component: TaxesManagementRoute };
+          },
+        },
+        {
+          path: paths.management.updateTax.path,
+          lazy: async () => {
+            const { UpdateTaxManagementRoute } = await import('./routes/management/tax/update-tax');
+            return { Component: UpdateTaxManagementRoute };
+          },
+        },
+        {
+          path: paths.management.addTax.path,
+          lazy: async () => {
+            const { AddTaxManagementRoute } = await import('./routes/management/tax/add-tax');
+            return { Component: AddTaxManagementRoute };
           },
         },
       ],

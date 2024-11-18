@@ -1,7 +1,7 @@
 import { api } from '@/lib/api-client';
 import { QueryConfig } from '@/lib/react-query';
-import { Product } from '@/types/product';
-import { PagedResponse, PaginationFilter } from '@/types/shared';
+import { Product } from '@/types/api';
+import { PagedResponse, PaginationFilter } from '@/types/api';
 import { queryOptions, useQuery } from '@tanstack/react-query';
 
 export const getProducts = (paginationFilter: PaginationFilter): Promise<PagedResponse<Product>> => {

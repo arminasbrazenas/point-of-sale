@@ -1,4 +1,4 @@
-import { Card, Center, Pagination, Paper, ScrollArea, SimpleGrid, Table } from '@mantine/core';
+import { Center, Pagination, Paper, Table } from '@mantine/core';
 import { useProducts } from '../api/get-products';
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';

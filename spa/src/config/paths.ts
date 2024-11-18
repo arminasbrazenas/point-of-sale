@@ -24,5 +24,17 @@ export const paths = {
       path: 'products/add',
       getHref: () => '/management/products/add',
     },
+    taxes: {
+      path: 'taxes',
+      getHref: () => '/management/taxes',
+    },
+    updateTax: {
+      path: 'taxes/:taxId',
+      getHref: (taxId: number) => `/management/taxes/${taxId}`,
+    },
+    addTax: {
+      path: 'taxes/add',
+      getHref: () => '/management/taxes/add',
+    },
   },
 } as const;

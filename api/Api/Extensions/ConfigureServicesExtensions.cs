@@ -65,6 +65,7 @@ public static class ConfigureServicesExtensions
         services.AddScoped<IModifierMappingService, ModifierMappingService>();
         services.AddScoped<IServiceChargeMappingService, ServiceChargeMappingService>();
 
+        services.AddScoped<ITaxValidationService, TaxValidationService>();
         services.AddScoped<IProductValidationService, ProductValidationService>();
 
         services.AddScoped<ITaxService, TaxService>();

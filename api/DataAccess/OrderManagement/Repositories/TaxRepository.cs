@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using PointOfSale.DataAccess.OrderManagement.ErrorMessages;
 using PointOfSale.DataAccess.OrderManagement.Interfaces;
 using PointOfSale.DataAccess.Shared.Filters;
@@ -11,6 +12,11 @@ public class TaxRepository : RepositoryBase<Tax, int>, ITaxRepository
 {
     public TaxRepository(ApplicationDbContext dbContext)
         : base(dbContext) { }
+
+    public async Task<Tax?> GetByNameOptional(string name)
+    {
+        return await DbSet.FirstOrDefaultAsync(t => t.Name == name);
+    }
 
     public async Task<List<Tax>> GetPaged(PaginationFilter paginationFilter)
     {
