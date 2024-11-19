@@ -37,7 +37,7 @@ export const ProductList = () => {
               <Table.Tr key={product.id} onClick={() => navigate(paths.management.updateProduct.getHref(product.id))}>
                 <Table.Td>{product.name}</Table.Td>
                 <Table.Td>{product.stock}</Table.Td>
-                <Table.Td>{product.price} €</Table.Td>
+                <Table.Td>{product.priceWithTaxes} €</Table.Td>
               </Table.Tr>
             ))}
           </Table.Tbody>

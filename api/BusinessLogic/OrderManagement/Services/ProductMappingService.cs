@@ -9,17 +9,27 @@ namespace PointOfSale.BusinessLogic.OrderManagement.Services;
 
 public class ProductMappingService : IProductMappingService
 {
+    private readonly ITaxMappingService _taxMappingService;
+
+    public ProductMappingService(ITaxMappingService taxMappingService)
+    {
+        _taxMappingService = taxMappingService;
+    }
+    
     public ProductDTO MapToProductDTO(Product product)
     {
+        var priceWithoutTaxes = product.Price;
         var taxRates = product.Taxes.Select(t => t.Rate);
-        var price = product.Price + PriceUtility.CalculateTotalTax(product.Price, taxRates);
+        var price = priceWithoutTaxes + PriceUtility.CalculateTotalTax(priceWithoutTaxes, taxRates);
 
         return new ProductDTO
         {
             Id = product.Id,
             Name = product.Name,
-            Price = price.ToRoundedPrice(),
+            PriceWithoutTaxes = priceWithoutTaxes.ToRoundedPrice(),
+            PriceWithTaxes = price.ToRoundedPrice(),
             Stock = product.Stock,
+            Taxes = product.Taxes.Select(t => _taxMappingService.MapToTaxDTO(t)).ToList(),
         };
     }
 

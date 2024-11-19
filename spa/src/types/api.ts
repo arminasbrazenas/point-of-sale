@@ -26,8 +26,10 @@ export type ErrorResponse = {
 
 export type Product = Entity<{
   name: string;
-  price: number;
+  priceWithoutTaxes: number;
+  priceWithTaxes: number;
   stock: number;
+  taxes: Tax[];
 }>;
 
 export type Tax = Entity<{ name: string; rate: number }>;

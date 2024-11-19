@@ -1,12 +1,16 @@
-import { Button, NumberInput, Paper, Stack, TextInput } from '@mantine/core';
+import { Button, MultiSelect, NumberInput, Paper, Stack, TextInput } from '@mantine/core';
 import { useForm, zodResolver } from '@mantine/form';
 import { CreateProductInput, createProductInputSchema, useCreateProduct } from '../api/create-product';
 import { CurrencyInput } from '@/components/inputs/currency-input';
 import { showNotification } from '@/lib/notifications';
 import { useNavigate } from 'react-router-dom';
 import { paths } from '@/config/paths';
+import { useEffect, useState } from 'react';
+import { useTaxes } from '@/features/taxes/api/get-taxes';
 
 export const AddProduct = () => {
+  const [selectedTaxNames, setSelectedTaxNames] = useState<string[]>([]);
+  const taxesQuery = useTaxes({ paginationFilter: { page: 1, itemsPerPage: 50 } });
   const navigate = useNavigate();
 
   const form = useForm<CreateProductInput>({
@@ -33,9 +37,28 @@ export const AddProduct = () => {
     },
   });
 
+  useEffect(() => {
+    const taxes = taxesQuery.data?.items;
+    if (!taxes) {
+      return;
+    }
+
+    const selectedTaxIds = taxes.filter((tax) => selectedTaxNames.includes(tax.name)).map((tax) => tax.id);
+    form.setFieldValue('taxIds', selectedTaxIds);
+  }, [taxesQuery.data, selectedTaxNames]);
+
   const handleSubmit = (values: CreateProductInput) => {
     createProductMutation.mutate({ data: values });
   };
+
+  if (taxesQuery.isLoading) {
+    return <div>loading...</div>;
+  }
+
+  const taxes = taxesQuery.data?.items;
+  if (!taxes) {
+    return null;
+  }
 
   return (
     <Paper withBorder p="lg">
@@ -56,11 +79,18 @@ export const AddProduct = () => {
             {...form.getInputProps('stock')}
           />
           <CurrencyInput
-            label="Price"
-            placeholder="Price"
+            label="Price (without taxes)"
+            placeholder="Price (without taxes)"
             withAsterisk
             key={form.key('price')}
             {...form.getInputProps('price')}
+          />
+          <MultiSelect
+            label="Taxes"
+            placeholder="Applicable taxes"
+            data={taxes.map((tax) => tax.name)}
+            value={selectedTaxNames}
+            onChange={setSelectedTaxNames}
           />
           <Button type="submit" mt="xs" fullWidth loading={createProductMutation.isPending}>
             Add

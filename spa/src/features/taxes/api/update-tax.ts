@@ -30,6 +30,12 @@ export const useUpdateTax = ({ mutationConfig }: UseUpdateTaxOptions) => {
       queryClient.invalidateQueries({
         queryKey: ['taxes'],
       });
+      queryClient.invalidateQueries({
+        queryKey: ['products'],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['product'],
+      });
       queryClient.setQueryData(getTaxQueryOptions(tax.id).queryKey, () => tax);
       onSuccess?.(tax, ...args);
     },

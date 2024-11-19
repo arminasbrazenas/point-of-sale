@@ -1,4 +1,4 @@
-import { Button, Group, Modal, NumberInput, Stack, TextInput, Text, Paper } from '@mantine/core';
+import { Button, Group, Modal, NumberInput, Stack, TextInput, Text, Paper, MultiSelect } from '@mantine/core';
 import { useProduct } from '../api/get-product';
 import { CurrencyInput } from '@/components/inputs/currency-input';
 import { useNavigate } from 'react-router-dom';
@@ -10,11 +10,14 @@ import { useDisclosure } from '@mantine/hooks';
 import { useDeleteProduct } from '../api/delete-product';
 import { showNotification } from '@/lib/notifications';
 import { UpdateProductInput, useUpdateProduct } from '../api/update-product';
+import { useTaxes } from '@/features/taxes/api/get-taxes';
 
 export const UpdateProduct = ({ productId }: { productId: number }) => {
   const productQuery = useProduct({ productId });
+  const taxesQuery = useTaxes({ paginationFilter: { page: 1, itemsPerPage: 50 } });
   const navigate = useNavigate();
   const [updatedProductProperties, setUpdatedProductProperties] = useState<UpdateProductInput>({});
+  const [selectedTaxNames, setSelectedTaxNames] = useState<string[]>([]);
   const [isDeleteModelOpen, { open: openDeleteModal, close: closeDeleteModal }] = useDisclosure(false);
 
   const deleteProductMutation = useDeleteProduct({
@@ -53,41 +56,70 @@ export const UpdateProduct = ({ productId }: { productId: number }) => {
     },
     validate: zodResolver(createProductInputSchema),
     onValuesChange: (updatedProduct) => {
-      if (!productQuery.data) {
+      const product = productQuery.data;
+      const taxes = taxesQuery.data?.items;
+      if (!product || !taxes) {
         setUpdatedProductProperties({});
         return;
       }
 
-      const product = productQuery.data;
+      const productTaxIds = product.taxes.map((tax) => tax.id);
+      const selectedTaxIds = taxes.filter((tax) => selectedTaxNames.includes(tax.name)).map((tax) => tax.id);
+
       setUpdatedProductProperties({
         name: product.name === updatedProduct.name.trim() ? undefined : updatedProduct.name,
         stock: product.stock === updatedProduct.stock ? undefined : updatedProduct.stock,
-        price: product.price === updatedProduct.price ? undefined : updatedProduct.price,
+        price: product.priceWithoutTaxes === updatedProduct.price ? undefined : updatedProduct.price,
+        taxIds: isSameNumberSet(productTaxIds, selectedTaxIds) ? undefined : selectedTaxIds,
       });
     },
   });
 
   useEffect(() => {
-    if (!productQuery.data) {
+    const product = productQuery.data;
+    if (!product) {
       return;
     }
 
-    form.setFieldValue('name', productQuery.data.name);
-    form.setFieldValue('stock', productQuery.data.stock);
-    form.setFieldValue('price', productQuery.data.price);
+    setSelectedTaxNames(product.taxes.map((tax) => tax.name));
+    form.setFieldValue('name', product.name);
+    form.setFieldValue('stock', product.stock);
+    form.setFieldValue('price', product.priceWithoutTaxes);
   }, [productQuery.data]);
 
-  const isAnyProductPropertyChanged = useMemo(
-    () => Object.values(updatedProductProperties).every((o) => !o),
-    [updatedProductProperties],
-  );
+  useEffect(() => {
+    const taxes = taxesQuery.data?.items;
+    if (!taxes) {
+      return;
+    }
 
-  if (productQuery.isLoading) {
+    const selectedTaxIds = taxes.filter((tax) => selectedTaxNames.includes(tax.name)).map((tax) => tax.id);
+    form.setFieldValue('taxIds', selectedTaxIds);
+  }, [taxesQuery.data, selectedTaxNames]);
+
+  const isSameNumberSet = (a: number[], b: number[]): boolean => {
+    if (a.length != b.length) {
+      return false;
+    }
+
+    const sortedA = a.sort((a, b) => a - b);
+    const sortedB = b.sort((a, b) => a - b);
+    for (let i = 0; i < sortedA.length; i++) {
+      if (sortedA[i] != sortedB[i]) {
+        return false;
+      }
+    }
+
+    return true;
+  };
+
+  if (productQuery.isLoading || taxesQuery.isLoading) {
     return <div>loading...</div>;
   }
 
   const product = productQuery.data;
-  if (!product) {
+  const taxes = taxesQuery.data?.items;
+  if (!product || !taxes) {
     return null;
   }
 
@@ -95,7 +127,7 @@ export const UpdateProduct = ({ productId }: { productId: number }) => {
     deleteProductMutation.mutate({ productId });
   };
 
-  const updateProduct = (values: UpdateProductInput) => {
+  const updateProduct = () => {
     updateProductMutation.mutate({ productId, data: updatedProductProperties });
   };
 
@@ -118,11 +150,19 @@ export const UpdateProduct = ({ productId }: { productId: number }) => {
             {...form.getInputProps('stock')}
           />
           <CurrencyInput
-            label="Price"
-            placeholder="Price"
+            label="Price (without taxes)"
+            placeholder="Price (without taxes)"
             withAsterisk
             key={form.key('price')}
             {...form.getInputProps('price')}
+          />
+          <CurrencyInput label="Price (with taxes)" value={product.priceWithTaxes} disabled />
+          <MultiSelect
+            label="Taxes"
+            placeholder="Applicable taxes"
+            data={taxes.map((tax) => tax.name)}
+            value={selectedTaxNames}
+            onChange={setSelectedTaxNames}
           />
           <Group justify="space-between" mt="xs">
             <Button color="red" variant="light" onClick={openDeleteModal}>
@@ -132,7 +172,7 @@ export const UpdateProduct = ({ productId }: { productId: number }) => {
               <Button variant="default" onClick={() => navigate(paths.management.products.getHref())}>
                 Cancel
               </Button>
-              <Button type="submit" disabled={isAnyProductPropertyChanged} loading={updateProductMutation.isPending}>
+              <Button type="submit" loading={updateProductMutation.isPending}>
                 Save
               </Button>
             </Group>
