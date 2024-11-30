@@ -107,7 +107,7 @@ public class OrderService : IOrderService
     private async Task<List<OrderItem>> ReserveOrderItems(List<CreateOrUpdateOrderItemDTO> createOrderItemDTOs)
     {
         var productIds = createOrderItemDTOs.Select(x => x.ProductId);
-        var products = await _productRepository.GetManyWithTaxesAndModifiers(productIds);
+        var products = await _productRepository.GetManyWithRelatedData(productIds);
 
         List<OrderItem> orderItems = [];
         foreach (var createOrderItemDTO in createOrderItemDTOs)

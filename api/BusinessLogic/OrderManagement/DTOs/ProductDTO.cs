@@ -8,4 +8,5 @@ public record ProductDTO
     public required decimal PriceWithTaxes { get; init; }
     public required int Stock { get; init; }
     public required List<TaxDTO> Taxes { get; set; }
+    public required List<ModifierDTO> Modifiers { get; set; }
 }

@@ -10,6 +10,7 @@ export const updateProductInputSchema = z.object({
   stock: z.coerce.number().optional(),
   price: z.coerce.number().optional(),
   taxIds: z.array(z.number().int()).optional(),
+  modifierIds: z.array(z.number().int()).optional(),
 });
 
 export type UpdateProductInput = z.infer<typeof updateProductInputSchema>;

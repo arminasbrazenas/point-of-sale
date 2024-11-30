@@ -37,6 +37,7 @@ export type Product = Entity<{
   priceWithTaxes: number;
   stock: number;
   taxes: Tax[];
+  modifiers: Modifier[];
 }>;
 
 export type Tax = Entity<{ name: string; rate: number }>;

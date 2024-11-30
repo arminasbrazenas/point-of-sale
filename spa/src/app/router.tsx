@@ -3,9 +3,14 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { paths } from '../config/paths';
 import { ManagementRoot } from './routes/management/root';
 import { EmployeeRoot } from './routes/employee/root';
+import { HomeRoute } from './routes/home';
 
 const createAppRouter = () =>
   createBrowserRouter([
+    {
+      path: paths.home.path,
+      element: <HomeRoute />,
+    },
     {
       path: paths.employee.root.path,
       element: <EmployeeRoot />,

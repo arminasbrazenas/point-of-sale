@@ -6,4 +6,5 @@ public record CreateProductDTO
     public required decimal Price { get; init; }
     public required int Stock { get; init; }
     public required List<int> TaxIds { get; init; }
+    public required List<int> ModifierIds { get; init; }
 }

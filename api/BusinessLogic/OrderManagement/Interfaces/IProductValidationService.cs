@@ -8,4 +8,5 @@ public interface IProductValidationService
     decimal ValidatePrice(decimal price);
     int ValidateStock(int stock);
     Task<List<Tax>> ValidateTaxes(List<int> taxIds);
+    Task<List<Modifier>> ValidateModifiers(List<int> modifierIds);
 }

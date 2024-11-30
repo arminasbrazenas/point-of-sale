@@ -50,7 +50,7 @@ public class OrderServiceTests
             .Build();
 
         _productRepository
-            .Setup(self => self.GetManyWithTaxesAndModifiers(It.IsAny<IEnumerable<int>>()))
+            .Setup(self => self.GetManyWithRelatedData(It.IsAny<IEnumerable<int>>()))
             .ReturnsAsync([coffee]);
 
         var createOrderDTO = new CreateOrderDTO
@@ -123,7 +123,7 @@ public class OrderServiceTests
             .Build();
 
         _productRepository
-            .Setup(self => self.GetManyWithTaxesAndModifiers(It.IsAny<IEnumerable<int>>()))
+            .Setup(self => self.GetManyWithRelatedData(It.IsAny<IEnumerable<int>>()))
             .ReturnsAsync([coffee, tea]);
 
         var createOrderDTO = new CreateOrderDTO
@@ -171,9 +171,7 @@ public class OrderServiceTests
     public async Task CreateOrder_ProductNotFound_Throws()
     {
         // Arrange
-        _productRepository
-            .Setup(self => self.GetManyWithTaxesAndModifiers(It.IsAny<IEnumerable<int>>()))
-            .ReturnsAsync([]);
+        _productRepository.Setup(self => self.GetManyWithRelatedData(It.IsAny<IEnumerable<int>>())).ReturnsAsync([]);
 
         var createOrderDTO = new CreateOrderDTO
         {
@@ -209,7 +207,7 @@ public class OrderServiceTests
             .Build();
 
         _productRepository
-            .Setup(self => self.GetManyWithTaxesAndModifiers(It.IsAny<IEnumerable<int>>()))
+            .Setup(self => self.GetManyWithRelatedData(It.IsAny<IEnumerable<int>>()))
             .ReturnsAsync([coffee]);
 
         var createOrderDTO = new CreateOrderDTO
@@ -246,7 +244,7 @@ public class OrderServiceTests
             .Build();
 
         _productRepository
-            .Setup(self => self.GetManyWithTaxesAndModifiers(It.IsAny<IEnumerable<int>>()))
+            .Setup(self => self.GetManyWithRelatedData(It.IsAny<IEnumerable<int>>()))
             .ReturnsAsync([coffee]);
 
         var createOrderDTO = new CreateOrderDTO
@@ -290,7 +288,7 @@ public class OrderServiceTests
             .Build();
 
         _productRepository
-            .Setup(self => self.GetManyWithTaxesAndModifiers(It.IsAny<IEnumerable<int>>()))
+            .Setup(self => self.GetManyWithRelatedData(It.IsAny<IEnumerable<int>>()))
             .ReturnsAsync([coffee]);
 
         var createOrderDTO = new CreateOrderDTO

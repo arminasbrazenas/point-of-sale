@@ -6,4 +6,5 @@ public record UpdateProductDTO
     public decimal? Price { get; init; }
     public int? Stock { get; init; }
     public List<int>? TaxIds { get; init; }
+    public List<int>? ModifierIds { get; init; }
 }

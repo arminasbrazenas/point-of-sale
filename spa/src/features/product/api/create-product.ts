@@ -9,6 +9,7 @@ export const createProductInputSchema = z.object({
   stock: z.coerce.number().int('Stock must be an integer.').min(0, 'Stock must not be negative.'),
   price: z.coerce.number().min(0, 'Price must not be negative.'),
   taxIds: z.array(z.number().int()),
+  modifierIds: z.array(z.number().int()),
 });
 
 export type CreateProductInput = z.infer<typeof createProductInputSchema>;

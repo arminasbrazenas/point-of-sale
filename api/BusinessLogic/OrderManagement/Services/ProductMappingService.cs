@@ -10,10 +10,12 @@ namespace PointOfSale.BusinessLogic.OrderManagement.Services;
 public class ProductMappingService : IProductMappingService
 {
     private readonly ITaxMappingService _taxMappingService;
+    private readonly IModifierMappingService _modifierMappingService;
 
-    public ProductMappingService(ITaxMappingService taxMappingService)
+    public ProductMappingService(ITaxMappingService taxMappingService, IModifierMappingService modifierMappingService)
     {
         _taxMappingService = taxMappingService;
+        _modifierMappingService = modifierMappingService;
     }
 
     public ProductDTO MapToProductDTO(Product product)
@@ -30,6 +32,7 @@ public class ProductMappingService : IProductMappingService
             PriceWithTaxes = price.ToRoundedPrice(),
             Stock = product.Stock,
             Taxes = product.Taxes.Select(t => _taxMappingService.MapToTaxDTO(t)).ToList(),
+            Modifiers = product.Modifiers.Select(m => _modifierMappingService.MapToModifierDTO(m)).ToList(),
         };
     }
 

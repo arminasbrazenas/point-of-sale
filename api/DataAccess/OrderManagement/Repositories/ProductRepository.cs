@@ -14,14 +14,18 @@ public class ProductRepository : RepositoryBase<Product, int>, IProductRepositor
     public ProductRepository(ApplicationDbContext dbContext)
         : base(dbContext) { }
 
-    public async Task<Product> GetWithTaxes(int productId)
+    public async Task<Product> GetWithRelatedData(int productId)
     {
-        var product = await DbSet.Include(p => p.Taxes).Where(p => p.Id == productId).FirstOrDefaultAsync();
+        var product = await DbSet
+            .Include(p => p.Taxes)
+            .Include(p => p.Modifiers)
+            .Where(p => p.Id == productId)
+            .FirstOrDefaultAsync();
 
         return product ?? throw new EntityNotFoundException(GetEntityNotFoundErrorMessage(productId));
     }
 
-    public async Task<List<Product>> GetManyWithTaxesAndModifiers(IEnumerable<int> productIds)
+    public async Task<List<Product>> GetManyWithRelatedData(IEnumerable<int> productIds)
     {
         var distinctIds = productIds.Distinct().ToList();
         if (distinctIds.Count == 0)
@@ -50,9 +54,10 @@ public class ProductRepository : RepositoryBase<Product, int>, IProductRepositor
         return DbSet.FirstOrDefaultAsync(p => p.Name == name);
     }
 
-    public async Task<List<Product>> GetPagedWithTaxes(PaginationFilter paginationFilter)
+    public async Task<List<Product>> GetPaged(PaginationFilter paginationFilter)
     {
-        var query = DbSet.Include(p => p.Taxes).OrderBy(p => p.CreatedAt).AsQueryable();
+        var query = DbSet.Include(p => p.Taxes).Include(p => p.Modifiers).OrderBy(p => p.CreatedAt).AsQueryable();
+
         return await GetPaged(query, paginationFilter);
     }
 

@@ -11,13 +11,17 @@ import { useDeleteProduct } from '../api/delete-product';
 import { showNotification } from '@/lib/notifications';
 import { UpdateProductInput, useUpdateProduct } from '../api/update-product';
 import { useTaxes } from '@/features/taxes/api/get-taxes';
+import { useModifiers } from '@/features/modifier/api/get-modifiers';
+import { isSameNumberSet } from '@/utilities';
 
 export const UpdateProduct = ({ productId }: { productId: number }) => {
   const productQuery = useProduct({ productId });
   const taxesQuery = useTaxes({ paginationFilter: { page: 1, itemsPerPage: 50 } });
+  const modifiersQuery = useModifiers({ paginationFilter: { page: 1, itemsPerPage: 50 } });
   const navigate = useNavigate();
   const [updatedProductProperties, setUpdatedProductProperties] = useState<UpdateProductInput>({});
   const [selectedTaxNames, setSelectedTaxNames] = useState<string[]>([]);
+  const [selectedModifierNames, setSelectedModifierNames] = useState<string[]>([]);
   const [isDeleteModelOpen, { open: openDeleteModal, close: closeDeleteModal }] = useDisclosure(false);
 
   const deleteProductMutation = useDeleteProduct({
@@ -53,24 +57,29 @@ export const UpdateProduct = ({ productId }: { productId: number }) => {
       stock: 0,
       price: 0,
       taxIds: [],
+      modifierIds: [],
     },
     validate: zodResolver(createProductInputSchema),
     onValuesChange: (updatedProduct) => {
       const product = productQuery.data;
       const taxes = taxesQuery.data?.items;
-      if (!product || !taxes) {
+      const modifiers = modifiersQuery.data?.items;
+      if (!product || !taxes || !modifiers) {
         setUpdatedProductProperties({});
         return;
       }
 
       const productTaxIds = product.taxes.map((tax) => tax.id);
       const selectedTaxIds = taxes.filter((tax) => selectedTaxNames.includes(tax.name)).map((tax) => tax.id);
+      const productModifierIds = product.modifiers.map((m) => m.id);
+      const selectedModifierIds = modifiers.filter((m) => selectedModifierNames.includes(m.name)).map((m) => m.id);
 
       setUpdatedProductProperties({
         name: product.name === updatedProduct.name.trim() ? undefined : updatedProduct.name,
         stock: product.stock === updatedProduct.stock ? undefined : updatedProduct.stock,
         price: product.priceWithoutTaxes === updatedProduct.price ? undefined : updatedProduct.price,
         taxIds: isSameNumberSet(productTaxIds, selectedTaxIds) ? undefined : selectedTaxIds,
+        modifierIds: isSameNumberSet(productModifierIds, selectedModifierIds) ? undefined : selectedModifierIds,
       });
     },
   });
@@ -82,6 +91,7 @@ export const UpdateProduct = ({ productId }: { productId: number }) => {
     }
 
     setSelectedTaxNames(product.taxes.map((tax) => tax.name));
+    setSelectedModifierNames(product.modifiers.map((m) => m.name));
     form.setFieldValue('name', product.name);
     form.setFieldValue('stock', product.stock);
     form.setFieldValue('price', product.priceWithoutTaxes);
@@ -97,29 +107,24 @@ export const UpdateProduct = ({ productId }: { productId: number }) => {
     form.setFieldValue('taxIds', selectedTaxIds);
   }, [taxesQuery.data, selectedTaxNames]);
 
-  const isSameNumberSet = (a: number[], b: number[]): boolean => {
-    if (a.length != b.length) {
-      return false;
+  useEffect(() => {
+    const modifiers = modifiersQuery.data?.items;
+    if (!modifiers) {
+      return;
     }
 
-    const sortedA = a.sort((a, b) => a - b);
-    const sortedB = b.sort((a, b) => a - b);
-    for (let i = 0; i < sortedA.length; i++) {
-      if (sortedA[i] != sortedB[i]) {
-        return false;
-      }
-    }
+    const selectedModifierIds = modifiers.filter((m) => selectedModifierNames.includes(m.name)).map((m) => m.id);
+    form.setFieldValue('modifierIds', selectedModifierIds);
+  }, [modifiersQuery.data, selectedModifierNames]);
 
-    return true;
-  };
-
-  if (productQuery.isLoading || taxesQuery.isLoading) {
+  if (productQuery.isLoading || taxesQuery.isLoading || modifiersQuery.isLoading) {
     return <div>loading...</div>;
   }
 
   const product = productQuery.data;
   const taxes = taxesQuery.data?.items;
-  if (!product || !taxes) {
+  const modifiers = modifiersQuery.data?.items;
+  if (!product || !taxes || !modifiers) {
     return null;
   }
 
@@ -150,8 +155,8 @@ export const UpdateProduct = ({ productId }: { productId: number }) => {
             {...form.getInputProps('stock')}
           />
           <CurrencyInput
-            label="Price (without taxes)"
-            placeholder="Price (without taxes)"
+            label="Price (pre-tax)"
+            placeholder="Price (pre-tax)"
             withAsterisk
             key={form.key('price')}
             {...form.getInputProps('price')}
@@ -163,6 +168,13 @@ export const UpdateProduct = ({ productId }: { productId: number }) => {
             data={taxes.map((tax) => tax.name)}
             value={selectedTaxNames}
             onChange={setSelectedTaxNames}
+          />
+          <MultiSelect
+            label="Modifiers"
+            placeholder="Compatible modifiers"
+            data={modifiers.map((m) => m.name)}
+            value={selectedModifierNames}
+            onChange={setSelectedModifierNames}
           />
           <Group justify="space-between" mt="xs">
             <Button color="red" variant="light" onClick={openDeleteModal}>
