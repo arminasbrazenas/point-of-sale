@@ -3,6 +3,7 @@ import { useOrders } from '../api/get-orders';
 import { useNavigate } from 'react-router-dom';
 import { Center, Pagination, Paper, Table } from '@mantine/core';
 import { paths } from '@/config/paths';
+import { formatDate } from '@/utilities';
 
 export const OrderList = () => {
   const [page, setPage] = useState<number>(1);
@@ -39,7 +40,7 @@ export const OrderList = () => {
               <Table.Tr key={order.id} onClick={() => navigate(paths.employee.updateOrder.getHref(order.id))}>
                 <Table.Td>{order.id}</Table.Td>
                 <Table.Td>{order.status}</Table.Td>
-                <Table.Td>{order.createdAt}</Table.Td>
+                <Table.Td>{formatDate(order.createdAt)}</Table.Td>
               </Table.Tr>
             ))}
           </Table.Tbody>

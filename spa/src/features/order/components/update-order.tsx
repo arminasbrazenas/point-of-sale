@@ -1,13 +1,13 @@
-import { Button, Group, Paper, Stack, Text } from '@mantine/core';
+import { Button, Paper, Stack, Text } from '@mantine/core';
 import { useOrder } from '../api/get-order';
 import { useCancelOrder } from '../api/cancel-order';
 import { showNotification } from '@/lib/notifications';
-import { OrderItemList } from './order-item-list';
 import { EnhancedCreateOrderItemInput } from './order-product';
 import { useProducts } from '@/features/product/api/get-products';
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { OrderProducts } from './order-products';
 import { Product } from '@/types/api';
+import { formatDate } from '@/utilities';
 
 export const UpdateOrder = ({ orderId }: { orderId: number }) => {
   const orderQuery = useOrder({ orderId });
@@ -64,35 +64,21 @@ export const UpdateOrder = ({ orderId }: { orderId: number }) => {
     cancelOrderMutation.mutate({ orderId });
   };
 
-  const saveOrderItems = () => {};
-
-  // const updateOrderItem = (orderItem: EnhancedCreateOrderItemInput) => {
-  //   setOrderItems((prev) => prev.map((x) => (x.id === orderItem.id ? orderItem : x)));
-  // };
-
-  // const removeOrderItem = (orderItem: EnhancedCreateOrderItemInput) => {
-  //   setOrderItems((prev) => prev.filter((x) => x.id !== orderItem.id));
-  // };
-
   return (
     <Stack>
       <Paper withBorder p="lg">
         <Text>ID: {order.id}</Text>
         <Text>Status: {order.status}</Text>
-        <Button color="red" variant="light" onClick={cancelOrder}>
-          Cancel order
-        </Button>
+        <Text>Created at: {formatDate(order.createdAt)}</Text>
+
+        <Stack mt="lg">
+          <Button color="red" variant="light" onClick={cancelOrder}>
+            Cancel order
+          </Button>
+        </Stack>
       </Paper>
 
       <OrderProducts orderItems={enhancedOrderItems} orderId={order.id} />
-
-      {/* <OrderItemList
-        orderItems={orderItems}
-        confirmText="Update order items"
-        onConfirm={saveOrderItems}
-        updateOrderItem={updateOrderItem}
-        removeOrderItem={removeOrderItem}
-      /> */}
     </Stack>
   );
 };
