@@ -1,16 +1,4 @@
 ﻿services:
-  pos.api:
-    image: pos-api:latest
-    container_name: pos.api
-    environment:
-      ASPNETCORE_ENVIRONMENT: "Development"
-    build:
-      context: .
-      dockerfile: Api/Dockerfile
-    ports:
-      - "8080:8080"
-      - "8081:8081"
-
   pos.database:
     image: postgres:latest
     container_name: pos.database
@@ -23,3 +11,21 @@
       - ./.containers/pointofsale-db:/var/lib/postgresql/data
     ports:
       - "5433:5433"
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 10s
+      retries: 5
+
+  pos.api:
+    image: pos-api:latest
+    container_name: pos.api
+    environment:
+      ASPNETCORE_ENVIRONMENT: "Development"
+    build:
+      context: .
+      dockerfile: Api/Dockerfile
+    ports:
+      - "8080:8080"
+      - "8081:8081"
+    depends_on:
+      - pos.database
