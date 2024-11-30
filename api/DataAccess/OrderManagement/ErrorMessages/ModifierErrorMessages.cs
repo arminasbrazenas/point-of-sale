@@ -30,14 +30,12 @@ public class IncompatibleProductModifierErrorMessage : IPointOfSaleErrorMessage
 
 public class ModifierOutOfStockErrorMessage : IPointOfSaleErrorMessage
 {
-    private readonly int _modifierId;
-    private readonly int _availableStock;
+    private readonly string _modifierName;
 
-    public ModifierOutOfStockErrorMessage(int modifierId, int availableStock)
+    public ModifierOutOfStockErrorMessage(string modifierName)
     {
-        _modifierId = modifierId;
-        _availableStock = availableStock;
+        _modifierName = modifierName;
     }
 
-    public string En => $"Modifier with id '{_modifierId}' is out of stock. Available stock is {_availableStock}.";
+    public string En => $"Modifier '{_modifierName}' is out of stock.";
 }

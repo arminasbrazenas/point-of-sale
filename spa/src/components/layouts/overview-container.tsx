@@ -2,7 +2,7 @@ import { Button, Container, Group, Title } from '@mantine/core';
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-type ManagementContainerProps = {
+type OverviewContainerProps = {
   title: string;
   addButton: {
     text: string;
@@ -11,7 +11,7 @@ type ManagementContainerProps = {
   children: React.ReactNode;
 };
 
-export const ManagementContainer = (props: ManagementContainerProps) => {
+export const OverviewContainer = (props: OverviewContainerProps) => {
   return (
     <Container w="100%">
       <Group justify="space-between" mb="md">

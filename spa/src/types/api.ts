@@ -1,7 +1,14 @@
+export enum OrderStatus {
+  Open = 'Open',
+  Closed = 'Closed',
+  Canceled = 'Canceled',
+  Refunded = 'Refunded',
+}
+
 export type EntityBase = {
   id: number;
-  createdAt: Date;
-  modifiedAt: Date;
+  createdAt: string;
+  modifiedAt: string;
 };
 
 export type Entity<T> = {
@@ -33,3 +40,17 @@ export type Product = Entity<{
 }>;
 
 export type Tax = Entity<{ name: string; rate: number }>;
+
+export type OrderItem = Entity<{
+  productId?: number;
+  name: string;
+  quantity: number;
+  baseUnitPrice: number;
+  totalPrice: number;
+}>;
+
+export type Order = Entity<{
+  orderItems: OrderItem[];
+  totalPrice: number;
+  status: OrderStatus;
+}>;

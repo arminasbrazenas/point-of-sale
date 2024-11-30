@@ -15,7 +15,7 @@ public class ProductMappingService : IProductMappingService
     {
         _taxMappingService = taxMappingService;
     }
-    
+
     public ProductDTO MapToProductDTO(Product product)
     {
         var priceWithoutTaxes = product.Price;

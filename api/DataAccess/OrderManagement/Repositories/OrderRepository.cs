@@ -16,7 +16,7 @@ public class OrderRepository : RepositoryBase<Order, int>, IOrderRepository
 
     public async Task<List<Order>> GetMinimalWithFilter(PaginationFilter paginationFilter)
     {
-        var query = DbSet.AsQueryable();
+        var query = DbSet.AsQueryable().OrderByDescending(o => o.CreatedAt);
         return await GetPaged(query, paginationFilter);
     }
 

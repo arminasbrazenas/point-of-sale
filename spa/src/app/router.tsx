@@ -2,21 +2,41 @@ import { useMemo } from 'react';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { paths } from '../config/paths';
 import { ManagementRoot } from './routes/management/root';
-import { QueryClient, useQueryClient } from '@tanstack/react-query';
+import { EmployeeRoot } from './routes/employee/root';
 
-const createAppRouter = (queryClient: QueryClient) =>
+const createAppRouter = () =>
   createBrowserRouter([
+    {
+      path: paths.employee.root.path,
+      element: <EmployeeRoot />,
+      children: [
+        {
+          path: paths.employee.orders.path,
+          lazy: async () => {
+            const { OrdersEmployeeRoute } = await import('./routes/employee/orders/orders');
+            return { Component: OrdersEmployeeRoute };
+          },
+        },
+        {
+          path: paths.employee.newOrder.path,
+          lazy: async () => {
+            const { NewOrderRoute } = await import('./routes/employee/orders/new-order');
+            return { Component: NewOrderRoute };
+          },
+        },
+        {
+          path: paths.employee.updateOrder.path,
+          lazy: async () => {
+            const { UpdateOrderEmployeeRoute } = await import('./routes/employee/orders/update-order');
+            return { Component: UpdateOrderEmployeeRoute };
+          },
+        },
+      ],
+    },
     {
       path: paths.management.root.path,
       element: <ManagementRoot />,
       children: [
-        {
-          path: paths.management.dashboard.path,
-          lazy: async () => {
-            const { ManagementDashboardRoute } = await import('./routes/management/dashboard/dashboard');
-            return { Component: ManagementDashboardRoute };
-          },
-        },
         {
           path: paths.management.products.path,
           lazy: async () => {
@@ -64,9 +84,7 @@ const createAppRouter = (queryClient: QueryClient) =>
   ]);
 
 export const AppRouter = () => {
-  const queryClient = useQueryClient();
-
-  const router = useMemo(() => createAppRouter(queryClient), [queryClient]);
+  const router = useMemo(() => createAppRouter(), []);
 
   return <RouterProvider router={router} />;
 };

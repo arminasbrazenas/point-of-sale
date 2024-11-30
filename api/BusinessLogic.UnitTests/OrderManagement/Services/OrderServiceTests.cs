@@ -57,7 +57,7 @@ public class OrderServiceTests
         {
             OrderItems =
             [
-                new CreateOrderItemDTO
+                new CreateOrUpdateOrderItemDTO
                 {
                     ProductId = coffee.Id,
                     ModifierIds = [],
@@ -130,13 +130,13 @@ public class OrderServiceTests
         {
             OrderItems =
             [
-                new CreateOrderItemDTO
+                new CreateOrUpdateOrderItemDTO
                 {
                     ProductId = coffee.Id,
                     ModifierIds = [almondMilkModifier.Id, additionalSugarModifier.Id],
                     Quantity = 2,
                 },
-                new CreateOrderItemDTO
+                new CreateOrUpdateOrderItemDTO
                 {
                     ProductId = tea.Id,
                     ModifierIds = [additionalSugarModifier.Id],
@@ -179,7 +179,7 @@ public class OrderServiceTests
         {
             OrderItems =
             [
-                new CreateOrderItemDTO
+                new CreateOrUpdateOrderItemDTO
                 {
                     ProductId = 1,
                     ModifierIds = [],
@@ -216,7 +216,7 @@ public class OrderServiceTests
         {
             OrderItems =
             [
-                new CreateOrderItemDTO
+                new CreateOrUpdateOrderItemDTO
                 {
                     ProductId = 1,
                     ModifierIds = [11],
@@ -253,7 +253,7 @@ public class OrderServiceTests
         {
             OrderItems =
             [
-                new CreateOrderItemDTO
+                new CreateOrUpdateOrderItemDTO
                 {
                     ProductId = 1,
                     ModifierIds = [],
@@ -297,7 +297,7 @@ public class OrderServiceTests
         {
             OrderItems =
             [
-                new CreateOrderItemDTO
+                new CreateOrUpdateOrderItemDTO
                 {
                     ProductId = 1,
                     ModifierIds = [almondMilkModifier.Id],

@@ -1,6 +1,6 @@
 namespace PointOfSale.BusinessLogic.OrderManagement.DTOs;
 
-public record CreateOrderItemDTO
+public record CreateOrUpdateOrderItemDTO
 {
     public required int ProductId { get; init; }
     public required List<int> ModifierIds { get; init; }

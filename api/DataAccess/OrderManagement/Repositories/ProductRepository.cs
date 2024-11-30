@@ -52,7 +52,7 @@ public class ProductRepository : RepositoryBase<Product, int>, IProductRepositor
 
     public async Task<List<Product>> GetPagedWithTaxes(PaginationFilter paginationFilter)
     {
-        var query = DbSet.Include(p => p.Taxes).AsQueryable();
+        var query = DbSet.Include(p => p.Taxes).OrderBy(p => p.CreatedAt).AsQueryable();
         return await GetPaged(query, paginationFilter);
     }
 

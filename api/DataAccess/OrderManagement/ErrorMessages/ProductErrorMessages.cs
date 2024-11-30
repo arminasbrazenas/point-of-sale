@@ -60,14 +60,12 @@ public class ProductDuplicateTaxErrorMessage : IPointOfSaleErrorMessage
 
 public class ProductOutOfStockErrorMessage : IPointOfSaleErrorMessage
 {
-    private readonly int _productId;
-    private readonly int _availableStock;
+    private readonly string _productName;
 
-    public ProductOutOfStockErrorMessage(int productId, int availableStock)
+    public ProductOutOfStockErrorMessage(string productName)
     {
-        _productId = productId;
-        _availableStock = availableStock;
+        _productName = productName;
     }
 
-    public string En => $"Product with id '{_productId}' is out of stock. Available stock is {_availableStock}.";
+    public string En => $"Product '{_productName}' is out of stock.";
 }

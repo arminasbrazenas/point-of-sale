@@ -30,8 +30,6 @@ const theme = createTheme({
       }),
     },
   },
-  primaryColor: 'teal',
-  primaryShade: 8,
   fontFamily: 'Inter',
 });
 

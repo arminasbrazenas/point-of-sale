@@ -53,14 +53,17 @@ public class OrderMappingService : IOrderMappingService
     {
         var modifiersPrice = orderItem.Modifiers.Sum(i => i.Price);
         var subtotal = (orderItem.BaseUnitPrice + modifiersPrice) * orderItem.Quantity;
-        var taxRates = orderItem.Taxes.Select(t => t.Rate);
+        var taxRates = orderItem.Taxes.Select(t => t.Rate).ToList();
         var totalPrice = subtotal + PriceUtility.CalculateTotalTax(subtotal, taxRates);
+        var baseUnitPrice = orderItem.BaseUnitPrice + PriceUtility.CalculateTotalTax(orderItem.BaseUnitPrice, taxRates);
 
         return new OrderItemDTO
         {
             Id = orderItem.Id,
+            ProductId = orderItem.ProductId,
             Name = orderItem.Name,
             Quantity = orderItem.Quantity,
+            BaseUnitPrice = baseUnitPrice.ToRoundedPrice(),
             TotalPrice = totalPrice.ToRoundedPrice(),
             Modifiers = orderItem.Modifiers.Select(MapToOrderItemModifierDTO).ToList(),
         };

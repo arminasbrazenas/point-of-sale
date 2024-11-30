@@ -92,7 +92,7 @@ public class OrderService : IOrderService
         await _unitOfWork.SaveChanges();
     }
 
-    private async Task<List<OrderItem>> ReserveOrderItems(List<CreateOrderItemDTO> createOrderItemDTOs)
+    private async Task<List<OrderItem>> ReserveOrderItems(List<CreateOrUpdateOrderItemDTO> createOrderItemDTOs)
     {
         var productIds = createOrderItemDTOs.Select(x => x.ProductId);
         var products = await _productRepository.GetManyWithTaxesAndModifiers(productIds);
@@ -108,7 +108,7 @@ public class OrderService : IOrderService
 
             if (product.Stock < createOrderItemDTO.Quantity)
             {
-                throw new ValidationException(new ProductOutOfStockErrorMessage(product.Id, product.Stock));
+                throw new ValidationException(new ProductOutOfStockErrorMessage(product.Name));
             }
 
             product.Stock -= createOrderItemDTO.Quantity;
@@ -124,7 +124,7 @@ public class OrderService : IOrderService
 
                 if (modifier.Stock < createOrderItemDTO.Quantity)
                 {
-                    throw new ValidationException(new ModifierOutOfStockErrorMessage(modifier.Id, modifier.Stock));
+                    throw new ValidationException(new ModifierOutOfStockErrorMessage(modifier.Name));
                 }
 
                 modifier.Stock -= createOrderItemDTO.Quantity;

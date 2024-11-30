@@ -3,13 +3,31 @@ export const paths = {
     path: '/',
     getHref: () => '/',
   },
-  management: {
+  employee: {
     root: {
-      path: '/management',
-      getHref: () => '/management',
+      path: '/employee',
+      getHref: () => '/employee',
     },
     dashboard: {
       path: '',
+      getHref: () => '/employee',
+    },
+    orders: {
+      path: 'orders',
+      getHref: () => '/employee/orders',
+    },
+    updateOrder: {
+      path: 'orders/:orderId',
+      getHref: (orderId: number) => `/employee/orders/${orderId}`,
+    },
+    newOrder: {
+      path: 'orders/new',
+      getHref: () => '/employee/orders/new',
+    },
+  },
+  management: {
+    root: {
+      path: '/management',
       getHref: () => '/management',
     },
     products: {
