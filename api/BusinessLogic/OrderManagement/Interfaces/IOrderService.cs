@@ -10,4 +10,5 @@ public interface IOrderService
     Task<OrderDTO> GetOrder(int orderId);
     Task<OrderDTO> UpdateOrder(int orderId, UpdateOrderDTO updateOrderDTO);
     Task CancelOrder(int orderId);
+    Task<OrderReceiptDTO> GetOrderReceipt(int orderId);
 }

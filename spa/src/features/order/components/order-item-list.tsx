@@ -29,8 +29,8 @@ export const OrderItemList = (props: OrderItemListProps) => {
         {props.orderItems.map((orderItem, idx) => (
           <OrderItem update={props.updateOrderItem} remove={props.removeOrderItem} orderItem={orderItem} key={idx} />
         ))}
-        <Text fw={600} ta="right">
-          Total price: {convertToMoney(totalPrice)}€
+        <Text fw={500} ta="right">
+          Total: {convertToMoney(totalPrice)}€
         </Text>
         <Button onClick={props.onConfirm} loading={props.isLoading}>
           {props.confirmText}

@@ -14,4 +14,5 @@ public interface IOrderMappingService
         int totalCount
     );
     OrderDTO MapToOrderDTO(Order order);
+    OrderReceiptDTO MapToOrderReceiptDTO(Order order);
 }

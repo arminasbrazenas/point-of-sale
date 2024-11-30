@@ -92,6 +92,18 @@ public class OrderService : IOrderService
         await _unitOfWork.SaveChanges();
     }
 
+    public async Task<OrderReceiptDTO> GetOrderReceipt(int orderId)
+    {
+        var order = await _orderRepository.GetWithOrderItems(orderId);
+        if (order.Status != OrderStatus.Closed)
+        {
+            // TODO: reenable this
+            // throw new ValidationException(new CannotGetReceiptForNonClosedOrderErrorMessage());
+        }
+
+        return _orderMappingService.MapToOrderReceiptDTO(order);
+    }
+
     private async Task<List<OrderItem>> ReserveOrderItems(List<CreateOrUpdateOrderItemDTO> createOrderItemDTOs)
     {
         var productIds = createOrderItemDTOs.Select(x => x.ProductId);

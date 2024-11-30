@@ -18,3 +18,8 @@ public class CannotModifyNonOpenOrderErrorMessage : IPointOfSaleErrorMessage
 {
     public string En => "Non-open order cannot be modified.";
 }
+
+public class CannotGetReceiptForNonClosedOrderErrorMessage : IPointOfSaleErrorMessage
+{
+    public string En => "Cannot get receipt for non-closed order.";
+}

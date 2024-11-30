@@ -58,4 +58,12 @@ public class OrdersController : ControllerBase
         await _orderService.CancelOrder(orderId);
         return NoContent();
     }
+
+    [HttpGet]
+    [Route("{orderId:int}/receipt")]
+    public async Task<IActionResult> GetOrderReceipt([FromRoute] int orderId)
+    {
+        var receipt = await _orderService.GetOrderReceipt(orderId);
+        return Ok(receipt);
+    }
 }

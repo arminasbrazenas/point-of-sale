@@ -45,17 +45,32 @@ public class OrderMappingService : IOrderMappingService
             Status = order.Status,
             CreatedAt = order.CreatedAt,
             OrderItems = orderItems,
-            TotalPrice = totalPrice.ToRoundedPrice(),
+            TotalPrice = totalPrice,
+        };
+    }
+
+    public OrderReceiptDTO MapToOrderReceiptDTO(Order order)
+    {
+        var orderDTO = MapToOrderDTO(order);
+        var taxTotal = orderDTO.OrderItems.Sum(i => i.TaxTotal);
+
+        return new OrderReceiptDTO
+        {
+            TotalPrice = orderDTO.TotalPrice,
+            OrderItems = orderDTO.OrderItems,
+            TaxTotal = taxTotal,
         };
     }
 
     private static OrderItemDTO MapToOrderItemDTO(OrderItem orderItem)
     {
-        var modifiersPrice = orderItem.Modifiers.Sum(i => i.Price);
-        var subtotal = (orderItem.BaseUnitPrice + modifiersPrice) * orderItem.Quantity;
+        var modifiersPrice = orderItem.Modifiers.Sum(i => i.Price).ToRoundedPrice();
+        var preTaxUnitPrice = (orderItem.BaseUnitPrice + modifiersPrice).ToRoundedPrice();
         var taxRates = orderItem.Taxes.Select(t => t.Rate).ToList();
-        var totalPrice = subtotal + PriceUtility.CalculateTotalTax(subtotal, taxRates);
-        var baseUnitPrice = orderItem.BaseUnitPrice + PriceUtility.CalculateTotalTax(orderItem.BaseUnitPrice, taxRates);
+        var unitTaxTotal = PriceUtility.CalculateTotalTax(preTaxUnitPrice, taxRates).ToRoundedPrice();
+        var unitPrice = (orderItem.BaseUnitPrice + unitTaxTotal).ToRoundedPrice();
+        var taxTotal = unitTaxTotal * orderItem.Quantity;
+        var totalPrice = unitPrice * orderItem.Quantity;
 
         return new OrderItemDTO
         {
@@ -63,8 +78,9 @@ public class OrderMappingService : IOrderMappingService
             ProductId = orderItem.ProductId,
             Name = orderItem.Name,
             Quantity = orderItem.Quantity,
-            BaseUnitPrice = baseUnitPrice.ToRoundedPrice(),
-            TotalPrice = totalPrice.ToRoundedPrice(),
+            UnitPrice = unitPrice,
+            TotalPrice = totalPrice,
+            TaxTotal = taxTotal,
             Modifiers = orderItem.Modifiers.Select(MapToOrderItemModifierDTO).ToList(),
         };
     }

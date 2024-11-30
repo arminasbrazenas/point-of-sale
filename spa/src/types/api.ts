@@ -45,7 +45,7 @@ export type OrderItem = Entity<{
   productId?: number;
   name: string;
   quantity: number;
-  baseUnitPrice: number;
+  unitPrice: number;
   totalPrice: number;
 }>;
 
@@ -54,3 +54,9 @@ export type Order = Entity<{
   totalPrice: number;
   status: OrderStatus;
 }>;
+
+export type Receipt = {
+  totalPrice: number;
+  orderItems: OrderItem[];
+  taxTotal: number;
+};

@@ -10,7 +10,7 @@ api.interceptors.response.use(
     return response.data;
   },
   (error) => {
-    const errorMessage = error.response?.data?.errorMessage || 'Something wrong happenned...';
+    const errorMessage = error.response?.data?.errorMessage || 'Something went wrong...';
 
     showNotification({
       type: 'failure',
