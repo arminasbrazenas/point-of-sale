@@ -79,6 +79,27 @@ const createAppRouter = () =>
             return { Component: AddTaxManagementRoute };
           },
         },
+        {
+          path: paths.management.modifiers.path,
+          lazy: async () => {
+            const { ModifiersManagementRoute } = await import('./routes/management/modifier/modifiers');
+            return { Component: ModifiersManagementRoute };
+          },
+        },
+        {
+          path: paths.management.updateModifier.path,
+          lazy: async () => {
+            const { UpdateModifierManagementRoute } = await import('./routes/management/modifier/update-modifier');
+            return { Component: UpdateModifierManagementRoute };
+          },
+        },
+        {
+          path: paths.management.addModifier.path,
+          lazy: async () => {
+            const { AddModifierManagementRoute } = await import('./routes/management/modifier/add-modifier');
+            return { Component: AddModifierManagementRoute };
+          },
+        },
       ],
     },
   ]);

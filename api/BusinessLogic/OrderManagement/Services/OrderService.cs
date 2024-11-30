@@ -48,7 +48,7 @@ public class OrderService : IOrderService
     public async Task<PagedResponseDTO<OrderMinimalDTO>> GetOrders(PaginationFilterDTO paginationFilterDTO)
     {
         var paginationFilter = PaginationFilterFactory.Create(paginationFilterDTO);
-        var orders = await _orderRepository.GetMinimalWithFilter(paginationFilter);
+        var orders = await _orderRepository.GetWithFilter(paginationFilter);
         var totalCount = await _orderRepository.GetTotalCount();
         return _orderMappingService.MapToPagedOrderMinimalDTO(orders, paginationFilter, totalCount);
     }

@@ -6,12 +6,12 @@ import { EnhancedCreateOrderItemInput } from './order-product';
 import { useProducts } from '@/features/product/api/get-products';
 import { useEffect, useMemo, useState } from 'react';
 import { OrderProducts } from './order-products';
-import { Product, Receipt } from '@/types/api';
+import { Product, OrderReceipt } from '@/types/api';
 import { formatDate } from '@/utilities';
 import { useOrderReceipt } from '../api/get-order-receipt';
 
 export const UpdateOrder = ({ orderId }: { orderId: number }) => {
-  const [receipt, setReceipt] = useState<Receipt | undefined>(undefined);
+  const [receipt, setReceipt] = useState<OrderReceipt | undefined>(undefined);
   const orderQuery = useOrder({ orderId });
   const productsQuery = useProducts({ paginationFilter: { itemsPerPage: 50, page: 1 } });
   const receiptQuery = useOrderReceipt({ orderId, queryConfig: { enabled: false } });

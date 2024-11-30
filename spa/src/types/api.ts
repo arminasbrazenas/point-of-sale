@@ -55,8 +55,10 @@ export type Order = Entity<{
   status: OrderStatus;
 }>;
 
-export type Receipt = {
+export type OrderReceipt = {
   totalPrice: number;
   orderItems: OrderItem[];
   taxTotal: number;
 };
+
+export type Modifier = Entity<{ name: string; price: number; stock: number }>;

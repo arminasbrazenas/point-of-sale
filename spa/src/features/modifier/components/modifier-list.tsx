@@ -1,24 +1,29 @@
 import { Center, Pagination, Paper, Table } from '@mantine/core';
-import { useProducts } from '../api/get-products';
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { paths } from '@/config/paths';
+import { useModifiers } from '../api/get-modifiers';
 
-export const ProductList = () => {
+export const ModifierList = () => {
   const [page, setPage] = useState<number>(1);
-  const productsQuery = useProducts({ paginationFilter: { page, itemsPerPage: 25 } });
+  const modifiersQuery = useModifiers({ paginationFilter: { page, itemsPerPage: 25 } });
   const navigate = useNavigate();
 
   const totalPages = useMemo(() => {
-    if (productsQuery.data == null) {
+    if (modifiersQuery.data == null) {
       return 0;
     }
 
-    return Math.ceil(productsQuery.data.totalItems / productsQuery.data.itemsPerPage);
-  }, [productsQuery.data]);
+    return Math.ceil(modifiersQuery.data.totalItems / modifiersQuery.data.itemsPerPage);
+  }, [modifiersQuery.data]);
 
-  if (productsQuery.isLoading || !productsQuery.data) {
+  if (modifiersQuery.isLoading) {
     return <div>loading...</div>;
+  }
+
+  const modifiers = modifiersQuery.data?.items;
+  if (!modifiers) {
+    return null;
   }
 
   return (
@@ -33,11 +38,14 @@ export const ProductList = () => {
             </Table.Tr>
           </Table.Thead>
           <Table.Tbody>
-            {productsQuery.data.items.map((product) => (
-              <Table.Tr key={product.id} onClick={() => navigate(paths.management.updateProduct.getHref(product.id))}>
-                <Table.Td>{product.name}</Table.Td>
-                <Table.Td>{product.stock}</Table.Td>
-                <Table.Td>{product.priceWithTaxes}€</Table.Td>
+            {modifiers.map((modifier) => (
+              <Table.Tr
+                key={modifier.id}
+                onClick={() => navigate(paths.management.updateModifier.getHref(modifier.id))}
+              >
+                <Table.Td>{modifier.name}</Table.Td>
+                <Table.Td>{modifier.stock}</Table.Td>
+                <Table.Td>{modifier.price}€</Table.Td>
               </Table.Tr>
             ))}
           </Table.Tbody>

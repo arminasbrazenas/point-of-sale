@@ -29,7 +29,7 @@ export const TaxList = () => {
         <Table striped stickyHeader highlightOnHover>
           <Table.Thead>
             <Table.Tr>
-              <Table.Th>Tax</Table.Th>
+              <Table.Th>Name</Table.Th>
               <Table.Th>Rate</Table.Th>
             </Table.Tr>
           </Table.Thead>

@@ -54,5 +54,17 @@ export const paths = {
       path: 'taxes/add',
       getHref: () => '/management/taxes/add',
     },
+    modifiers: {
+      path: 'modifiers',
+      getHref: () => '/management/modifiers',
+    },
+    updateModifier: {
+      path: 'modifiers/:modifierId',
+      getHref: (modifierId: number) => `/management/modifiers/${modifierId}`,
+    },
+    addModifier: {
+      path: 'modifiers/add',
+      getHref: () => '/management/modifiers/add',
+    },
   },
 } as const;

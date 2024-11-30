@@ -20,7 +20,7 @@ public class TaxRepository : RepositoryBase<Tax, int>, ITaxRepository
 
     public async Task<List<Tax>> GetPaged(PaginationFilter paginationFilter)
     {
-        var query = DbSet.AsQueryable();
+        var query = DbSet.OrderBy(t => t.CreatedAt).AsQueryable();
         return await GetPaged(query, paginationFilter);
     }
 

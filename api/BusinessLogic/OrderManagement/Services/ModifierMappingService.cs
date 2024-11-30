@@ -15,7 +15,7 @@ public class ModifierMappingService : IModifierMappingService
             Id = modifier.Id,
             Name = modifier.Name,
             Price = modifier.Price,
-            Amount = modifier.Stock,
+            Stock = modifier.Stock,
         };
     }
 
