@@ -46,6 +46,7 @@ public class OrderMappingService : IOrderMappingService
             CreatedAt = order.CreatedAt,
             OrderItems = orderItems,
             TotalPrice = totalPrice,
+            ServiceCharges = order.ServiceCharges.Select(MapToOrderServiceChargeDTO).ToList(),
         };
     }
 
@@ -93,6 +94,16 @@ public class OrderMappingService : IOrderMappingService
             ModifierId = modifier.ModifierId,
             Name = modifier.Name,
             Price = modifier.Price,
+        };
+    }
+
+    private static OrderServiceChargeDTO MapToOrderServiceChargeDTO(OrderServiceCharge serviceCharge)
+    {
+        return new OrderServiceChargeDTO
+        {
+            Name = serviceCharge.Name,
+            Amount = serviceCharge.Amount,
+            PricingStrategy = serviceCharge.PricingStrategy,
         };
     }
 }

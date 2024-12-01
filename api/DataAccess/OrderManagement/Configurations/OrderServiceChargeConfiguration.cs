@@ -7,11 +7,11 @@ using PointOfSale.Models.Shared.Enums;
 
 namespace PointOfSale.DataAccess.OrderManagement.Configurations;
 
-public class ServiceChargeConfiguration : IEntityTypeConfiguration<ServiceCharge>
+public class OrderServiceChargeConfiguration : IEntityTypeConfiguration<OrderServiceCharge>
 {
-    private const string TableName = "ServiceCharges";
+    private const string TableName = "OrderServiceCharges";
 
-    public void Configure(EntityTypeBuilder<ServiceCharge> builder)
+    public void Configure(EntityTypeBuilder<OrderServiceCharge> builder)
     {
         builder.HasKey(c => c.Id);
 

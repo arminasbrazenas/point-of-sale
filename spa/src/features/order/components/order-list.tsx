@@ -33,7 +33,7 @@ export const OrderList = () => {
         <Table striped stickyHeader highlightOnHover>
           <Table.Thead>
             <Table.Tr>
-              <Table.Th>ID</Table.Th>
+              <Table.Th>Order No.</Table.Th>
               <Table.Th>Status</Table.Th>
               <Table.Th>Created at</Table.Th>
             </Table.Tr>
@@ -41,7 +41,7 @@ export const OrderList = () => {
           <Table.Tbody>
             {orders.map((order) => (
               <Table.Tr key={order.id} onClick={() => navigate(paths.employee.updateOrder.getHref(order.id))}>
-                <Table.Td>{order.id}</Table.Td>
+                <Table.Td>#{order.id}</Table.Td>
                 <Table.Td>{order.status}</Table.Td>
                 <Table.Td>{formatDate(order.createdAt)}</Table.Td>
               </Table.Tr>

@@ -8,16 +8,19 @@ import { useNavigate } from 'react-router-dom';
 import { paths } from '@/config/paths';
 import { OrderItemList } from './order-item-list';
 import { useUpdateOrder } from '../api/update-order';
+import { useServiceCharges } from '@/features/service-charge/api/get-service-charges';
 
 type OrderProductsProps = {
   orderId?: number;
   orderItems?: EnhancedCreateOrderItemInput[];
+  selectedServiceCharges?: string[];
 };
 
 export const OrderProducts = (props: OrderProductsProps) => {
   const [page, setPage] = useState<number>(1);
   const productsQuery = useProducts({ paginationFilter: { page, itemsPerPage: 50 } });
   const [orderItems, setOrderItems] = useState<EnhancedCreateOrderItemInput[]>(props.orderItems ?? []);
+  const serviceChargesQuery = useServiceCharges({ paginationFilter: { page: 1, itemsPerPage: 50 } });
   const navigate = useNavigate();
 
   const createOrderMutation = useCreateOrder({
@@ -65,7 +68,7 @@ export const OrderProducts = (props: OrderProductsProps) => {
     setOrderItems((prev) => prev.filter((x) => x.cartItemId !== orderItem.cartItemId));
   };
 
-  const createOrUpdateOrder = () => {
+  const createOrUpdateOrder = (serviceChargeIds: number[]) => {
     const mappedItems = orderItems.map(
       (x): CreateOrUpdateOrderItemInput => ({
         productId: x.productId,
@@ -75,18 +78,19 @@ export const OrderProducts = (props: OrderProductsProps) => {
     );
 
     if (props.orderId) {
-      updateOrderMutation.mutate({ orderId: props.orderId, data: { orderItems: mappedItems } });
+      updateOrderMutation.mutate({ orderId: props.orderId, data: { orderItems: mappedItems, serviceChargeIds } });
     } else {
-      createOrderMutation.mutate({ data: { orderItems: mappedItems } });
+      createOrderMutation.mutate({ data: { orderItems: mappedItems, serviceChargeIds } });
     }
   };
 
-  if (productsQuery.isLoading) {
+  if (productsQuery.isLoading || serviceChargesQuery.isLoading) {
     return <div>loading..</div>;
   }
 
   const products = productsQuery.data?.items;
-  if (!products) {
+  const serviceCharges = serviceChargesQuery.data?.items;
+  if (!products || !serviceCharges) {
     return null;
   }
 
@@ -99,6 +103,8 @@ export const OrderProducts = (props: OrderProductsProps) => {
         onConfirm={createOrUpdateOrder}
         confirmText={props.orderId ? 'Save' : 'Create order'}
         isLoading={props.orderId ? updateOrderMutation.isPending : createOrderMutation.isPending}
+        serviceCharges={serviceCharges}
+        selectedServiceCharges={props.selectedServiceCharges ?? []}
       />
 
       <SimpleGrid cols={4}>

@@ -18,13 +18,15 @@ public class OrderService : IOrderService
     private readonly IModifierRepository _modifierRepository;
     private readonly IOrderRepository _orderRepository;
     private readonly IOrderMappingService _orderMappingService;
+    private readonly IServiceChargeRepository _serviceChargeRepository;
 
     public OrderService(
         IUnitOfWork unitOfWork,
         IProductRepository productRepository,
         IModifierRepository modifierRepository,
         IOrderRepository orderRepository,
-        IOrderMappingService orderMappingService
+        IOrderMappingService orderMappingService,
+        IServiceChargeRepository serviceChargeRepository
     )
     {
         _unitOfWork = unitOfWork;
@@ -32,12 +34,19 @@ public class OrderService : IOrderService
         _modifierRepository = modifierRepository;
         _orderRepository = orderRepository;
         _orderMappingService = orderMappingService;
+        _serviceChargeRepository = serviceChargeRepository;
     }
 
     public async Task<OrderDTO> CreateOrder(CreateOrderDTO createOrderDTO)
     {
         var orderItems = await ReserveOrderItems(createOrderDTO.OrderItems);
-        var order = new Order { Items = orderItems, Status = OrderStatus.Open };
+        var serviceCharges = await CreateOrderServiceCharges(createOrderDTO.ServiceChargeIds);
+        var order = new Order
+        {
+            Items = orderItems,
+            Status = OrderStatus.Open,
+            ServiceCharges = serviceCharges,
+        };
 
         _orderRepository.Add(order);
         await _unitOfWork.SaveChanges();
@@ -71,6 +80,12 @@ public class OrderService : IOrderService
         {
             await ReturnOrderItems(order.Items);
             order.Items = await ReserveOrderItems(updateOrderDTO.OrderItems);
+        }
+
+        if (updateOrderDTO.ServiceChargeIds is not null)
+        {
+            var serviceCharges = await CreateOrderServiceCharges(updateOrderDTO.ServiceChargeIds);
+            order.ServiceCharges = serviceCharges;
         }
 
         await _unitOfWork.SaveChanges();
@@ -195,5 +210,18 @@ public class OrderService : IOrderService
                 }
             }
         }
+    }
+
+    private async Task<List<OrderServiceCharge>> CreateOrderServiceCharges(List<int> serviceChargeIds)
+    {
+        var serviceCharges = await _serviceChargeRepository.GetMany(serviceChargeIds);
+        return serviceCharges
+            .Select(c => new OrderServiceCharge
+            {
+                Name = c.Name,
+                PricingStrategy = c.PricingStrategy,
+                Amount = c.Amount,
+            })
+            .ToList();
     }
 }

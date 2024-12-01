@@ -10,13 +10,14 @@ public class ApplicationDbContext : DbContext
     private static readonly AuditingInterceptor AuditingInterceptor = new();
 
     public DbSet<Tax> Taxes { get; set; }
+    public DbSet<ServiceCharge> ServiceCharges { get; set; }
     public DbSet<Product> Products { get; set; }
     public DbSet<Modifier> Modifiers { get; set; }
     public DbSet<Order> Orders { get; set; }
     public DbSet<OrderItem> OrderItems { get; set; }
     public DbSet<OrderItemModifier> OrderItemModifiers { get; set; }
     public DbSet<OrderItemTax> OrderItemTaxes { get; set; }
-    public DbSet<ServiceCharge> ServiceCharges { get; set; }
+    public DbSet<OrderServiceCharge> OrderServiceCharges { get; set; }
 
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         : base(options) { }

@@ -28,6 +28,7 @@ public class OrderRepository : RepositoryBase<Order, int>, IOrderRepository
             .ThenInclude(i => i.Modifiers)
             .Include(o => o.Items)
             .ThenInclude(i => i.Taxes)
+            .Include(o => o.ServiceCharges)
             .FirstOrDefaultAsync();
 
         return order ?? throw new EntityNotFoundException(GetEntityNotFoundErrorMessage(orderId));

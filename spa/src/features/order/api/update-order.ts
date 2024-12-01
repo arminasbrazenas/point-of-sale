@@ -6,7 +6,8 @@ import { z } from 'zod';
 import { createOrUpdateOrderItemInputSchema } from './create-order';
 
 export const updateOrderInputSchema = z.object({
-  orderItems: z.array(createOrUpdateOrderItemInputSchema),
+  orderItems: z.array(createOrUpdateOrderItemInputSchema).optional(),
+  serviceChargeIds: z.array(z.number()).optional(),
 });
 
 export type UpdateOrderInput = z.infer<typeof updateOrderInputSchema>;

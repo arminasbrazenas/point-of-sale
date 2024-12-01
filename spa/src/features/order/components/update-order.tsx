@@ -81,7 +81,7 @@ export const UpdateOrder = ({ orderId }: { orderId: number }) => {
   return (
     <Stack>
       <Paper withBorder p="md">
-        <Text>ID: {order.id}</Text>
+        <Text fw={600}>Order #{order.id}</Text>
         <Text>Status: {order.status}</Text>
         <Text>Created at: {formatDate(order.createdAt)}</Text>
 
@@ -126,7 +126,11 @@ export const UpdateOrder = ({ orderId }: { orderId: number }) => {
         </Paper>
       )}
 
-      <OrderProducts orderItems={enhancedOrderItems} orderId={order.id} />
+      <OrderProducts
+        orderItems={enhancedOrderItems}
+        orderId={order.id}
+        selectedServiceCharges={order.serviceCharges.map((c) => c.name)}
+      />
     </Stack>
   );
 };

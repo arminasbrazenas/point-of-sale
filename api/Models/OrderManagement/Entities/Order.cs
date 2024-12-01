@@ -7,4 +7,5 @@ public class Order : EntityBase<int>
 {
     public required OrderStatus Status { get; set; }
     public required List<OrderItem> Items { get; set; }
+    public required List<OrderServiceCharge> ServiceCharges { get; set; }
 }

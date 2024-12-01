@@ -12,6 +12,7 @@ export const createOrUpdateOrderItemInputSchema = z.object({
 
 export const createOrderInputSchema = z.object({
   orderItems: z.array(createOrUpdateOrderItemInputSchema),
+  serviceChargeIds: z.array(z.number()),
 });
 
 export type CreateOrUpdateOrderItemInput = z.infer<typeof createOrUpdateOrderItemInputSchema>;

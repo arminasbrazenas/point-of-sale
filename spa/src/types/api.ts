@@ -58,10 +58,13 @@ export type OrderItem = Entity<{
   modifiers: OrderItemModifier[];
 }>;
 
+export type OrderServiceCharge = Entity<{ name: string; amount: number; pricingStrategy: PricingStrategy }>;
+
 export type Order = Entity<{
   orderItems: OrderItem[];
   totalPrice: number;
   status: OrderStatus;
+  serviceCharges: OrderServiceCharge[];
 }>;
 
 export type OrderReceipt = {
