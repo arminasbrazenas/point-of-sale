@@ -42,12 +42,15 @@ export type Product = Entity<{
 
 export type Tax = Entity<{ name: string; rate: number }>;
 
+export type OrderItemModifier = Entity<{ modifierId?: number; name: string; price: number }>;
+
 export type OrderItem = Entity<{
   productId?: number;
   name: string;
   quantity: number;
   unitPrice: number;
   totalPrice: number;
+  modifiers: OrderItemModifier[];
 }>;
 
 export type Order = Entity<{

@@ -45,10 +45,11 @@ export const UpdateOrder = ({ orderId }: { orderId: number }) => {
         cartItemId: crypto.randomUUID(),
         product: product,
         productId: product.id ?? 0,
-        modifierIds: [],
+        modifierIds: i.modifiers.map((m) => m.modifierId ?? 0),
         quantity: i.quantity,
         price: i.totalPrice,
         orderedQuantity: i.quantity,
+        modifiers: i.modifiers,
       };
     });
   }, [orderQuery.data, productsQuery.data]);

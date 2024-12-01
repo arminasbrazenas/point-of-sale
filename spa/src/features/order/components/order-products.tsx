@@ -57,6 +57,7 @@ export const OrderProducts = (props: OrderProductsProps) => {
   };
 
   const updateOrderItem = (orderItem: EnhancedCreateOrderItemInput) => {
+    console.log(orderItem);
     setOrderItems((prev) => prev.map((x) => (x.cartItemId === orderItem.cartItemId ? orderItem : x)));
   };
 
@@ -68,7 +69,7 @@ export const OrderProducts = (props: OrderProductsProps) => {
     const mappedItems = orderItems.map(
       (x): CreateOrUpdateOrderItemInput => ({
         productId: x.productId,
-        modifierIds: [],
+        modifierIds: x.modifierIds,
         quantity: x.quantity,
       }),
     );

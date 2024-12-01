@@ -64,12 +64,13 @@ public class OrderMappingService : IOrderMappingService
 
     private static OrderItemDTO MapToOrderItemDTO(OrderItem orderItem)
     {
-        var modifiersPrice = orderItem.Modifiers.Sum(i => i.Price).ToRoundedPrice();
-        var preTaxUnitPrice = (orderItem.BaseUnitPrice + modifiersPrice).ToRoundedPrice();
+        var baseUnitPrice = orderItem.BaseUnitPrice.ToRoundedPrice();
         var taxRates = orderItem.Taxes.Select(t => t.Rate).ToList();
-        var unitTaxTotal = PriceUtility.CalculateTotalTax(preTaxUnitPrice, taxRates).ToRoundedPrice();
-        var unitPrice = (orderItem.BaseUnitPrice + unitTaxTotal).ToRoundedPrice();
+        var unitTaxTotal = PriceUtility.CalculateTotalTax(baseUnitPrice, taxRates).ToRoundedPrice();
         var taxTotal = unitTaxTotal * orderItem.Quantity;
+
+        var modifiersPrice = orderItem.Modifiers.Sum(i => i.Price).ToRoundedPrice();
+        var unitPrice = baseUnitPrice + unitTaxTotal + modifiersPrice;
         var totalPrice = unitPrice * orderItem.Quantity;
 
         return new OrderItemDTO
@@ -87,6 +88,11 @@ public class OrderMappingService : IOrderMappingService
 
     private static OrderItemModifierDTO MapToOrderItemModifierDTO(OrderItemModifier modifier)
     {
-        return new OrderItemModifierDTO { Name = modifier.Name, Price = modifier.Price };
+        return new OrderItemModifierDTO
+        {
+            ModifierId = modifier.ModifierId,
+            Name = modifier.Name,
+            Price = modifier.Price,
+        };
     }
 }

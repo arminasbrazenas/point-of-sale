@@ -32,7 +32,7 @@ export const OrderItem = (props: OrderItemProps) => {
           onCancel={closeModal}
           onConfirm={update}
           onRemove={remove}
-          confirmText="Save"
+          confirmText="Confirm"
         />
       </Modal>
 
@@ -42,7 +42,12 @@ export const OrderItem = (props: OrderItemProps) => {
             <Text fw={600}>
               {props.orderItem.quantity} x {props.orderItem.product.name}
             </Text>
-            <Text opacity={0.5}>{convertToMoney(props.orderItem.price)}€</Text>
+            {props.orderItem.modifiers.map((m) => (
+              <Text opacity={0.5}>{m.name}</Text>
+            ))}
+            <Text c="blue" mt="sm">
+              {convertToMoney(props.orderItem.price)}€
+            </Text>
           </div>
 
           <Button variant="light" onClick={openModal}>

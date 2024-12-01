@@ -18,11 +18,14 @@ export const OrderList = () => {
     return Math.ceil(ordersQuery.data.totalItems / ordersQuery.data.itemsPerPage);
   }, [ordersQuery.data]);
 
-  if (ordersQuery.isLoading || !ordersQuery.data) {
+  if (ordersQuery.isLoading) {
     return <div>loading...</div>;
   }
 
-  const orders = ordersQuery.data.items;
+  const orders = ordersQuery.data?.items;
+  if (!orders) {
+    return null;
+  }
 
   return (
     <>

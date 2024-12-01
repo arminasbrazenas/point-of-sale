@@ -17,11 +17,14 @@ export const TaxList = () => {
     return Math.ceil(taxesQuery.data.totalItems / taxesQuery.data.itemsPerPage);
   }, [taxesQuery.data]);
 
-  if (taxesQuery.isLoading || !taxesQuery.data) {
+  if (taxesQuery.isLoading) {
     return <div>loading...</div>;
   }
 
-  const taxes = taxesQuery.data.items;
+  const taxes = taxesQuery.data?.items;
+  if (!taxes) {
+    return null;
+  }
 
   return (
     <>

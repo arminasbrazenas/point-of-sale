@@ -17,8 +17,13 @@ export const ProductList = () => {
     return Math.ceil(productsQuery.data.totalItems / productsQuery.data.itemsPerPage);
   }, [productsQuery.data]);
 
-  if (productsQuery.isLoading || !productsQuery.data) {
+  if (productsQuery.isLoading) {
     return <div>loading...</div>;
+  }
+
+  var products = productsQuery.data?.items;
+  if (!products) {
+    return null;
   }
 
   return (
@@ -33,7 +38,7 @@ export const ProductList = () => {
             </Table.Tr>
           </Table.Thead>
           <Table.Tbody>
-            {productsQuery.data.items.map((product) => (
+            {products.map((product) => (
               <Table.Tr key={product.id} onClick={() => navigate(paths.management.updateProduct.getHref(product.id))}>
                 <Table.Td>{product.name}</Table.Td>
                 <Table.Td>{product.stock}</Table.Td>
