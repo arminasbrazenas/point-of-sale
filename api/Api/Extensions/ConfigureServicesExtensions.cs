@@ -1,13 +1,19 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using PointOfSale.BusinessLogic.BusinessManagement.Interfaces;
+using PointOfSale.BusinessLogic.BusinessManagement.Services;
 using PointOfSale.BusinessLogic.OrderManagement.Interfaces;
 using PointOfSale.BusinessLogic.OrderManagement.Services;
 using PointOfSale.DataAccess;
+using PointOfSale.DataAccess.BusinessManagement.Interfaces;
+using PointOfSale.DataAccess.BusinessManagement.Repositories;
 using PointOfSale.DataAccess.OrderManagement.Interfaces;
 using PointOfSale.DataAccess.OrderManagement.Repositories;
 using PointOfSale.DataAccess.Shared.Interfaces;
 using PointOfSale.DataAccess.Shared.Repositories;
+using PointOfSale.Models.BusinessManagement.Entities;
 
 namespace PointOfSale.Api.Extensions;
 
@@ -22,6 +28,16 @@ public static class ConfigureServicesExtensions
         var connectionString = configuration.GetConnectionString("Database");
         services.AddDbContext<ApplicationDbContext>(o => o.UseNpgsql(connectionString));
         services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+        services
+            .AddIdentityCore<User>(options =>
+            {
+                options.User.RequireUniqueEmail = true;
+            })
+            .AddRoles<IdentityRole<int>>()
+            .AddEntityFrameworkStores<ApplicationDbContext>()
+            .AddUserManager<UserManager<User>>()
+            .AddRoleManager<RoleManager<IdentityRole<int>>>();
 
         services
             .AddControllers()
@@ -73,6 +89,18 @@ public static class ConfigureServicesExtensions
         services.AddScoped<IOrderService, OrderService>();
         services.AddScoped<IModifierService, ModifierService>();
         services.AddScoped<IServiceChargeService, ServiceChargeService>();
+
+        return services;
+    }
+
+    public static IServiceCollection AddBusinessManagement(this IServiceCollection services)
+    {
+        services.AddScoped<IBusinessRepository, BusinessRepository>();
+
+        services.AddScoped<IBusinessMappingService, BusinessMappingService>();
+
+        services.AddScoped<IUserService, UserService>();
+        services.AddScoped<IBusinessService, BusinessService>();
 
         return services;
     }
