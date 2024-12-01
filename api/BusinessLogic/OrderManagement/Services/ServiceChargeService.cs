@@ -54,6 +54,32 @@ public class ServiceChargeService : IServiceChargeService
         return _serviceChargeMappingService.MapToPagedServiceChargeDTO(serviceCharges, paginationFilter, totalCount);
     }
 
+    public async Task<ServiceChargeDTO> UpdateServiceCharge(
+        int serviceChargeId,
+        UpdateServiceChargeDTO updateServiceChargeDTO
+    )
+    {
+        var serviceCharge = await _serviceChargeRepository.Get(serviceChargeId);
+
+        if (updateServiceChargeDTO.Name is not null)
+        {
+            serviceCharge.Name = updateServiceChargeDTO.Name;
+        }
+
+        if (updateServiceChargeDTO.Amount.HasValue)
+        {
+            serviceCharge.Amount = updateServiceChargeDTO.Amount.Value;
+        }
+
+        if (updateServiceChargeDTO.PricingStrategy.HasValue)
+        {
+            serviceCharge.PricingStrategy = updateServiceChargeDTO.PricingStrategy.Value;
+        }
+
+        await _unitOfWork.SaveChanges();
+        return _serviceChargeMappingService.MapToServiceChargeDTO(serviceCharge);
+    }
+
     public async Task DeleteServiceCharge(int serviceChargeId)
     {
         await _serviceChargeRepository.Delete(serviceChargeId);

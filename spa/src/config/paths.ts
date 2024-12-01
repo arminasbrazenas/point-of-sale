@@ -66,5 +66,17 @@ export const paths = {
       path: 'modifiers/add',
       getHref: () => '/management/modifiers/add',
     },
+    serviceCharges: {
+      path: 'service-charges',
+      getHref: () => '/management/service-charges',
+    },
+    updateServiceCharge: {
+      path: 'service-charges/:serviceChargeId',
+      getHref: (serviceChargeId: number) => `/management/service-charges/${serviceChargeId}`,
+    },
+    addServiceCharge: {
+      path: 'service-charges/add',
+      getHref: () => '/management/service-charges/add',
+    },
   },
 } as const;

@@ -105,6 +105,33 @@ const createAppRouter = () =>
             return { Component: AddModifierManagementRoute };
           },
         },
+        {
+          path: paths.management.serviceCharges.path,
+          lazy: async () => {
+            const { ServiceChargesManagementRoute } = await import(
+              './routes/management/service-charge/service-charges'
+            );
+            return { Component: ServiceChargesManagementRoute };
+          },
+        },
+        {
+          path: paths.management.updateServiceCharge.path,
+          lazy: async () => {
+            const { UpdateServiceChargeManagementRoute } = await import(
+              './routes/management/service-charge/update-service-charge'
+            );
+            return { Component: UpdateServiceChargeManagementRoute };
+          },
+        },
+        {
+          path: paths.management.addServiceCharge.path,
+          lazy: async () => {
+            const { AddServiceChargeManagementRoute } = await import(
+              './routes/management/service-charge/add-service-charge'
+            );
+            return { Component: AddServiceChargeManagementRoute };
+          },
+        },
       ],
     },
   ]);

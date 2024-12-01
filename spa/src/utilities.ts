@@ -1,4 +1,5 @@
 import { formatDate as formatDateFn } from 'date-fns';
+import { PricingStrategy } from './types/api';
 
 export const convertToMoney = (val: number): string => {
   return (Number(Math.floor(val * 100).toFixed(0)) / 100).toFixed(2);
@@ -22,4 +23,26 @@ export const isSameNumberSet = (a: number[], b: number[]): boolean => {
   }
 
   return true;
+};
+
+export const toReadablePricingStrategy = (s: PricingStrategy) => {
+  switch (s) {
+    case PricingStrategy.FixedAmount:
+      return 'Fixed amount';
+    case PricingStrategy.Percentage:
+      return 'Percentage';
+    default:
+      return 'Unknown';
+  }
+};
+
+export const toReadablePricingStrategyAmount = (value: number, s: PricingStrategy) => {
+  switch (s) {
+    case PricingStrategy.FixedAmount:
+      return `${value}€`;
+    case PricingStrategy.Percentage:
+      return `${value}%`;
+    default:
+      return value;
+  }
 };

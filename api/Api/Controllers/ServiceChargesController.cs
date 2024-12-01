@@ -42,6 +42,17 @@ public class ServiceChargesController : ControllerBase
         return Ok(serviceCharge);
     }
 
+    [HttpPatch]
+    [Route("{serviceChargeId:int}")]
+    public async Task<ActionResult<ServiceChargeDTO>> UpdateServiceCharge(
+        [FromRoute] int serviceChargeId,
+        [FromBody] UpdateServiceChargeDTO updateServiceChargeDTO
+    )
+    {
+        var serviceCharge = await _serviceChargeService.UpdateServiceCharge(serviceChargeId, updateServiceChargeDTO);
+        return Ok(serviceCharge);
+    }
+
     [HttpDelete]
     [Route("{serviceChargeId:int}")]
     public async Task<IActionResult> DeleteServiceCharge([FromRoute] int serviceChargeId)

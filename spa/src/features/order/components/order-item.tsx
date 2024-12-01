@@ -45,9 +45,7 @@ export const OrderItem = (props: OrderItemProps) => {
             {props.orderItem.modifiers.map((m) => (
               <Text opacity={0.5}>{m.name}</Text>
             ))}
-            <Text c="blue" mt="sm">
-              {convertToMoney(props.orderItem.price)}€
-            </Text>
+            <Text c="blue">{convertToMoney(props.orderItem.price)}€</Text>
           </div>
 
           <Button variant="light" onClick={openModal}>

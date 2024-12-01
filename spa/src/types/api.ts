@@ -5,6 +5,11 @@ export enum OrderStatus {
   Refunded = 'Refunded',
 }
 
+export enum PricingStrategy {
+  FixedAmount = 'FixedAmount',
+  Percentage = 'Percentage',
+}
+
 export type EntityBase = {
   id: number;
   createdAt: string;
@@ -66,3 +71,5 @@ export type OrderReceipt = {
 };
 
 export type Modifier = Entity<{ name: string; price: number; stock: number }>;
+
+export type ServiceCharge = Entity<{ name: string; pricingStrategy: PricingStrategy; amount: number }>;
