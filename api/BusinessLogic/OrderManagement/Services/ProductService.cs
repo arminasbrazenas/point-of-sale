@@ -43,6 +43,7 @@ public class ProductService : IProductService
             Stock = stock,
             Taxes = taxes,
             Modifiers = modifiers,
+            Discounts = []
         };
 
         _productRepository.Add(product);

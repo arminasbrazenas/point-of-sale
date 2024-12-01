@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using PointOfSale.DataAccess;
@@ -11,9 +12,11 @@ using PointOfSale.DataAccess;
 namespace PointOfSale.DataAccess.Shared.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class PointOfSaleDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241201082711_AddDiscountTables")]
+    partial class AddDiscountTables
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -253,44 +256,6 @@ namespace PointOfSale.DataAccess.Shared.Migrations
                     b.ToTable("OrderItemTaxes", "Order");
                 });
 
-            modelBuilder.Entity("PointOfSale.Models.OrderManagement.Entities.OrderServiceCharge", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<decimal>("Amount")
-                        .HasPrecision(10, 2)
-                        .HasColumnType("numeric(10,2)");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTimeOffset>("ModifiedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.Property<int>("OrderId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("PricingStrategy")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("OrderId");
-
-                    b.ToTable("OrderServiceCharges", "Order");
-                });
-
             modelBuilder.Entity("PointOfSale.Models.OrderManagement.Entities.Product", b =>
                 {
                     b.Property<int>("Id")
@@ -471,15 +436,6 @@ namespace PointOfSale.DataAccess.Shared.Migrations
                     b.Navigation("OrderItem");
                 });
 
-            modelBuilder.Entity("PointOfSale.Models.OrderManagement.Entities.OrderServiceCharge", b =>
-                {
-                    b.HasOne("PointOfSale.Models.OrderManagement.Entities.Order", null)
-                        .WithMany("ServiceCharges")
-                        .HasForeignKey("OrderId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("ProductTax", b =>
                 {
                     b.HasOne("PointOfSale.Models.OrderManagement.Entities.Product", null)
@@ -498,8 +454,6 @@ namespace PointOfSale.DataAccess.Shared.Migrations
             modelBuilder.Entity("PointOfSale.Models.OrderManagement.Entities.Order", b =>
                 {
                     b.Navigation("Items");
-
-                    b.Navigation("ServiceCharges");
                 });
 
             modelBuilder.Entity("PointOfSale.Models.OrderManagement.Entities.OrderItem", b =>
