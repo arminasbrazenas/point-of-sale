@@ -1,4 +1,6 @@
 using System.Reflection;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using PointOfSale.DataAccess.Shared.Interceptors;
 using PointOfSale.Models.BusinessManagement.Entities;
@@ -6,7 +8,7 @@ using PointOfSale.Models.OrderManagement.Entities;
 
 namespace PointOfSale.DataAccess;
 
-public class ApplicationDbContext : DbContext
+public class ApplicationDbContext : IdentityDbContext<User, IdentityRole<int>, int>
 {
     private static readonly AuditingInterceptor AuditingInterceptor = new();
 
