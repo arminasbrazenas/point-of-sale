@@ -2,6 +2,7 @@ using System.Reflection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using PointOfSale.DataAccess.BusinessManagement.Configurations;
 using PointOfSale.DataAccess.Shared.Interceptors;
 using PointOfSale.Models.BusinessManagement.Entities;
 using PointOfSale.Models.OrderManagement.Entities;
@@ -32,6 +33,7 @@ public class ApplicationDbContext : IdentityDbContext<User, IdentityRole<int>, i
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.ApplyConfiguration(new IdentityRoleConfiguration());
         modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
     }
 }
