@@ -6,15 +6,16 @@ namespace PointOfSale.BusinessLogic.BusinessManagement.Services;
 
 public class UserService : IUserService
 {
-    private readonly UserManager<User> _userManager;
-    public UserService(UserManager<User> userManager){
+    private readonly UserManager<ApplicationUser> _userManager;
+
+    public UserService(UserManager<ApplicationUser> userManager)
+    {
         _userManager = userManager;
     }
 
-    public async Task<User> GetUser(int userId)
+    public async Task<ApplicationUser> GetUser(int userId)
     {
         var user = await _userManager.FindByIdAsync(userId.ToString());
         return user!;
     }
-
 }

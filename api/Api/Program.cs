@@ -26,20 +26,6 @@ app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.UseAuthentication();
 app.UseAuthorization();
 
-using (var scope = app.Services.CreateScope())
-{
-    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole<int>>>();
-    var roles = new[] { "Admin", "BusinessOwner", "Employee" };
-    foreach (var role in roles)
-    {
-        var roleExist = await roleManager.RoleExistsAsync(role);
-        if (!roleExist)
-        {
-            await roleManager.CreateAsync(new IdentityRole<int> { Name = role });
-        }
-    }
-}
-
 app.MapControllers();
 
 app.Run();

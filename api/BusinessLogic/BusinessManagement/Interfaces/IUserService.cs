@@ -1,7 +1,9 @@
+using PointOfSale.DataAccess.BusinessManagement;
 using PointOfSale.Models.BusinessManagement.Entities;
 
 namespace PointOfSale.BusinessLogic.BusinessManagement.Interfaces;
 
-public interface IUserService{
-    public Task<User> GetUser(int userId);
+public interface IUserService
+{
+    public Task<ApplicationUser> GetUser(int userId);
 }

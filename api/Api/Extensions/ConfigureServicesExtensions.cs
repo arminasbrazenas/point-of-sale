@@ -29,15 +29,18 @@ public static class ConfigureServicesExtensions
         services.AddDbContext<ApplicationDbContext>(o => o.UseNpgsql(connectionString));
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
+        services.AddDataProtection();
+
         services
-            .AddIdentityCore<User>(options =>
+            .AddIdentityCore<ApplicationUser>(options =>
             {
                 options.User.RequireUniqueEmail = true;
             })
-            .AddRoles<IdentityRole<int>>()
+            .AddRoles<ApplicationRole>()
             .AddEntityFrameworkStores<ApplicationDbContext>()
-            .AddUserManager<UserManager<User>>()
-            .AddRoleManager<RoleManager<IdentityRole<int>>>();
+            .AddUserManager<UserManager<ApplicationUser>>()
+            .AddRoleManager<RoleManager<ApplicationRole>>()
+            .AddDefaultTokenProviders();
 
         services
             .AddControllers()
