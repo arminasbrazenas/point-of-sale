@@ -29,19 +29,6 @@ public static class ConfigureServicesExtensions
         services.AddDbContext<ApplicationDbContext>(o => o.UseNpgsql(connectionString));
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
-        services.AddDataProtection();
-
-        services
-            .AddIdentityCore<ApplicationUser>(options =>
-            {
-                options.User.RequireUniqueEmail = true;
-            })
-            .AddRoles<ApplicationRole>()
-            .AddEntityFrameworkStores<ApplicationDbContext>()
-            .AddUserManager<UserManager<ApplicationUser>>()
-            .AddRoleManager<RoleManager<ApplicationRole>>()
-            .AddDefaultTokenProviders();
-
         services
             .AddControllers()
             .AddJsonOptions(options =>
@@ -104,6 +91,19 @@ public static class ConfigureServicesExtensions
 
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<IBusinessService, BusinessService>();
+
+        services.AddDataProtection();
+
+        services
+            .AddIdentityCore<ApplicationUser>(options =>
+            {
+                options.User.RequireUniqueEmail = true;
+            })
+            .AddRoles<ApplicationRole>()
+            .AddEntityFrameworkStores<ApplicationDbContext>()
+            .AddUserManager<UserManager<ApplicationUser>>()
+            .AddRoleManager<RoleManager<ApplicationRole>>()
+            .AddDefaultTokenProviders();
 
         return services;
     }

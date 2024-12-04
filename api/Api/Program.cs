@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using PointOfSale.Api.Extensions;
 using PointOfSale.Api.Middlewares;
+using PointOfSale.Models.BusinessManagement.Entities;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,6 +13,21 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.ApplyMigrations();
+}
+
+using (var scope = app.Services.CreateScope())
+{
+    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<ApplicationRole>>();
+    var roles = new[] { "Employee", "BusinessOwner", "Admin" };
+
+    foreach (var role in roles)
+    {
+        var roleExist = await roleManager.RoleExistsAsync(role);
+        if (!roleExist)
+        {
+            await roleManager.CreateAsync(new ApplicationRole(role));
+        }
+    }
 }
 
 app.UseSwagger();

@@ -8,6 +8,7 @@ public class IdentityUserLoginConfiguration : IEntityTypeConfiguration<IdentityU
 {
     public void Configure(EntityTypeBuilder<IdentityUserLogin<int>> builder)
     {
+        builder.ToTable("UserLogins");
         builder.HasKey(login => new { login.LoginProvider, login.ProviderKey });
     }
 }
@@ -16,6 +17,8 @@ public class IdentityUserRoleConfiguration : IEntityTypeConfiguration<IdentityUs
 {
     public void Configure(EntityTypeBuilder<IdentityUserRole<int>> builder)
     {
+        builder.ToTable("UserRoles");
+
         builder.HasKey(role => new { role.UserId, role.RoleId });
     }
 }
@@ -24,6 +27,8 @@ public class IdentityUserTokenConfiguration : IEntityTypeConfiguration<IdentityU
 {
     public void Configure(EntityTypeBuilder<IdentityUserToken<int>> builder)
     {
+        builder.ToTable("UserTokens");
+
         builder.HasKey(token => new
         {
             token.UserId,
