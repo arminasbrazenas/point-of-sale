@@ -66,4 +66,12 @@ public class OrdersController : ControllerBase
         var receipt = await _orderService.GetOrderReceipt(orderId);
         return Ok(receipt);
     }
+
+    [HttpPost]
+    [Route("{orderId:int}/pay")]
+    public async Task<IActionResult> PayForOrder([FromRoute] int orderId)
+    {
+        var payment = await _orderService.PayForOrder(orderId);
+        return Ok(payment);
+    }
 }

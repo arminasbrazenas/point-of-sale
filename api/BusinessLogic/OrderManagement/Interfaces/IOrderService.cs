@@ -1,4 +1,5 @@
 using PointOfSale.BusinessLogic.OrderManagement.DTOs;
+using PointOfSale.BusinessLogic.PaymentProcessing.DTOs;
 using PointOfSale.BusinessLogic.Shared.DTOs;
 
 namespace PointOfSale.BusinessLogic.OrderManagement.Interfaces;
