@@ -132,6 +132,27 @@ const createAppRouter = () =>
             return { Component: AddServiceChargeManagementRoute };
           },
         },
+        {
+          path: paths.management.discounts.path,
+          lazy: async () => {
+            const { DiscountsManagementRoute } = await import('./routes/management/discount/discounts');
+            return { Component: DiscountsManagementRoute };
+          },
+        },
+        {
+          path: paths.management.updateDiscount.path,
+          lazy: async () => {
+            const { UpdateDiscountManagementRoute } = await import('./routes/management/discount/update-discount');
+            return { Component: UpdateDiscountManagementRoute };
+          },
+        },
+        {
+          path: paths.management.addDiscount.path,
+          lazy: async () => {
+            const { AddDiscountManagementRoute } = await import('./routes/management/discount/add-discount');
+            return { Component: AddDiscountManagementRoute };
+          },
+        },
       ],
     },
   ]);

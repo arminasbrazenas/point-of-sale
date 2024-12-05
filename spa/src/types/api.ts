@@ -76,3 +76,10 @@ export type OrderReceipt = {
 export type Modifier = Entity<{ name: string; price: number; stock: number }>;
 
 export type ServiceCharge = Entity<{ name: string; pricingStrategy: PricingStrategy; amount: number }>;
+
+export type Discount = Entity<{
+  amount: number;
+  pricingStrategy: PricingStrategy;
+  validUntil: string;
+  appliesToProductIds: number[];
+}>;

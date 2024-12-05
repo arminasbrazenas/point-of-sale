@@ -78,5 +78,17 @@ export const paths = {
       path: 'service-charges/add',
       getHref: () => '/management/service-charges/add',
     },
+    discounts: {
+      path: 'discounts',
+      getHref: () => '/management/discounts',
+    },
+    updateDiscount: {
+      path: 'discounts/:discountId',
+      getHref: (discountId: number) => `/management/discounts/${discountId}`,
+    },
+    addDiscount: {
+      path: 'discounts/add',
+      getHref: () => '/management/discounts/add',
+    },
   },
 } as const;

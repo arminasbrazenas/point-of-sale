@@ -58,12 +58,14 @@ public static class ConfigureServicesExtensions
         services.AddScoped<IOrderRepository, OrderRepository>();
         services.AddScoped<IModifierRepository, ModifierRepository>();
         services.AddScoped<IServiceChargeRepository, ServiceChargeRepository>();
+        services.AddScoped<IDiscountRepository, DiscountRepository>();
 
         services.AddScoped<ITaxMappingService, TaxMappingService>();
         services.AddScoped<IProductMappingService, ProductMappingService>();
         services.AddScoped<IOrderMappingService, OrderMappingService>();
         services.AddScoped<IModifierMappingService, ModifierMappingService>();
         services.AddScoped<IServiceChargeMappingService, ServiceChargeMappingService>();
+        services.AddScoped<IDiscountMappingService, DiscountMappingService>();
 
         services.AddScoped<ITaxValidationService, TaxValidationService>();
         services.AddScoped<IProductValidationService, ProductValidationService>();
@@ -73,6 +75,7 @@ public static class ConfigureServicesExtensions
         services.AddScoped<IOrderService, OrderService>();
         services.AddScoped<IModifierService, ModifierService>();
         services.AddScoped<IServiceChargeService, ServiceChargeService>();
+        services.AddScoped<IDiscountService, DiscountService>();
 
         return services;
     }
