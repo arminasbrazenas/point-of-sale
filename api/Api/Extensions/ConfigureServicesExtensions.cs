@@ -2,6 +2,8 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using PointOfSale.BusinessLogic.ApplicationUserManagement.Interfaces;
+using PointOfSale.BusinessLogic.ApplicationUserManagement.Services;
 using PointOfSale.BusinessLogic.BusinessManagement.Interfaces;
 using PointOfSale.BusinessLogic.BusinessManagement.Services;
 using PointOfSale.BusinessLogic.OrderManagement.Interfaces;
@@ -86,24 +88,32 @@ public static class ConfigureServicesExtensions
     public static IServiceCollection AddBusinessManagement(this IServiceCollection services)
     {
         services.AddScoped<IBusinessRepository, BusinessRepository>();
-
+        services.AddScoped<IBusinessValidationService, BusinessValidationService>();
         services.AddScoped<IBusinessMappingService, BusinessMappingService>();
 
-        services.AddScoped<IUserService, UserService>();
-        services.AddScoped<IBusinessService, BusinessService>();
+        return services;
+    }
 
-        services.AddDataProtection();
+    public static IServiceCollection AddApplicattionUserManagement(this IServiceCollection services)
+    {
+        services.AddScoped<IApplicationUserService, ApplicationUserService>();
+        services.AddScoped<IApplicationUserMappingService, ApplicationUserMappingService>();
+        services.AddScoped<IApplicationUserValidationService, ApplicationUserValidationService>();
 
         services
             .AddIdentityCore<ApplicationUser>(options =>
             {
+                options.Password.RequireDigit = true;
+                options.Password.RequiredLength = 8;
+                options.Password.RequireLowercase = true;
+                options.Password.RequireUppercase = true;
+                options.Password.RequireNonAlphanumeric = true;
                 options.User.RequireUniqueEmail = true;
             })
-            .AddRoles<ApplicationRole>()
+            .AddRoles<IdentityRole<int>>()
             .AddEntityFrameworkStores<ApplicationDbContext>()
             .AddUserManager<UserManager<ApplicationUser>>()
-            .AddRoleManager<RoleManager<ApplicationRole>>()
-            .AddDefaultTokenProviders();
+            .AddRoleManager<RoleManager<IdentityRole<int>>>();
 
         return services;
     }

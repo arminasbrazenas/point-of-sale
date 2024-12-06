@@ -1,12 +1,12 @@
 using Microsoft.AspNetCore.Identity;
 using PointOfSale.Api.Extensions;
 using PointOfSale.Api.Middlewares;
-using PointOfSale.Models.BusinessManagement.Entities;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddSharedServices(builder.Configuration, builder.Environment).AddOrderManagement();
 builder.Services.AddSharedServices(builder.Configuration, builder.Environment).AddBusinessManagement();
+builder.Services.AddSharedServices(builder.Configuration, builder.Environment).AddApplicattionUserManagement();
 
 var app = builder.Build();
 
@@ -17,7 +17,7 @@ if (app.Environment.IsDevelopment())
 
 using (var scope = app.Services.CreateScope())
 {
-    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<ApplicationRole>>();
+    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole<int>>>();
     var roles = new[] { "Employee", "BusinessOwner", "Admin" };
 
     foreach (var role in roles)
@@ -25,7 +25,7 @@ using (var scope = app.Services.CreateScope())
         var roleExist = await roleManager.RoleExistsAsync(role);
         if (!roleExist)
         {
-            await roleManager.CreateAsync(new ApplicationRole(role));
+            await roleManager.CreateAsync(new IdentityRole<int>(role));
         }
     }
 }
