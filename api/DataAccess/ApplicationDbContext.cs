@@ -1,4 +1,5 @@
 using System.Reflection;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using PointOfSale.DataAccess.BusinessManagement;
@@ -8,7 +9,7 @@ using PointOfSale.Models.OrderManagement.Entities;
 
 namespace PointOfSale.DataAccess;
 
-public class ApplicationDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, int>
+public class ApplicationDbContext : IdentityDbContext<ApplicationUser, IdentityRole<int>, int>
 {
     private static readonly AuditingInterceptor AuditingInterceptor = new();
 

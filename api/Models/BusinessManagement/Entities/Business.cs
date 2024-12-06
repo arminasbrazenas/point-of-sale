@@ -4,7 +4,8 @@ namespace PointOfSale.Models.BusinessManagement.Entities;
 
 public class Business : EntityBase<int>
 {
-    public required ApplicationUser BusinessOwner { get; set; }
+    public ApplicationUser BusinessOwner { get; set; } = null!;
+    public required int BusinessOwnerId { get; set; }
     public required string Name { get; set; }
     public required string Address { get; set; }
     public required string TelephoneNumber { get; set; }
