@@ -4,6 +4,7 @@ using PointOfSale.BusinessLogic.BusinessManagement.Interfaces;
 
 namespace PointOfSale.Api.Controllers;
 
+
 [ApiController]
 [Route("v1/businesses")]
 public class BusinessesController : ControllerBase
