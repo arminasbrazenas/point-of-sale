@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using PointOfSale.Api.Extensions;
 using PointOfSale.Api.Middlewares;
+using PointOfSale.Models.ApplicationUserManagement.Enums;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,7 +19,7 @@ if (app.Environment.IsDevelopment())
 using (var scope = app.Services.CreateScope())
 {
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole<int>>>();
-    var roles = new[] { "Employee", "BusinessOwner", "Admin" };
+    var roles = Enum.GetNames(typeof(Roles));
 
     foreach (var role in roles)
     {
