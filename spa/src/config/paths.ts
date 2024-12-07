@@ -54,5 +54,41 @@ export const paths = {
       path: 'taxes/add',
       getHref: () => '/management/taxes/add',
     },
+    modifiers: {
+      path: 'modifiers',
+      getHref: () => '/management/modifiers',
+    },
+    updateModifier: {
+      path: 'modifiers/:modifierId',
+      getHref: (modifierId: number) => `/management/modifiers/${modifierId}`,
+    },
+    addModifier: {
+      path: 'modifiers/add',
+      getHref: () => '/management/modifiers/add',
+    },
+    serviceCharges: {
+      path: 'service-charges',
+      getHref: () => '/management/service-charges',
+    },
+    updateServiceCharge: {
+      path: 'service-charges/:serviceChargeId',
+      getHref: (serviceChargeId: number) => `/management/service-charges/${serviceChargeId}`,
+    },
+    addServiceCharge: {
+      path: 'service-charges/add',
+      getHref: () => '/management/service-charges/add',
+    },
+    discounts: {
+      path: 'discounts',
+      getHref: () => '/management/discounts',
+    },
+    updateDiscount: {
+      path: 'discounts/:discountId',
+      getHref: (discountId: number) => `/management/discounts/${discountId}`,
+    },
+    addDiscount: {
+      path: 'discounts/add',
+      getHref: () => '/management/discounts/add',
+    },
   },
 } as const;

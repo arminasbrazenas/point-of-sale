@@ -14,7 +14,7 @@ public class ServiceChargeRepository : RepositoryBase<ServiceCharge, int>, IServ
 
     public async Task<List<ServiceCharge>> GetPagedWithTaxes(PaginationFilter paginationFilter)
     {
-        var query = DbSet.AsQueryable();
+        var query = DbSet.OrderBy(s => s.CreatedAt).AsQueryable();
         return await GetPaged(query, paginationFilter);
     }
 

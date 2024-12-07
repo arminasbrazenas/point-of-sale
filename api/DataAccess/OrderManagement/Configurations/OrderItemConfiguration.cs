@@ -16,7 +16,7 @@ public class OrderItemConfiguration : IEntityTypeConfiguration<OrderItem>
         builder.Property(i => i.Name).HasMaxLength(Constants.ProductNameMaxLength).IsRequired();
 
         builder
-            .Property(i => i.BaseUnitPrice)
+            .Property(i => i.BaseUnitGrossPrice)
             .HasPrecision(SharedConstants.MoneyPrecision, SharedConstants.MoneyScale)
             .IsRequired();
 
@@ -33,6 +33,13 @@ public class OrderItemConfiguration : IEntityTypeConfiguration<OrderItem>
             .HasMany(i => i.Taxes)
             .WithOne(t => t.OrderItem)
             .HasForeignKey(t => t.OrderItemId)
+            .OnDelete(DeleteBehavior.Cascade)
+            .IsRequired();
+
+        builder
+            .HasMany(i => i.Discounts)
+            .WithOne()
+            .HasForeignKey(i => i.OrderItemId)
             .OnDelete(DeleteBehavior.Cascade)
             .IsRequired();
 

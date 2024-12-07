@@ -2,7 +2,6 @@ import { Button, Group, Modal, Paper, Text } from '@mantine/core';
 import { EnhancedCreateOrderItemInput } from './order-product';
 import { OrderItemForm } from './order-item-form';
 import { useDisclosure } from '@mantine/hooks';
-import { convertToMoney } from '@/utilities';
 
 type OrderItemProps = {
   orderItem: EnhancedCreateOrderItemInput;
@@ -32,7 +31,7 @@ export const OrderItem = (props: OrderItemProps) => {
           onCancel={closeModal}
           onConfirm={update}
           onRemove={remove}
-          confirmText="Save"
+          confirmText="Confirm"
         />
       </Modal>
 
@@ -40,9 +39,14 @@ export const OrderItem = (props: OrderItemProps) => {
         <Group justify="space-between" align="flex-start">
           <div>
             <Text fw={600}>
-              {props.orderItem.quantity} x {props.orderItem.product.name}
+              {props.orderItem.quantity} x {props.orderItem.product.name} ({props.orderItem.product.price}€)
             </Text>
-            <Text opacity={0.5}>{convertToMoney(props.orderItem.price)}€</Text>
+            {props.orderItem.modifiers.map((m) => (
+              <Text opacity={0.5}>
+                {m.name} (+{m.price}€)
+              </Text>
+            ))}
+            <Text c="blue">{props.orderItem.price}€</Text>
           </div>
 
           <Button variant="light" onClick={openModal}>

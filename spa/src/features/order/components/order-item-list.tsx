@@ -1,21 +1,41 @@
-import { Button, Card, Stack, Text } from '@mantine/core';
+import { Button, Card, Checkbox, Stack, Text } from '@mantine/core';
 import { EnhancedCreateOrderItemInput } from './order-product';
 import { OrderItem } from './order-item';
-import { convertToMoney } from '@/utilities';
-import { useMemo } from 'react';
+import { toReadablePricingStrategyAmount, toRoundedPrice } from '@/utilities';
+import { useMemo, useState } from 'react';
+import { ServiceCharge } from '@/types/api';
 
 export type OrderItemListProps = {
   orderItems: EnhancedCreateOrderItemInput[];
-  onConfirm: () => void;
+  onConfirm: (serviceChargeIds: number[]) => void;
   updateOrderItem: (orderItem: EnhancedCreateOrderItemInput) => void;
   removeOrderItem: (orderItem: EnhancedCreateOrderItemInput) => void;
   isLoading: boolean;
   confirmText: string;
+  serviceCharges: ServiceCharge[];
+  selectedServiceCharges: string[];
 };
 
 export const OrderItemList = (props: OrderItemListProps) => {
-  const totalPrice = useMemo(() => {
-    return props.orderItems.map((x) => x.price).reduce((acc, curr) => acc + curr, 0);
+  const [selectedServiceChargeNames, setSelectedServiceChargeNames] = useState<string[]>(props.selectedServiceCharges);
+
+  const onConfirm = () => {
+    const serviceChargeIds = props.serviceCharges
+      .filter((c) => selectedServiceChargeNames.includes(c.name))
+      .map((c) => c.id);
+    props.onConfirm(serviceChargeIds);
+  };
+
+  const addServiceCharge = (name: string) => {
+    setSelectedServiceChargeNames((prev) => [...prev, name]);
+  };
+
+  const removeServiceCharge = (name: string) => {
+    setSelectedServiceChargeNames((prev) => prev.filter((c) => c !== name));
+  };
+
+  const orderItemsPrice = useMemo(() => {
+    return toRoundedPrice(props.orderItems.reduce((acc, curr) => acc + curr.price, 0));
   }, [props.orderItems]);
 
   if (props.orderItems.length <= 0) {
@@ -25,17 +45,38 @@ export const OrderItemList = (props: OrderItemListProps) => {
   return (
     <Card withBorder>
       <Text fw={600}>Order items</Text>
-      <Stack gap="xs" mt="xs">
+      <Stack gap="xs" mt="xs" mb="md">
         {props.orderItems.map((orderItem, idx) => (
           <OrderItem update={props.updateOrderItem} remove={props.removeOrderItem} orderItem={orderItem} key={idx} />
         ))}
-        <Text fw={500} ta="right">
-          Total: {convertToMoney(totalPrice)}€
-        </Text>
-        <Button onClick={props.onConfirm} loading={props.isLoading}>
-          {props.confirmText}
-        </Button>
       </Stack>
+
+      <Text fw={600} ta="right">
+        Items price: {orderItemsPrice}€
+      </Text>
+
+      <Text fw={600}>Service charges</Text>
+      <Stack gap="xs" mt="xs">
+        {props.serviceCharges.map((c, idx) => (
+          <Checkbox
+            label={
+              <Text size="sm">
+                {c.name}{' '}
+                <Text component="span" opacity={0.5}>
+                  ({toReadablePricingStrategyAmount(c.amount, c.pricingStrategy)})
+                </Text>
+              </Text>
+            }
+            checked={selectedServiceChargeNames.includes(c.name)}
+            onChange={(e) => (e.currentTarget.checked ? addServiceCharge(c.name) : removeServiceCharge(c.name))}
+            key={idx}
+          />
+        ))}
+      </Stack>
+
+      <Button onClick={onConfirm} loading={props.isLoading} mt="lg">
+        {props.confirmText}
+      </Button>
     </Card>
   );
 };

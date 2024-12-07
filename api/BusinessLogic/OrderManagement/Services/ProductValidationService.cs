@@ -11,11 +11,17 @@ public class ProductValidationService : IProductValidationService
 {
     private readonly IProductRepository _productRepository;
     private readonly ITaxRepository _taxRepository;
+    private readonly IModifierRepository _modifierRepository;
 
-    public ProductValidationService(IProductRepository productRepository, ITaxRepository taxRepository)
+    public ProductValidationService(
+        IProductRepository productRepository,
+        ITaxRepository taxRepository,
+        IModifierRepository modifierRepository
+    )
     {
         _productRepository = productRepository;
         _taxRepository = taxRepository;
+        _modifierRepository = modifierRepository;
     }
 
     public async Task<string> ValidateName(string name)
@@ -81,5 +87,16 @@ public class ProductValidationService : IProductValidationService
         }
 
         return taxes;
+    }
+
+    public async Task<List<Modifier>> ValidateModifiers(List<int> modifierIds)
+    {
+        if (modifierIds.Count == 0)
+        {
+            return [];
+        }
+
+        var modifiers = await _modifierRepository.GetMany(modifierIds);
+        return modifiers;
     }
 }

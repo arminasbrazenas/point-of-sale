@@ -15,7 +15,7 @@ public class ServiceChargeConfiguration : IEntityTypeConfiguration<ServiceCharge
     {
         builder.HasKey(c => c.Id);
 
-        builder.Property(c => c.Name).HasMaxLength(Constants.ServiceChargeMaxLength).IsRequired();
+        builder.Property(c => c.Name).HasMaxLength(Constants.ServiceChargeNameMaxLength).IsRequired();
 
         builder
             .Property(c => c.PricingStrategy)

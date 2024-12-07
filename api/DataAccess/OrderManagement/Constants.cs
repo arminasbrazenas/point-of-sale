@@ -7,5 +7,5 @@ public class Constants
     public const int ProductNameMaxLength = 100;
     public const int ModifierNameMaxLength = 100;
     public const int TaxNameMaxLength = 50;
-    public const int ServiceChargeMaxLength = 100;
+    public const int ServiceChargeNameMaxLength = 100;
 }

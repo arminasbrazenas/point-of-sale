@@ -14,7 +14,7 @@ public class OrderRepository : RepositoryBase<Order, int>, IOrderRepository
     public OrderRepository(ApplicationDbContext dbContext)
         : base(dbContext) { }
 
-    public async Task<List<Order>> GetMinimalWithFilter(PaginationFilter paginationFilter)
+    public async Task<List<Order>> GetWithFilter(PaginationFilter paginationFilter)
     {
         var query = DbSet.AsQueryable().OrderByDescending(o => o.CreatedAt);
         return await GetPaged(query, paginationFilter);
@@ -24,10 +24,13 @@ public class OrderRepository : RepositoryBase<Order, int>, IOrderRepository
     {
         var order = await DbSet
             .Where(o => o.Id == orderId)
+            .Include(o => o.ServiceCharges)
             .Include(o => o.Items)
             .ThenInclude(i => i.Modifiers)
             .Include(o => o.Items)
             .ThenInclude(i => i.Taxes)
+            .Include(o => o.Items)
+            .ThenInclude(i => i.Discounts)
             .FirstOrDefaultAsync();
 
         return order ?? throw new EntityNotFoundException(GetEntityNotFoundErrorMessage(orderId));

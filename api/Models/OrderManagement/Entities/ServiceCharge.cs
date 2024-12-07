@@ -5,7 +5,7 @@ namespace PointOfSale.Models.OrderManagement.Entities;
 
 public class ServiceCharge : EntityBase<int>
 {
-    public required string Name { get; init; }
-    public required PricingStrategy PricingStrategy { get; init; }
-    public required decimal Amount { get; init; }
+    public required string Name { get; set; }
+    public required PricingStrategy PricingStrategy { get; set; }
+    public required decimal Amount { get; set; }
 }

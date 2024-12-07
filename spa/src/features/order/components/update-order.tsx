@@ -1,4 +1,4 @@
-import { Button, Card, Paper, Stack, Table, Text } from '@mantine/core';
+import { Button, Card, List, Paper, Stack, Table, Text } from '@mantine/core';
 import { useOrder } from '../api/get-order';
 import { useCancelOrder } from '../api/cancel-order';
 import { showNotification } from '@/lib/notifications';
@@ -6,12 +6,12 @@ import { EnhancedCreateOrderItemInput } from './order-product';
 import { useProducts } from '@/features/product/api/get-products';
 import { useEffect, useMemo, useState } from 'react';
 import { OrderProducts } from './order-products';
-import { Product, Receipt } from '@/types/api';
-import { formatDate } from '@/utilities';
+import { Product, OrderReceipt } from '@/types/api';
+import { formatDate, toReadablePricingStrategyAmount } from '@/utilities';
 import { useOrderReceipt } from '../api/get-order-receipt';
 
 export const UpdateOrder = ({ orderId }: { orderId: number }) => {
-  const [receipt, setReceipt] = useState<Receipt | undefined>(undefined);
+  const [receipt, setReceipt] = useState<OrderReceipt | undefined>(undefined);
   const orderQuery = useOrder({ orderId });
   const productsQuery = useProducts({ paginationFilter: { itemsPerPage: 50, page: 1 } });
   const receiptQuery = useOrderReceipt({ orderId, queryConfig: { enabled: false } });
@@ -38,17 +38,18 @@ export const UpdateOrder = ({ orderId }: { orderId: number }) => {
         products.find((p) => p.id == i.productId) ??
         ({
           name: i.name,
-          priceWithTaxes: i.unitPrice,
+          priceDiscountExcluded: i.unitPrice,
         } as Product);
 
       return {
         cartItemId: crypto.randomUUID(),
         product: product,
         productId: product.id ?? 0,
-        modifierIds: [],
+        modifierIds: i.modifiers.map((m) => m.modifierId ?? 0),
         quantity: i.quantity,
         price: i.totalPrice,
         orderedQuantity: i.quantity,
+        modifiers: i.modifiers,
       };
     });
   }, [orderQuery.data, productsQuery.data]);
@@ -80,7 +81,7 @@ export const UpdateOrder = ({ orderId }: { orderId: number }) => {
   return (
     <Stack>
       <Paper withBorder p="md">
-        <Text>ID: {order.id}</Text>
+        <Text fw={600}>Order #{order.id}</Text>
         <Text>Status: {order.status}</Text>
         <Text>Created at: {formatDate(order.createdAt)}</Text>
 
@@ -101,7 +102,7 @@ export const UpdateOrder = ({ orderId }: { orderId: number }) => {
                 <Table.Tr>
                   <Table.Th>QTY</Table.Th>
                   <Table.Th>Description</Table.Th>
-                  <Table.Th>Price</Table.Th>
+                  <Table.Th>Unit price</Table.Th>
                   <Table.Th>Amount</Table.Th>
                 </Table.Tr>
               </Table.Thead>
@@ -118,14 +119,36 @@ export const UpdateOrder = ({ orderId }: { orderId: number }) => {
             </Table>
           </Paper>
 
-          <Stack align="flex-end" mt="xs" gap="0">
-            <Text fw={500}>Tax: {receipt.taxTotal}€</Text>
-            <Text fw={500}>Total: {receipt.totalPrice}€</Text>
+          {receipt.serviceCharges.length > 0 && (
+            <Stack mt="xs" gap="0">
+              <Text fw={600} size="sm">
+                Service charges
+              </Text>
+              <List>
+                {receipt.serviceCharges.map((c) => (
+                  <List.Item opacity={0.75}>
+                    <Text size="sm">
+                      {c.name} ({toReadablePricingStrategyAmount(c.amount, c.pricingStrategy)}): {c.appliedAmount}€
+                    </Text>
+                  </List.Item>
+                ))}
+              </List>
+            </Stack>
+          )}
+
+          <Stack mt="xs" gap="0">
+            <Text fw={600} size="sm">
+              Total: {receipt.totalPrice}€
+            </Text>
           </Stack>
         </Paper>
       )}
 
-      <OrderProducts orderItems={enhancedOrderItems} orderId={order.id} />
+      <OrderProducts
+        orderItems={enhancedOrderItems}
+        orderId={order.id}
+        selectedServiceCharges={order.serviceCharges.map((c) => c.name)}
+      />
     </Stack>
   );
 };

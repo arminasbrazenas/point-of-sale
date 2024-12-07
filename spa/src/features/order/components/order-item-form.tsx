@@ -1,6 +1,6 @@
-import { Button, Group, NumberInput, Text } from '@mantine/core';
+import { Button, Checkbox, Group, NumberInput, Stack, Text } from '@mantine/core';
 import { EnhancedCreateOrderItemInput } from './order-product';
-import { convertToMoney } from '@/utilities';
+import { toRoundedPrice } from '@/utilities';
 import { useForm, zodResolver } from '@mantine/form';
 import { CreateOrUpdateOrderItemInput, createOrUpdateOrderItemInputSchema } from '../api/create-order';
 import { Product } from '@/types/api';
@@ -19,20 +19,36 @@ export const OrderItemForm = (props: OrderItemFormProps) => {
     mode: 'uncontrolled',
     initialValues: {
       productId: props.product.id,
-      modifierIds: [],
+      modifierIds: props.orderItem?.modifierIds ?? [],
       quantity: props.orderItem?.quantity ?? 1,
     },
     validate: zodResolver(createOrUpdateOrderItemInputSchema),
   });
 
   const addOrUpdateOrderItem = (values: CreateOrUpdateOrderItemInput) => {
+    const modifiers = props.product.modifiers.filter((m) => values.modifierIds.includes(m.id));
+    const modifiersPrice = modifiers.map((m) => m.price).reduce((acc, curr) => acc + curr, 0);
+    const unitPrice = props.product.price + modifiersPrice;
+    const totalPrice = unitPrice * values.quantity;
+
     props.onConfirm({
       ...values,
       orderedQuantity: props.orderItem?.orderedQuantity,
       cartItemId: props.orderItem?.cartItemId ?? crypto.randomUUID(),
       product: props.product,
-      price: props.product.priceWithTaxes * values.quantity,
+      price: toRoundedPrice(totalPrice),
+      modifiers: modifiers,
     });
+  };
+
+  const addModifier = (modifierId: number) => {
+    const modifierIds = [...form.getInputProps('modifierIds').defaultValue, modifierId];
+    form.setFieldValue('modifierIds', modifierIds);
+  };
+
+  const removeModifier = (modifierId: number) => {
+    const modifierIds = form.getInputProps('modifierIds').defaultValue.filter((m: number) => m !== modifierId);
+    form.setFieldValue('modifierIds', modifierIds);
   };
 
   return (
@@ -40,7 +56,14 @@ export const OrderItemForm = (props: OrderItemFormProps) => {
       <Text mt="md" fw={600}>
         {props.product.name}
       </Text>
-      <Text opacity={0.5}>{convertToMoney(props.product.priceWithTaxes)}€</Text>
+      <Group gap="xs">
+        {props.product.priceDiscountExcluded && (
+          <Text opacity={0.5} td="line-through">
+            {props.product.priceDiscountExcluded}€
+          </Text>
+        )}
+        <Text c="blue">{props.product.price}€</Text>
+      </Group>
       <NumberInput
         label="Quantity"
         mt="xs"
@@ -48,6 +71,28 @@ export const OrderItemForm = (props: OrderItemFormProps) => {
         key={form.key('quantity')}
         {...form.getInputProps('quantity')}
       />
+      {props.product.modifiers.length > 0 && (
+        <Stack mt="xs" gap="xs">
+          <Text size="sm" fw={500}>
+            Modifiers
+          </Text>
+          {props.product.modifiers.map((m) => (
+            <Checkbox
+              key={m.id}
+              label={
+                <Text size="sm">
+                  {m.name}{' '}
+                  <Text component="span" opacity={0.5}>
+                    (+{m.price}€)
+                  </Text>
+                </Text>
+              }
+              checked={form.getInputProps('modifierIds').defaultValue.includes(m.id)}
+              onChange={(e) => (e.currentTarget.checked ? addModifier(m.id) : removeModifier(m.id))}
+            />
+          ))}
+        </Stack>
+      )}
       <Group justify="space-between" mt="lg">
         <Button
           color="red"

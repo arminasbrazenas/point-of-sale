@@ -58,26 +58,4 @@ public class ProductsController : ControllerBase
         await _productService.DeleteProduct(productId);
         return NoContent();
     }
-
-    [HttpPut]
-    [Route("{productId:int}/modifiers")]
-    public async Task<IActionResult> SetProductModifiers(
-        [FromRoute] int productId,
-        [FromBody] SetModifiersForProductDTO setModifiersForProductDTO
-    )
-    {
-        await _productService.SetProductModifiers(productId, setModifiersForProductDTO);
-        return NoContent();
-    }
-
-    [HttpGet]
-    [Route("{productId:int}/modifiers")]
-    public async Task<ActionResult<PagedResponseDTO<ModifierDTO>>> GetProductModifiers(
-        [FromRoute] int productId,
-        [FromQuery] PaginationFilterDTO paginationFilterDTO
-    )
-    {
-        var modifiers = await _productService.GetProductModifiers(productId, paginationFilterDTO);
-        return Ok(modifiers);
-    }
 }

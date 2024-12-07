@@ -1,5 +1,5 @@
-import { Product } from '@/types/api';
-import { Card, Text, Divider, Modal } from '@mantine/core';
+import { OrderItemModifier, Product } from '@/types/api';
+import { Card, Text, Divider, Modal, Group } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { CreateOrUpdateOrderItemInput } from '../api/create-order';
 import { useMemo } from 'react';
@@ -9,6 +9,7 @@ export type EnhancedCreateOrderItemInput = CreateOrUpdateOrderItemInput & {
   cartItemId: string;
   orderedQuantity?: number;
   product: Product;
+  modifiers: OrderItemModifier[];
   price: number;
 };
 
@@ -51,9 +52,17 @@ export const OrderProduct = (props: OrderProductProps) => {
 
       <Card withBorder onClick={openModal}>
         <Text fw={600}>{props.product.name}</Text>
-        <Text opacity={0.5}>{props.product.priceWithTaxes}€</Text>
+
+        <Group gap="xs">
+          {props.product.priceDiscountExcluded && (
+            <Text opacity={0.5} td="line-through">
+              {props.product.priceDiscountExcluded}€
+            </Text>
+          )}
+          <Text c="blue">{props.product.price}€</Text>
+        </Group>
         <Divider my="sm" />
-        <Text>Stock: {stock}</Text>
+        <Text opacity={0.5}>Stock: {stock}</Text>
       </Card>
     </>
   );

@@ -1,9 +1,9 @@
 import { api } from '@/lib/api-client';
 import { QueryConfig } from '@/lib/react-query';
-import { Order } from '@/types/api';
+import { OrderReceipt } from '@/types/api';
 import { queryOptions, useQuery } from '@tanstack/react-query';
 
-export const getOrderReceipt = ({ orderId }: { orderId: number }): Promise<Order> => {
+export const getOrderReceipt = ({ orderId }: { orderId: number }): Promise<OrderReceipt> => {
   return api.get(`v1/orders/${orderId}/receipt`);
 };
 

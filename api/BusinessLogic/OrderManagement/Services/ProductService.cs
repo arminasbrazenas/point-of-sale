@@ -2,7 +2,6 @@ using PointOfSale.BusinessLogic.OrderManagement.DTOs;
 using PointOfSale.BusinessLogic.OrderManagement.Interfaces;
 using PointOfSale.BusinessLogic.Shared.DTOs;
 using PointOfSale.BusinessLogic.Shared.Factories;
-using PointOfSale.DataAccess.OrderManagement.Filters;
 using PointOfSale.DataAccess.OrderManagement.Interfaces;
 using PointOfSale.DataAccess.Shared.Interfaces;
 using PointOfSale.Models.OrderManagement.Entities;
@@ -13,26 +12,20 @@ public class ProductService : IProductService
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IProductRepository _productRepository;
-    private readonly IModifierRepository _modifierRepository;
     private readonly IProductValidationService _productValidationService;
     private readonly IProductMappingService _productMappingService;
-    private readonly IModifierMappingService _modifierMappingService;
 
     public ProductService(
         IUnitOfWork unitOfWork,
         IProductRepository productRepository,
-        IModifierRepository modifierRepository,
         IProductValidationService productValidationService,
-        IProductMappingService productMappingService,
-        IModifierMappingService modifierMappingService
+        IProductMappingService productMappingService
     )
     {
         _unitOfWork = unitOfWork;
         _productRepository = productRepository;
-        _modifierRepository = modifierRepository;
         _productValidationService = productValidationService;
         _productMappingService = productMappingService;
-        _modifierMappingService = modifierMappingService;
     }
 
     public async Task<ProductDTO> CreateProduct(CreateProductDTO createProductDTO)
@@ -41,6 +34,7 @@ public class ProductService : IProductService
         var price = _productValidationService.ValidatePrice(createProductDTO.Price);
         var stock = _productValidationService.ValidateStock(createProductDTO.Stock);
         var taxes = await _productValidationService.ValidateTaxes(createProductDTO.TaxIds);
+        var modifiers = await _productValidationService.ValidateModifiers(createProductDTO.ModifierIds);
 
         var product = new Product
         {
@@ -48,7 +42,8 @@ public class ProductService : IProductService
             Price = price,
             Stock = stock,
             Taxes = taxes,
-            Modifiers = [],
+            Modifiers = modifiers,
+            Discounts = [],
         };
 
         _productRepository.Add(product);
@@ -59,7 +54,7 @@ public class ProductService : IProductService
 
     public async Task<ProductDTO> UpdateProduct(int productId, UpdateProductDTO updateProductDTO)
     {
-        var product = await _productRepository.GetWithTaxes(productId);
+        var product = await _productRepository.GetWithRelatedData(productId);
 
         if (updateProductDTO.Name is not null)
         {
@@ -81,6 +76,11 @@ public class ProductService : IProductService
             product.Taxes = await _productValidationService.ValidateTaxes(updateProductDTO.TaxIds);
         }
 
+        if (updateProductDTO.ModifierIds is not null)
+        {
+            product.Modifiers = await _productValidationService.ValidateModifiers(updateProductDTO.ModifierIds);
+        }
+
         _productRepository.Update(product);
         await _unitOfWork.SaveChanges();
 
@@ -89,14 +89,14 @@ public class ProductService : IProductService
 
     public async Task<ProductDTO> GetProduct(int productId)
     {
-        var product = await _productRepository.GetWithTaxes(productId);
+        var product = await _productRepository.GetWithRelatedData(productId);
         return _productMappingService.MapToProductDTO(product);
     }
 
     public async Task<PagedResponseDTO<ProductDTO>> GetProducts(PaginationFilterDTO paginationFilterDTO)
     {
         var paginationFilter = PaginationFilterFactory.Create(paginationFilterDTO);
-        var products = await _productRepository.GetPagedWithTaxes(paginationFilter);
+        var products = await _productRepository.GetPaged(paginationFilter);
         var totalCount = await _productRepository.GetTotalCount();
         return _productMappingService.MapToPagedProductDTO(products, paginationFilter, totalCount);
     }
@@ -104,33 +104,5 @@ public class ProductService : IProductService
     public async Task DeleteProduct(int productId)
     {
         await _productRepository.Delete(productId);
-    }
-
-    public async Task SetProductModifiers(int productId, SetModifiersForProductDTO setModifiersForProductDTO)
-    {
-        var product = await _productRepository.GetWithModifiers(productId);
-        var newModifierIds = setModifiersForProductDTO.ModifierIds.Distinct().ToList();
-        var existingModifierIds = product.Modifiers.Select(m => m.Id).ToList();
-
-        var modifiersToDeleteIds = existingModifierIds.Except(newModifierIds);
-        product.Modifiers.RemoveAll(m => modifiersToDeleteIds.Contains(m.Id));
-
-        var modifiersToAddIds = newModifierIds.Except(existingModifierIds);
-        var modifiersToAdd = await _modifierRepository.GetMany(modifiersToAddIds);
-        product.Modifiers.AddRange(modifiersToAdd);
-
-        await _unitOfWork.SaveChanges();
-    }
-
-    public async Task<PagedResponseDTO<ModifierDTO>> GetProductModifiers(
-        int productId,
-        PaginationFilterDTO paginationFilterDTO
-    )
-    {
-        var paginationFilter = PaginationFilterFactory.Create(paginationFilterDTO);
-        var modifierFilter = new ModifierFilter { CompatibleWithProductById = productId };
-        var modifiers = await _modifierRepository.GetWithFilter(paginationFilter, modifierFilter);
-        var totalCount = await _modifierRepository.GetTotalCount();
-        return _modifierMappingService.MapToPagedModifierDTO(modifiers, paginationFilter, totalCount);
     }
 }

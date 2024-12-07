@@ -22,121 +22,19 @@ namespace PointOfSale.DataAccess.Shared.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole<int>", b =>
+            modelBuilder.Entity("DiscountProduct", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
+                    b.Property<int>("AppliesToId")
                         .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("ConcurrencyStamp")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("text");
-
-                    b.Property<string>("NormalizedName")
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Roles");
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
+                    b.Property<int>("DiscountsId")
                         .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    b.HasKey("AppliesToId", "DiscountsId");
 
-                    b.Property<string>("ClaimType")
-                        .HasColumnType("text");
+                    b.HasIndex("DiscountsId");
 
-                    b.Property<string>("ClaimValue")
-                        .HasColumnType("text");
-
-                    b.Property<int>("RoleId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("RoleClaims");
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<int>", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("ClaimType")
-                        .HasColumnType("text");
-
-                    b.Property<string>("ClaimValue")
-                        .HasColumnType("text");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("UserClaims");
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<int>", b =>
-                {
-                    b.Property<string>("LoginProvider")
-                        .HasColumnType("text");
-
-                    b.Property<string>("ProviderKey")
-                        .HasColumnType("text");
-
-                    b.Property<string>("ProviderDisplayName")
-                        .HasColumnType("text");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("LoginProvider", "ProviderKey");
-
-                    b.ToTable("UserLogins", (string)null);
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<int>", b =>
-                {
-                    b.Property<int>("UserId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("RoleId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("UserId", "RoleId");
-
-                    b.ToTable("UserRoles", (string)null);
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<int>", b =>
-                {
-                    b.Property<int>("UserId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("LoginProvider")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Value")
-                        .HasColumnType("text");
-
-                    b.HasKey("UserId", "LoginProvider", "Name");
-
-                    b.ToTable("UserTokens", (string)null);
+                    b.ToTable("ProductDiscounts", "Order");
                 });
 
             modelBuilder.Entity("ModifierProduct", b =>
@@ -154,7 +52,7 @@ namespace PointOfSale.DataAccess.Shared.Migrations
                     b.ToTable("ProductModifiers", "Order");
                 });
 
-            modelBuilder.Entity("PointOfSale.Models.ApplicationUserManagement.Entities.ApplicationUser", b =>
+            modelBuilder.Entity("PointOfSale.Models.OrderManagement.Entities.Discount", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -162,134 +60,27 @@ namespace PointOfSale.DataAccess.Shared.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("AccessFailedCount")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("ConcurrencyStamp")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Email")
-                        .HasColumnType("text");
-
-                    b.Property<bool>("EmailConfirmed")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("FirstName")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("LastName")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<bool>("LockoutEnabled")
-                        .HasColumnType("boolean");
-
-                    b.Property<DateTimeOffset?>("LockoutEnd")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("NormalizedEmail")
-                        .HasColumnType("text");
-
-                    b.Property<string>("NormalizedUserName")
-                        .HasColumnType("text");
-
-                    b.Property<string>("PasswordHash")
-                        .HasColumnType("text");
-
-                    b.Property<string>("PhoneNumber")
-                        .HasColumnType("text");
-
-                    b.Property<bool>("PhoneNumberConfirmed")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("SecurityStamp")
-                        .HasColumnType("text");
-
-                    b.Property<bool>("TwoFactorEnabled")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("UserName")
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Users");
-                });
-
-            modelBuilder.Entity("PointOfSale.Models.ApplicationUserManagement.Entities.RefreshToken", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("ApplicationUserId")
-                        .HasColumnType("integer");
+                    b.Property<decimal>("Amount")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("numeric(10,2)");
 
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<DateTime>("ExpiryDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<bool>("IsRevoked")
-                        .HasColumnType("boolean");
-
                     b.Property<DateTimeOffset>("ModifiedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("RefreshTokenHash")
+                    b.Property<string>("PricingStrategy")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<DateTimeOffset>("ValidUntil")
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ApplicationUserId");
-
-                    b.ToTable("RefreshTokens", "ApplicationUsers");
-                });
-
-            modelBuilder.Entity("PointOfSale.Models.BusinessManagement.Entities.Business", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Address")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int>("BusinessOwnerId")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<DateTimeOffset>("ModifiedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("TelephoneNumber")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("BusinessOwnerId")
-                        .IsUnique();
-
-                    b.ToTable("Businesses", "Business");
+                    b.ToTable("Discounts", "Order");
                 });
 
             modelBuilder.Entity("PointOfSale.Models.OrderManagement.Entities.Modifier", b =>
@@ -361,7 +152,7 @@ namespace PointOfSale.DataAccess.Shared.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<decimal>("BaseUnitPrice")
+                    b.Property<decimal>("BaseUnitGrossPrice")
                         .HasPrecision(10, 2)
                         .HasColumnType("numeric(10,2)");
 
@@ -394,6 +185,41 @@ namespace PointOfSale.DataAccess.Shared.Migrations
                     b.ToTable("OrderItems", "Order");
                 });
 
+            modelBuilder.Entity("PointOfSale.Models.OrderManagement.Entities.OrderItemDiscount", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("numeric");
+
+                    b.Property<decimal>("AppliedUnitAmount")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("numeric(10,2)");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("OrderItemId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("PricingStrategy")
+                        .HasMaxLength(50)
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrderItemId");
+
+                    b.ToTable("OrderItemDiscounts", "Order");
+                });
+
             modelBuilder.Entity("PointOfSale.Models.OrderManagement.Entities.OrderItemModifier", b =>
                 {
                     b.Property<int>("Id")
@@ -404,6 +230,10 @@ namespace PointOfSale.DataAccess.Shared.Migrations
 
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<decimal>("GrossPrice")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("numeric(10,2)");
 
                     b.Property<DateTimeOffset>("ModifiedAt")
                         .HasColumnType("timestamp with time zone");
@@ -419,7 +249,7 @@ namespace PointOfSale.DataAccess.Shared.Migrations
                     b.Property<int>("OrderItemId")
                         .HasColumnType("integer");
 
-                    b.Property<decimal>("Price")
+                    b.Property<decimal>("TaxTotal")
                         .HasPrecision(10, 2)
                         .HasColumnType("numeric(10,2)");
 
@@ -437,6 +267,10 @@ namespace PointOfSale.DataAccess.Shared.Migrations
                         .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("AppliedUnitAmount")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("numeric(10,2)");
 
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -460,6 +294,48 @@ namespace PointOfSale.DataAccess.Shared.Migrations
                     b.HasIndex("OrderItemId");
 
                     b.ToTable("OrderItemTaxes", "Order");
+                });
+
+            modelBuilder.Entity("PointOfSale.Models.OrderManagement.Entities.OrderServiceCharge", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("Amount")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("numeric(10,2)");
+
+                    b.Property<decimal>("AppliedAmount")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("numeric(10,2)");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<int>("OrderId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("PricingStrategy")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrderId");
+
+                    b.ToTable("OrderServiceCharges", "Order");
                 });
 
             modelBuilder.Entity("PointOfSale.Models.OrderManagement.Entities.Product", b =>
@@ -574,6 +450,21 @@ namespace PointOfSale.DataAccess.Shared.Migrations
                     b.ToTable("ProductTaxes", "Order");
                 });
 
+            modelBuilder.Entity("DiscountProduct", b =>
+                {
+                    b.HasOne("PointOfSale.Models.OrderManagement.Entities.Product", null)
+                        .WithMany()
+                        .HasForeignKey("AppliesToId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("PointOfSale.Models.OrderManagement.Entities.Discount", null)
+                        .WithMany()
+                        .HasForeignKey("DiscountsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("ModifierProduct", b =>
                 {
                     b.HasOne("PointOfSale.Models.OrderManagement.Entities.Modifier", null)
@@ -629,6 +520,15 @@ namespace PointOfSale.DataAccess.Shared.Migrations
                     b.Navigation("Product");
                 });
 
+            modelBuilder.Entity("PointOfSale.Models.OrderManagement.Entities.OrderItemDiscount", b =>
+                {
+                    b.HasOne("PointOfSale.Models.OrderManagement.Entities.OrderItem", null)
+                        .WithMany("Discounts")
+                        .HasForeignKey("OrderItemId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("PointOfSale.Models.OrderManagement.Entities.OrderItemModifier", b =>
                 {
                     b.HasOne("PointOfSale.Models.OrderManagement.Entities.OrderItem", null)
@@ -647,6 +547,15 @@ namespace PointOfSale.DataAccess.Shared.Migrations
                         .IsRequired();
 
                     b.Navigation("OrderItem");
+                });
+
+            modelBuilder.Entity("PointOfSale.Models.OrderManagement.Entities.OrderServiceCharge", b =>
+                {
+                    b.HasOne("PointOfSale.Models.OrderManagement.Entities.Order", null)
+                        .WithMany("ServiceCharges")
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("ProductTax", b =>
@@ -672,10 +581,14 @@ namespace PointOfSale.DataAccess.Shared.Migrations
             modelBuilder.Entity("PointOfSale.Models.OrderManagement.Entities.Order", b =>
                 {
                     b.Navigation("Items");
+
+                    b.Navigation("ServiceCharges");
                 });
 
             modelBuilder.Entity("PointOfSale.Models.OrderManagement.Entities.OrderItem", b =>
                 {
+                    b.Navigation("Discounts");
+
                     b.Navigation("Modifiers");
 
                     b.Navigation("Taxes");

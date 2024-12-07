@@ -7,10 +7,13 @@ import { useNavigate } from 'react-router-dom';
 import { paths } from '@/config/paths';
 import { useEffect, useState } from 'react';
 import { useTaxes } from '@/features/taxes/api/get-taxes';
+import { useModifiers } from '@/features/modifier/api/get-modifiers';
 
 export const AddProduct = () => {
   const [selectedTaxNames, setSelectedTaxNames] = useState<string[]>([]);
+  const [selectedModifierNames, setSelectedModifierNames] = useState<string[]>([]);
   const taxesQuery = useTaxes({ paginationFilter: { page: 1, itemsPerPage: 50 } });
+  const modifiersQuery = useModifiers({ paginationFilter: { page: 1, itemsPerPage: 50 } });
   const navigate = useNavigate();
 
   const form = useForm<CreateProductInput>({
@@ -20,6 +23,7 @@ export const AddProduct = () => {
       stock: 0,
       price: 0,
       taxIds: [],
+      modifierIds: [],
     },
     validate: zodResolver(createProductInputSchema),
   });
@@ -47,16 +51,27 @@ export const AddProduct = () => {
     form.setFieldValue('taxIds', selectedTaxIds);
   }, [taxesQuery.data, selectedTaxNames]);
 
+  useEffect(() => {
+    const modifiers = modifiersQuery.data?.items;
+    if (!modifiers) {
+      return;
+    }
+
+    const selectedModifierIds = modifiers.filter((m) => selectedModifierNames.includes(m.name)).map((m) => m.id);
+    form.setFieldValue('modifierIds', selectedModifierIds);
+  }, [modifiersQuery.data, selectedModifierNames]);
+
   const handleSubmit = (values: CreateProductInput) => {
     createProductMutation.mutate({ data: values });
   };
 
-  if (taxesQuery.isLoading) {
+  if (taxesQuery.isLoading || modifiersQuery.isLoading) {
     return <div>loading...</div>;
   }
 
   const taxes = taxesQuery.data?.items;
-  if (!taxes) {
+  const modifiers = modifiersQuery.data?.items;
+  if (!taxes || !modifiers) {
     return null;
   }
 
@@ -79,8 +94,8 @@ export const AddProduct = () => {
             {...form.getInputProps('stock')}
           />
           <CurrencyInput
-            label="Price (without taxes)"
-            placeholder="Price (without taxes)"
+            label="Price (pre-tax)"
+            placeholder="Price (pre-tax)"
             withAsterisk
             key={form.key('price')}
             {...form.getInputProps('price')}
@@ -91,6 +106,13 @@ export const AddProduct = () => {
             data={taxes.map((tax) => tax.name)}
             value={selectedTaxNames}
             onChange={setSelectedTaxNames}
+          />
+          <MultiSelect
+            label="Modifiers"
+            placeholder="Compatible modifiers"
+            data={modifiers.map((m) => m.name)}
+            value={selectedModifierNames}
+            onChange={setSelectedModifierNames}
           />
           <Button type="submit" mt="xs" fullWidth loading={createProductMutation.isPending}>
             Add

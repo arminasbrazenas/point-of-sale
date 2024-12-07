@@ -3,9 +3,14 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { paths } from '../config/paths';
 import { ManagementRoot } from './routes/management/root';
 import { EmployeeRoot } from './routes/employee/root';
+import { HomeRoute } from './routes/home';
 
 const createAppRouter = () =>
   createBrowserRouter([
+    {
+      path: paths.home.path,
+      element: <HomeRoute />,
+    },
     {
       path: paths.employee.root.path,
       element: <EmployeeRoot />,
@@ -77,6 +82,75 @@ const createAppRouter = () =>
           lazy: async () => {
             const { AddTaxManagementRoute } = await import('./routes/management/tax/add-tax');
             return { Component: AddTaxManagementRoute };
+          },
+        },
+        {
+          path: paths.management.modifiers.path,
+          lazy: async () => {
+            const { ModifiersManagementRoute } = await import('./routes/management/modifier/modifiers');
+            return { Component: ModifiersManagementRoute };
+          },
+        },
+        {
+          path: paths.management.updateModifier.path,
+          lazy: async () => {
+            const { UpdateModifierManagementRoute } = await import('./routes/management/modifier/update-modifier');
+            return { Component: UpdateModifierManagementRoute };
+          },
+        },
+        {
+          path: paths.management.addModifier.path,
+          lazy: async () => {
+            const { AddModifierManagementRoute } = await import('./routes/management/modifier/add-modifier');
+            return { Component: AddModifierManagementRoute };
+          },
+        },
+        {
+          path: paths.management.serviceCharges.path,
+          lazy: async () => {
+            const { ServiceChargesManagementRoute } = await import(
+              './routes/management/service-charge/service-charges'
+            );
+            return { Component: ServiceChargesManagementRoute };
+          },
+        },
+        {
+          path: paths.management.updateServiceCharge.path,
+          lazy: async () => {
+            const { UpdateServiceChargeManagementRoute } = await import(
+              './routes/management/service-charge/update-service-charge'
+            );
+            return { Component: UpdateServiceChargeManagementRoute };
+          },
+        },
+        {
+          path: paths.management.addServiceCharge.path,
+          lazy: async () => {
+            const { AddServiceChargeManagementRoute } = await import(
+              './routes/management/service-charge/add-service-charge'
+            );
+            return { Component: AddServiceChargeManagementRoute };
+          },
+        },
+        {
+          path: paths.management.discounts.path,
+          lazy: async () => {
+            const { DiscountsManagementRoute } = await import('./routes/management/discount/discounts');
+            return { Component: DiscountsManagementRoute };
+          },
+        },
+        {
+          path: paths.management.updateDiscount.path,
+          lazy: async () => {
+            const { UpdateDiscountManagementRoute } = await import('./routes/management/discount/update-discount');
+            return { Component: UpdateDiscountManagementRoute };
+          },
+        },
+        {
+          path: paths.management.addDiscount.path,
+          lazy: async () => {
+            const { AddDiscountManagementRoute } = await import('./routes/management/discount/add-discount');
+            return { Component: AddDiscountManagementRoute };
           },
         },
       ],

@@ -10,6 +10,4 @@ public interface IProductService
     Task<ProductDTO> GetProduct(int productId);
     Task<PagedResponseDTO<ProductDTO>> GetProducts(PaginationFilterDTO paginationFilterDTO);
     Task DeleteProduct(int productId);
-    Task SetProductModifiers(int productId, SetModifiersForProductDTO setModifiersForProductDTO);
-    Task<PagedResponseDTO<ModifierDTO>> GetProductModifiers(int productId, PaginationFilterDTO paginationFilterDTO);
 }

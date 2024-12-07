@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using PointOfSale.DataAccess.Shared;
 using PointOfSale.Models.OrderManagement.Entities;
 
 namespace PointOfSale.DataAccess.OrderManagement.Configurations;
@@ -13,6 +14,11 @@ public class OrderItemTaxConfiguration : IEntityTypeConfiguration<OrderItemTax>
         builder.HasKey(t => t.Id);
 
         builder.Property(t => t.Name).HasMaxLength(Constants.TaxNameMaxLength).IsRequired();
+
+        builder
+            .Property(m => m.AppliedUnitAmount)
+            .HasPrecision(SharedConstants.MoneyPrecision, SharedConstants.MoneyScale)
+            .IsRequired();
 
         builder.ToTable(TableName, Constants.SchemaName);
     }

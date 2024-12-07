@@ -32,7 +32,7 @@ public class ModifierService : IModifierService
         {
             Name = createModifierDTO.Name,
             Price = createModifierDTO.Price,
-            Stock = createModifierDTO.Amount,
+            Stock = createModifierDTO.Stock,
             Products = [],
         };
 
@@ -70,9 +70,9 @@ public class ModifierService : IModifierService
             modifier.Price = updateModifierDTO.Price.Value;
         }
 
-        if (updateModifierDTO.Amount.HasValue)
+        if (updateModifierDTO.Stock.HasValue)
         {
-            modifier.Stock = updateModifierDTO.Amount.Value;
+            modifier.Stock = updateModifierDTO.Stock.Value;
         }
 
         _modifierRepository.Update(modifier);

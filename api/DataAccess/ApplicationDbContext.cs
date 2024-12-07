@@ -16,6 +16,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, IdentityR
     public DbSet<Tax> Taxes { get; set; }
     public DbSet<Product> Products { get; set; }
     public DbSet<Modifier> Modifiers { get; set; }
+    public DbSet<Discount> Discounts { get; set; }
     public DbSet<Order> Orders { get; set; }
     public DbSet<OrderItem> OrderItems { get; set; }
     public DbSet<OrderItemModifier> OrderItemModifiers { get; set; }
@@ -23,6 +24,8 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, IdentityR
     public DbSet<ServiceCharge> ServiceCharges { get; set; }
     public DbSet<Business> Businesses { get; set; }
     public DbSet<RefreshToken> RefreshTokens { get; set; }
+    public DbSet<OrderItemDiscount> OrderItemDiscounts { get; set; }
+    public DbSet<OrderServiceCharge> OrderServiceCharges { get; set; }
 
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         : base(options) { }

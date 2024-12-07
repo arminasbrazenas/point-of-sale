@@ -28,6 +28,13 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
             .OnDelete(DeleteBehavior.Cascade)
             .IsRequired();
 
+        builder
+            .HasMany(o => o.ServiceCharges)
+            .WithOne()
+            .HasForeignKey(c => c.OrderId)
+            .OnDelete(DeleteBehavior.Cascade)
+            .IsRequired();
+
         builder.ToTable(TableName, Constants.SchemaName);
     }
 }

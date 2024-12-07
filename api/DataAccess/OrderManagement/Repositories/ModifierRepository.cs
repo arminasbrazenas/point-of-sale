@@ -18,7 +18,7 @@ public class ModifierRepository : RepositoryBase<Modifier, int>, IModifierReposi
         ModifierFilter? modifierFilter = null
     )
     {
-        var query = DbSet.AsQueryable();
+        var query = DbSet.OrderBy(m => m.CreatedAt).AsQueryable();
 
         if (modifierFilter?.CompatibleWithProductById is not null)
         {

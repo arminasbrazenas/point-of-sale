@@ -17,11 +17,14 @@ export const TaxList = () => {
     return Math.ceil(taxesQuery.data.totalItems / taxesQuery.data.itemsPerPage);
   }, [taxesQuery.data]);
 
-  if (taxesQuery.isLoading || !taxesQuery.data) {
+  if (taxesQuery.isLoading) {
     return <div>loading...</div>;
   }
 
-  const taxes = taxesQuery.data.items;
+  const taxes = taxesQuery.data?.items;
+  if (!taxes) {
+    return null;
+  }
 
   return (
     <>
@@ -29,7 +32,7 @@ export const TaxList = () => {
         <Table striped stickyHeader highlightOnHover>
           <Table.Thead>
             <Table.Tr>
-              <Table.Th>Tax</Table.Th>
+              <Table.Th>Name</Table.Th>
               <Table.Th>Rate</Table.Th>
             </Table.Tr>
           </Table.Thead>
