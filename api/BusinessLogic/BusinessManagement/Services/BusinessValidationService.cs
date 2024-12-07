@@ -3,7 +3,7 @@ using PointOfSale.BusinessLogic.BusinessManagement.DTOs;
 using PointOfSale.BusinessLogic.BusinessManagement.Interfaces;
 using PointOfSale.BusinessLogic.Shared.Exceptions;
 using PointOfSale.DataAccess.ApplicationUserManagement.ErrorMessages;
-using PointOfSale.DataAccess.Shared.Migrations;
+using PointOfSale.Models.ApplicationUserManagement.Entities;
 
 namespace PointOfSale.BusinessLogic.BusinessManagement.Services;
 
@@ -15,10 +15,13 @@ public class BusinessValidationService : IBusinessValidationService
     {
         _userManager = userManager;
     }
-    async public Task ValidateCreateBusinessDTO(CreateBusinessDTO dto){
+
+    public async Task ValidateCreateBusinessDTO(CreateBusinessDTO dto)
+    {
         var owner = await _userManager.FindByIdAsync(dto.BusinessOwnerId.ToString());
 
-        if (owner is null){
+        if (owner is null)
+        {
             throw new ValidationException(new InvalidBusinessOwnerIdErrorMessage(dto.BusinessOwnerId));
         }
     }

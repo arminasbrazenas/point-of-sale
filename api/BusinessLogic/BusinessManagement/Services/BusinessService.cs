@@ -6,7 +6,6 @@ using PointOfSale.Models.BusinessManagement.Entities;
 
 namespace PointOfSale.BusinessLogic.BusinessManagement.Services;
 
-
 public class BusinessService : IBusinessService
 {
     private readonly IUnitOfWork _unitOfWork;
