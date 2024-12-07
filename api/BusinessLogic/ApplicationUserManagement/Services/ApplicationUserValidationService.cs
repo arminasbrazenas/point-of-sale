@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Identity;
 using PointOfSale.BusinessLogic.ApplicationUserManagement.DTOs;
 using PointOfSale.BusinessLogic.ApplicationUserManagement.Interfaces;
 using PointOfSale.BusinessLogic.BusinessManagement.Interfaces;
@@ -17,6 +16,7 @@ public class ApplicationUserValidationService : IApplicationUserValidationServic
     {
         _businessService = businessService;
     }
+
     public void ValidateApplicationUserRole(string role)
     {
         if (!Enum.IsDefined(typeof(Roles), role) && !Enum.TryParse<Roles>(role, ignoreCase: true, out _))
@@ -25,9 +25,10 @@ public class ApplicationUserValidationService : IApplicationUserValidationServic
         }
     }
 
-    async public Task ValidateRegisterApplicationUserDTO(RegisterApplicationUserDTO dto)
+    public async Task ValidateRegisterApplicationUserDTO(RegisterApplicationUserDTO dto)
     {
-        if (dto.BusinessId is int businessId && await _businessService.GetBusiness(businessId) is null){
+        if (dto.BusinessId is int businessId && await _businessService.GetBusiness(businessId) is null)
+        {
             throw new ValidationException(new InvalidBusinessIdErrorMessage(businessId));
         }
     }

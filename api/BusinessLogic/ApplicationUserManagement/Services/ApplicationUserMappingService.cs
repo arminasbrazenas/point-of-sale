@@ -1,6 +1,6 @@
 using PointOfSale.BusinessLogic.ApplicationUserManagement.DTOs;
 using PointOfSale.BusinessLogic.ApplicationUserManagement.Interfaces;
-using PointOfSale.Models.BusinessManagement.Entities;
+using PointOfSale.Models.ApplicationUserManagement.Entities;
 
 namespace PointOfSale.BusinessLogic.ApplicationUserManagement.Services;
 
@@ -17,5 +17,10 @@ public class ApplicationUserMappingService : IApplicationUserMappingService
             user.Business?.Name,
             role
         );
+    }
+
+    public TokensDTO MapTokensDTO(string accessToken, string refreshToken)
+    {
+        return new TokensDTO(accessToken, refreshToken);
     }
 }

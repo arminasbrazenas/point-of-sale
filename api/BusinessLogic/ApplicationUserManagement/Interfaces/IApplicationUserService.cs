@@ -6,4 +6,5 @@ public interface IApplicationUserService
 {
     Task<ApplicationUserDTO> CreateApplicationUser(RegisterApplicationUserDTO dto);
     Task<List<ApplicationUserDTO>> GetApplicationUsers();
+    Task<TokensDTO> AuthenticateApplicationUser(LoginApplicationUserDTO dto);
 }
