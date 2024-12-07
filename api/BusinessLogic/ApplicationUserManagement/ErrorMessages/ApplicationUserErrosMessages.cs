@@ -25,3 +25,18 @@ public class InvalidBusinessOwnerIdErrorMessage : IPointOfSaleErrorMessage
 
     public string En => $"Business owner with id '{_id}' does not exist.";
 }
+
+public class InvalidApplicationUserCredentialsErrorMessage : IPointOfSaleErrorMessage
+{
+    public string En => "Application user email or password is incorrect.";
+}
+
+public class NoApplicationUserIdErrorMessage : IPointOfSaleErrorMessage
+{
+    public string En => "Cannot access application user id.";
+}
+
+public class NoApplicationUserRoleErrorMessage : IPointOfSaleErrorMessage
+{
+    public string En => "Cannot access application user role.";
+}
