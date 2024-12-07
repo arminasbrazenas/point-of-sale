@@ -1,13 +1,25 @@
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using PointOfSale.BusinessLogic.ApplicationUserManagement.Interfaces;
+using PointOfSale.BusinessLogic.ApplicationUserManagement.Services;
+using PointOfSale.BusinessLogic.BusinessManagement.Interfaces;
+using PointOfSale.BusinessLogic.BusinessManagement.Services;
 using PointOfSale.BusinessLogic.OrderManagement.Interfaces;
 using PointOfSale.BusinessLogic.OrderManagement.Services;
 using PointOfSale.DataAccess;
+using PointOfSale.DataAccess.ApplicationUserManagement.Interfaces;
+using PointOfSale.DataAccess.BusinessManagement.Interfaces;
+using PointOfSale.DataAccess.BusinessManagement.Repositories;
 using PointOfSale.DataAccess.OrderManagement.Interfaces;
 using PointOfSale.DataAccess.OrderManagement.Repositories;
 using PointOfSale.DataAccess.Shared.Interfaces;
 using PointOfSale.DataAccess.Shared.Repositories;
+using PointOfSale.Models.ApplicationUserManagement.Entities;
 
 namespace PointOfSale.Api.Extensions;
 
@@ -76,6 +88,76 @@ public static class ConfigureServicesExtensions
         services.AddScoped<IModifierService, ModifierService>();
         services.AddScoped<IServiceChargeService, ServiceChargeService>();
         services.AddScoped<IDiscountService, DiscountService>();
+
+        return services;
+    }
+
+    public static IServiceCollection AddBusinessManagement(this IServiceCollection services)
+    {
+        services.AddScoped<IBusinessRepository, BusinessRepository>();
+        services.AddScoped<IBusinessValidationService, BusinessValidationService>();
+        services.AddScoped<IBusinessMappingService, BusinessMappingService>();
+        services.AddScoped<IBusinessService, BusinessService>();
+
+        return services;
+    }
+
+    public static IServiceCollection AddApplicattionUserManagement(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.AddScoped<IApplicationUserService, ApplicationUserService>();
+        services.AddScoped<IApplicationUserMappingService, ApplicationUserMappingService>();
+        services.AddScoped<IApplicationUserValidationService, ApplicationUserValidationService>();
+
+        services.AddScoped<IApplicationUserAuthorizationService, ApplicationUserAuthorizationService>();
+
+        services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+
+        services
+            .AddIdentityCore<ApplicationUser>(options =>
+            {
+                options.Password.RequireDigit = true;
+                options.Password.RequiredLength = 8;
+                options.Password.RequireLowercase = true;
+                options.Password.RequireUppercase = true;
+                options.Password.RequireNonAlphanumeric = true;
+                options.User.RequireUniqueEmail = true;
+            })
+            .AddRoles<IdentityRole<int>>()
+            .AddEntityFrameworkStores<ApplicationDbContext>()
+            .AddUserManager<UserManager<ApplicationUser>>()
+            .AddRoleManager<RoleManager<IdentityRole<int>>>();
+
+        services.AddHttpContextAccessor();
+
+        services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            .AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Key"]!)),
+                    ValidateIssuer = true,
+                    ValidIssuer = configuration["Jwt:Issuer"],
+                    ValidateAudience = true,
+                    ValidAudience = configuration["Jwt:Audience"],
+                    ValidateLifetime = true,
+                    ClockSkew = TimeSpan.Zero
+                };
+
+                options.Events = new JwtBearerEvents
+                {
+                    OnMessageReceived = context =>
+                    {
+                        var accessToken = context.Request.Cookies["AccessToken"];
+                        if (!string.IsNullOrEmpty(accessToken))
+                        {
+                            context.Token = accessToken;
+                        }
+                        return Task.CompletedTask;
+                    }
+                };
+
+            });
 
         return services;
     }
