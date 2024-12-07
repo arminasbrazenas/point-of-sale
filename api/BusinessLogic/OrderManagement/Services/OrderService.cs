@@ -255,9 +255,10 @@ public class OrderService : IOrderService
 
     private async Task<List<OrderServiceCharge>> CreateOrderServiceCharges(Order order, List<int> serviceChargeIds)
     {
-        var serviceCharges = (await _serviceChargeRepository.GetMany(serviceChargeIds)).OrderBy(c => c.PricingStrategy);
+        var serviceCharges = await _serviceChargeRepository.GetMany(serviceChargeIds);
         var orderPrice = order.GetOrderItemsPrice();
         return serviceCharges
+            .OrderBy(c => c.PricingStrategy)
             .Select(c =>
             {
                 var appliedAmount = c.GetAmountToApply(orderPrice);
