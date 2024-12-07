@@ -5,21 +5,19 @@ using PointOfSale.Models.OrderManagement.Entities;
 
 namespace PointOfSale.DataAccess.OrderManagement.Configurations;
 
-public class OrderItemTaxConfiguration : IEntityTypeConfiguration<OrderItemTax>
+public class OrderItemDiscountConfiguration : IEntityTypeConfiguration<OrderItemDiscount>
 {
-    private const string TableName = "OrderItemTaxes";
-
-    public void Configure(EntityTypeBuilder<OrderItemTax> builder)
+    public void Configure(EntityTypeBuilder<OrderItemDiscount> builder)
     {
-        builder.HasKey(t => t.Id);
+        builder.HasKey(m => m.Id);
 
-        builder.Property(t => t.Name).HasMaxLength(Constants.TaxNameMaxLength).IsRequired();
+        builder.Property(m => m.PricingStrategy).HasMaxLength(SharedConstants.EnumMaxLength).IsRequired();
 
         builder
             .Property(m => m.AppliedUnitAmount)
             .HasPrecision(SharedConstants.MoneyPrecision, SharedConstants.MoneyScale)
             .IsRequired();
 
-        builder.ToTable(TableName, Constants.SchemaName);
+        builder.ToTable("OrderItemDiscounts", Constants.SchemaName);
     }
 }

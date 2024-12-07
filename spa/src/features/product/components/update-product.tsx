@@ -77,7 +77,7 @@ export const UpdateProduct = ({ productId }: { productId: number }) => {
       setUpdatedProductProperties({
         name: product.name === updatedProduct.name.trim() ? undefined : updatedProduct.name,
         stock: product.stock === updatedProduct.stock ? undefined : updatedProduct.stock,
-        price: product.priceWithoutTaxes === updatedProduct.price ? undefined : updatedProduct.price,
+        price: product.basePrice === updatedProduct.price ? undefined : updatedProduct.price,
         taxIds: isSameNumberSet(productTaxIds, selectedTaxIds) ? undefined : selectedTaxIds,
         modifierIds: isSameNumberSet(productModifierIds, selectedModifierIds) ? undefined : selectedModifierIds,
       });
@@ -94,7 +94,7 @@ export const UpdateProduct = ({ productId }: { productId: number }) => {
     setSelectedModifierNames(product.modifiers.map((m) => m.name));
     form.setFieldValue('name', product.name);
     form.setFieldValue('stock', product.stock);
-    form.setFieldValue('price', product.priceWithoutTaxes);
+    form.setFieldValue('price', product.basePrice);
   }, [productQuery.data]);
 
   useEffect(() => {
@@ -161,7 +161,7 @@ export const UpdateProduct = ({ productId }: { productId: number }) => {
             key={form.key('price')}
             {...form.getInputProps('price')}
           />
-          <CurrencyInput label="Price (with taxes)" value={product.priceWithTaxes} disabled />
+          <CurrencyInput label="Price (with taxes)" value={product.priceDiscountExcluded} disabled />
           <MultiSelect
             label="Taxes"
             placeholder="Applicable taxes"

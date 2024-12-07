@@ -1,6 +1,6 @@
 import { Button, Checkbox, Group, NumberInput, Stack, Text } from '@mantine/core';
 import { EnhancedCreateOrderItemInput } from './order-product';
-import { convertToMoney } from '@/utilities';
+import { toRoundedPrice } from '@/utilities';
 import { useForm, zodResolver } from '@mantine/form';
 import { CreateOrUpdateOrderItemInput, createOrUpdateOrderItemInputSchema } from '../api/create-order';
 import { Product } from '@/types/api';
@@ -28,7 +28,7 @@ export const OrderItemForm = (props: OrderItemFormProps) => {
   const addOrUpdateOrderItem = (values: CreateOrUpdateOrderItemInput) => {
     const modifiers = props.product.modifiers.filter((m) => values.modifierIds.includes(m.id));
     const modifiersPrice = modifiers.map((m) => m.price).reduce((acc, curr) => acc + curr, 0);
-    const unitPrice = props.product.priceWithTaxes + modifiersPrice;
+    const unitPrice = props.product.price + modifiersPrice;
     const totalPrice = unitPrice * values.quantity;
 
     props.onConfirm({
@@ -36,7 +36,7 @@ export const OrderItemForm = (props: OrderItemFormProps) => {
       orderedQuantity: props.orderItem?.orderedQuantity,
       cartItemId: props.orderItem?.cartItemId ?? crypto.randomUUID(),
       product: props.product,
-      price: totalPrice,
+      price: toRoundedPrice(totalPrice),
       modifiers: modifiers,
     });
   };
@@ -56,7 +56,14 @@ export const OrderItemForm = (props: OrderItemFormProps) => {
       <Text mt="md" fw={600}>
         {props.product.name}
       </Text>
-      <Text c="blue">{convertToMoney(props.product.priceWithTaxes)}€</Text>
+      <Group gap="xs">
+        {props.product.priceDiscountExcluded && (
+          <Text opacity={0.5} td="line-through">
+            {props.product.priceDiscountExcluded}€
+          </Text>
+        )}
+        <Text c="blue">{props.product.price}€</Text>
+      </Group>
       <NumberInput
         label="Quantity"
         mt="xs"

@@ -1,6 +1,5 @@
 using PointOfSale.BusinessLogic.OrderManagement.DTOs;
 using PointOfSale.BusinessLogic.OrderManagement.Interfaces;
-using PointOfSale.BusinessLogic.OrderManagement.Utilities;
 using PointOfSale.BusinessLogic.Shared.DTOs;
 using PointOfSale.DataAccess.Shared.Filters;
 using PointOfSale.Models.OrderManagement.Entities;
@@ -37,7 +36,8 @@ public class OrderMappingService : IOrderMappingService
     public OrderDTO MapToOrderDTO(Order order)
     {
         var orderItems = order.Items.Select(MapToOrderItemDTO).ToList();
-        var totalPrice = orderItems.Sum(i => i.TotalPrice);
+        var serviceCharges = order.ServiceCharges.Select(MapToOrderServiceChargeDTO).ToList();
+        var totalPrice = orderItems.Sum(i => i.TotalPrice) + serviceCharges.Sum(c => c.AppliedAmount);
 
         return new OrderDTO
         {
@@ -46,7 +46,7 @@ public class OrderMappingService : IOrderMappingService
             CreatedAt = order.CreatedAt,
             OrderItems = orderItems,
             TotalPrice = totalPrice,
-            ServiceCharges = order.ServiceCharges.Select(MapToOrderServiceChargeDTO).ToList(),
+            ServiceCharges = serviceCharges,
         };
     }
 
@@ -54,25 +54,26 @@ public class OrderMappingService : IOrderMappingService
     {
         var orderDTO = MapToOrderDTO(order);
         var taxTotal = orderDTO.OrderItems.Sum(i => i.TaxTotal);
+        var serviceChargeTotal = orderDTO.ServiceCharges.Sum(c => c.AppliedAmount);
 
         return new OrderReceiptDTO
         {
             TotalPrice = orderDTO.TotalPrice,
             OrderItems = orderDTO.OrderItems,
             TaxTotal = taxTotal,
+            ServiceCharges = orderDTO.ServiceCharges,
+            ServiceChargeTotal = serviceChargeTotal,
         };
     }
 
     private static OrderItemDTO MapToOrderItemDTO(OrderItem orderItem)
     {
-        var baseUnitPrice = orderItem.BaseUnitPrice.ToRoundedPrice();
-        var taxRates = orderItem.Taxes.Select(t => t.Rate).ToList();
-        var unitTaxTotal = PriceUtility.CalculateTotalTax(baseUnitPrice, taxRates).ToRoundedPrice();
+        var unitDiscount = orderItem.Discounts.Sum(d => d.AppliedUnitAmount);
+        var unitModifiersPrice = orderItem.Modifiers.Sum(m => m.GrossPrice);
+        var unitTaxTotal = orderItem.Taxes.Sum(t => t.AppliedUnitAmount);
+        var unitNetPrice = orderItem.BaseUnitGrossPrice - unitDiscount + unitModifiersPrice + unitTaxTotal;
+        var totalPrice = unitNetPrice * orderItem.Quantity;
         var taxTotal = unitTaxTotal * orderItem.Quantity;
-
-        var modifiersPrice = orderItem.Modifiers.Sum(i => i.Price).ToRoundedPrice();
-        var unitPrice = baseUnitPrice + unitTaxTotal + modifiersPrice;
-        var totalPrice = unitPrice * orderItem.Quantity;
 
         return new OrderItemDTO
         {
@@ -80,7 +81,7 @@ public class OrderMappingService : IOrderMappingService
             ProductId = orderItem.ProductId,
             Name = orderItem.Name,
             Quantity = orderItem.Quantity,
-            UnitPrice = unitPrice,
+            UnitPrice = unitNetPrice,
             TotalPrice = totalPrice,
             TaxTotal = taxTotal,
             Modifiers = orderItem.Modifiers.Select(MapToOrderItemModifierDTO).ToList(),
@@ -93,7 +94,7 @@ public class OrderMappingService : IOrderMappingService
         {
             ModifierId = modifier.ModifierId,
             Name = modifier.Name,
-            Price = modifier.Price,
+            Price = modifier.GrossPrice + modifier.TaxTotal,
         };
     }
 
@@ -104,6 +105,7 @@ public class OrderMappingService : IOrderMappingService
             Name = serviceCharge.Name,
             Amount = serviceCharge.Amount,
             PricingStrategy = serviceCharge.PricingStrategy,
+            AppliedAmount = serviceCharge.AppliedAmount,
         };
     }
 }

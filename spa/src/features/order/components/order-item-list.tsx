@@ -1,8 +1,8 @@
 import { Button, Card, Checkbox, Stack, Text } from '@mantine/core';
 import { EnhancedCreateOrderItemInput } from './order-product';
 import { OrderItem } from './order-item';
-import { toReadablePricingStrategyAmount } from '@/utilities';
-import { useState } from 'react';
+import { toReadablePricingStrategyAmount, toRoundedPrice } from '@/utilities';
+import { useMemo, useState } from 'react';
 import { ServiceCharge } from '@/types/api';
 
 export type OrderItemListProps = {
@@ -34,6 +34,10 @@ export const OrderItemList = (props: OrderItemListProps) => {
     setSelectedServiceChargeNames((prev) => prev.filter((c) => c !== name));
   };
 
+  const orderItemsPrice = useMemo(() => {
+    return toRoundedPrice(props.orderItems.reduce((acc, curr) => acc + curr.price, 0));
+  }, [props.orderItems]);
+
   if (props.orderItems.length <= 0) {
     return null;
   }
@@ -46,6 +50,10 @@ export const OrderItemList = (props: OrderItemListProps) => {
           <OrderItem update={props.updateOrderItem} remove={props.removeOrderItem} orderItem={orderItem} key={idx} />
         ))}
       </Stack>
+
+      <Text fw={600} ta="right">
+        Items price: {orderItemsPrice}€
+      </Text>
 
       <Text fw={600}>Service charges</Text>
       <Stack gap="xs" mt="xs">

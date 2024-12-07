@@ -1,5 +1,7 @@
 using PointOfSale.BusinessLogic.OrderManagement.DTOs;
+using PointOfSale.BusinessLogic.OrderManagement.Extensions;
 using PointOfSale.BusinessLogic.OrderManagement.Interfaces;
+using PointOfSale.BusinessLogic.OrderManagement.Utilities;
 using PointOfSale.BusinessLogic.Shared.DTOs;
 using PointOfSale.BusinessLogic.Shared.Exceptions;
 using PointOfSale.BusinessLogic.Shared.Factories;
@@ -40,13 +42,14 @@ public class OrderService : IOrderService
     public async Task<OrderDTO> CreateOrder(CreateOrderDTO createOrderDTO)
     {
         var orderItems = await ReserveOrderItems(createOrderDTO.OrderItems);
-        var serviceCharges = await CreateOrderServiceCharges(createOrderDTO.ServiceChargeIds);
         var order = new Order
         {
             Items = orderItems,
             Status = OrderStatus.Open,
-            ServiceCharges = serviceCharges,
+            ServiceCharges = [],
         };
+
+        order.ServiceCharges = await CreateOrderServiceCharges(order, createOrderDTO.ServiceChargeIds);
 
         _orderRepository.Add(order);
         await _unitOfWork.SaveChanges();
@@ -84,7 +87,7 @@ public class OrderService : IOrderService
 
         if (updateOrderDTO.ServiceChargeIds is not null)
         {
-            var serviceCharges = await CreateOrderServiceCharges(updateOrderDTO.ServiceChargeIds);
+            var serviceCharges = await CreateOrderServiceCharges(order, updateOrderDTO.ServiceChargeIds);
             order.ServiceCharges = serviceCharges;
         }
 
@@ -110,12 +113,6 @@ public class OrderService : IOrderService
     public async Task<OrderReceiptDTO> GetOrderReceipt(int orderId)
     {
         var order = await _orderRepository.GetWithOrderItems(orderId);
-        if (order.Status != OrderStatus.Closed)
-        {
-            // TODO: reenable this
-            // throw new ValidationException(new CannotGetReceiptForNonClosedOrderErrorMessage());
-        }
-
         return _orderMappingService.MapToOrderReceiptDTO(order);
     }
 
@@ -160,20 +157,64 @@ public class OrderService : IOrderService
                 {
                     ModifierId = modifier.Id,
                     Name = modifier.Name,
-                    Price = modifier.Price,
+                    GrossPrice = modifier.Price.ToRoundedPrice(),
+                    TaxTotal = 0,
                 };
+
                 orderItemModifiers.Add(orderItemModifier);
             }
 
-            var orderItemTaxes = product.Taxes.Select(t => new OrderItemTax { Name = t.Name, Rate = t.Rate }).ToList();
+            // Apply predefined discounts only to the base product
+            var baseUnitGrossPrice = product.Price.ToRoundedPrice();
+            var orderItemDiscounts = product
+                .Discounts.OrderBy(d => d.PricingStrategy)
+                .Select(d =>
+                {
+                    var unitDiscountAmount = d.GetAmountToApply(baseUnitGrossPrice);
+                    baseUnitGrossPrice -= unitDiscountAmount;
+
+                    return new OrderItemDiscount
+                    {
+                        Amount = d.Amount,
+                        PricingStrategy = d.PricingStrategy,
+                        AppliedUnitAmount = unitDiscountAmount,
+                    };
+                })
+                .ToList();
+
+            // Apply taxes
+            var baseUnitNetPrice = baseUnitGrossPrice;
+            var orderItemTaxes = product
+                .Taxes.Select(t =>
+                {
+                    var taxTotal = t.GetAmountToApply(baseUnitNetPrice);
+                    baseUnitNetPrice += taxTotal;
+
+                    foreach (var orderItemModifier in orderItemModifiers)
+                    {
+                        var modifierTax = t.GetAmountToApply(orderItemModifier.GrossPrice + orderItemModifier.TaxTotal);
+                        orderItemModifier.TaxTotal += modifierTax;
+                        taxTotal += modifierTax;
+                    }
+
+                    return new OrderItemTax
+                    {
+                        Name = t.Name,
+                        Rate = t.Rate,
+                        AppliedUnitAmount = taxTotal,
+                    };
+                })
+                .ToList();
+
             var orderItem = new OrderItem
             {
                 Name = product.Name,
                 Quantity = createOrderItemDTO.Quantity,
                 Product = product,
-                BaseUnitPrice = product.Price,
+                BaseUnitGrossPrice = product.Price.ToRoundedPrice(),
                 Taxes = orderItemTaxes,
                 Modifiers = orderItemModifiers,
+                Discounts = orderItemDiscounts,
             };
 
             orderItems.Add(orderItem);
@@ -212,15 +253,23 @@ public class OrderService : IOrderService
         }
     }
 
-    private async Task<List<OrderServiceCharge>> CreateOrderServiceCharges(List<int> serviceChargeIds)
+    private async Task<List<OrderServiceCharge>> CreateOrderServiceCharges(Order order, List<int> serviceChargeIds)
     {
-        var serviceCharges = await _serviceChargeRepository.GetMany(serviceChargeIds);
+        var serviceCharges = (await _serviceChargeRepository.GetMany(serviceChargeIds)).OrderBy(c => c.PricingStrategy);
+        var orderPrice = order.GetOrderItemsPrice();
         return serviceCharges
-            .Select(c => new OrderServiceCharge
+            .Select(c =>
             {
-                Name = c.Name,
-                PricingStrategy = c.PricingStrategy,
-                Amount = c.Amount,
+                var appliedAmount = c.GetAmountToApply(orderPrice);
+                orderPrice += appliedAmount;
+
+                return new OrderServiceCharge
+                {
+                    Name = c.Name,
+                    PricingStrategy = c.PricingStrategy,
+                    Amount = c.Amount,
+                    AppliedAmount = appliedAmount,
+                };
             })
             .ToList();
     }

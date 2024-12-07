@@ -28,6 +28,11 @@ public class OrderServiceChargeConfiguration : IEntityTypeConfiguration<OrderSer
             .HasPrecision(SharedConstants.MoneyPrecision, SharedConstants.MoneyScale)
             .IsRequired();
 
+        builder
+            .Property(m => m.AppliedAmount)
+            .HasPrecision(SharedConstants.MoneyPrecision, SharedConstants.MoneyScale)
+            .IsRequired();
+
         builder.ToTable(TableName, Constants.SchemaName);
     }
 }

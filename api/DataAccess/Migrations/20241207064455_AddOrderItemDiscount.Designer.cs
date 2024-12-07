@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using PointOfSale.DataAccess;
@@ -11,9 +12,11 @@ using PointOfSale.DataAccess;
 namespace PointOfSale.DataAccess.Shared.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class PointOfSaleDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241207064455_AddOrderItemDiscount")]
+    partial class AddOrderItemDiscount
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -152,7 +155,7 @@ namespace PointOfSale.DataAccess.Shared.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<decimal>("BaseUnitGrossPrice")
+                    b.Property<decimal>("BaseUnitPrice")
                         .HasPrecision(10, 2)
                         .HasColumnType("numeric(10,2)");
 
@@ -194,9 +197,6 @@ namespace PointOfSale.DataAccess.Shared.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<decimal>("Amount")
-                        .HasColumnType("numeric");
-
-                    b.Property<decimal>("AppliedUnitAmount")
                         .HasPrecision(10, 2)
                         .HasColumnType("numeric(10,2)");
 
@@ -231,10 +231,6 @@ namespace PointOfSale.DataAccess.Shared.Migrations
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<decimal>("GrossPrice")
-                        .HasPrecision(10, 2)
-                        .HasColumnType("numeric(10,2)");
-
                     b.Property<DateTimeOffset>("ModifiedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -249,7 +245,7 @@ namespace PointOfSale.DataAccess.Shared.Migrations
                     b.Property<int>("OrderItemId")
                         .HasColumnType("integer");
 
-                    b.Property<decimal>("TaxTotal")
+                    b.Property<decimal>("Price")
                         .HasPrecision(10, 2)
                         .HasColumnType("numeric(10,2)");
 
@@ -267,10 +263,6 @@ namespace PointOfSale.DataAccess.Shared.Migrations
                         .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<decimal>("AppliedUnitAmount")
-                        .HasPrecision(10, 2)
-                        .HasColumnType("numeric(10,2)");
 
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -305,10 +297,6 @@ namespace PointOfSale.DataAccess.Shared.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<decimal>("Amount")
-                        .HasPrecision(10, 2)
-                        .HasColumnType("numeric(10,2)");
-
-                    b.Property<decimal>("AppliedAmount")
                         .HasPrecision(10, 2)
                         .HasColumnType("numeric(10,2)");
 

@@ -38,8 +38,9 @@ export type ErrorResponse = {
 
 export type Product = Entity<{
   name: string;
-  priceWithoutTaxes: number;
-  priceWithTaxes: number;
+  basePrice: number;
+  priceDiscountExcluded?: number;
+  price: number;
   stock: number;
   taxes: Tax[];
   modifiers: Modifier[];
@@ -58,7 +59,12 @@ export type OrderItem = Entity<{
   modifiers: OrderItemModifier[];
 }>;
 
-export type OrderServiceCharge = Entity<{ name: string; amount: number; pricingStrategy: PricingStrategy }>;
+export type OrderServiceCharge = Entity<{
+  name: string;
+  amount: number;
+  pricingStrategy: PricingStrategy;
+  appliedAmount: number;
+}>;
 
 export type Order = Entity<{
   orderItems: OrderItem[];
@@ -71,9 +77,11 @@ export type OrderReceipt = {
   totalPrice: number;
   orderItems: OrderItem[];
   taxTotal: number;
+  serviceCharges: OrderServiceCharge[];
+  serviceChargeTotal: number;
 };
 
-export type Modifier = Entity<{ name: string; price: number; stock: number }>;
+export type Modifier = Entity<{ name: string; priceTaxExcluded: number; price: number; stock: number }>;
 
 export type ServiceCharge = Entity<{ name: string; pricingStrategy: PricingStrategy; amount: number }>;
 

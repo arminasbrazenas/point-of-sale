@@ -1,8 +1,9 @@
 import { formatDate as formatDateFn } from 'date-fns';
 import { PricingStrategy } from './types/api';
 
-export const convertToMoney = (val: number): string => {
-  return (Number(Math.floor(val * 100).toFixed(0)) / 100).toFixed(2);
+export const toRoundedPrice = (price: number): number => {
+  const factor = Math.pow(10, 2); // 2 decimal places
+  return Math.round(price * factor + Math.sign(price) * 1e-10) / factor;
 };
 
 export const formatDate = (date: string): string => {

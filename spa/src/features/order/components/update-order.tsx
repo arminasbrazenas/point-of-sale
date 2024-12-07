@@ -1,4 +1,4 @@
-import { Button, Card, Paper, Stack, Table, Text } from '@mantine/core';
+import { Button, Card, List, Paper, Stack, Table, Text } from '@mantine/core';
 import { useOrder } from '../api/get-order';
 import { useCancelOrder } from '../api/cancel-order';
 import { showNotification } from '@/lib/notifications';
@@ -7,7 +7,7 @@ import { useProducts } from '@/features/product/api/get-products';
 import { useEffect, useMemo, useState } from 'react';
 import { OrderProducts } from './order-products';
 import { Product, OrderReceipt } from '@/types/api';
-import { formatDate } from '@/utilities';
+import { formatDate, toReadablePricingStrategyAmount } from '@/utilities';
 import { useOrderReceipt } from '../api/get-order-receipt';
 
 export const UpdateOrder = ({ orderId }: { orderId: number }) => {
@@ -38,7 +38,7 @@ export const UpdateOrder = ({ orderId }: { orderId: number }) => {
         products.find((p) => p.id == i.productId) ??
         ({
           name: i.name,
-          priceWithTaxes: i.unitPrice,
+          priceDiscountExcluded: i.unitPrice,
         } as Product);
 
       return {
@@ -102,7 +102,7 @@ export const UpdateOrder = ({ orderId }: { orderId: number }) => {
                 <Table.Tr>
                   <Table.Th>QTY</Table.Th>
                   <Table.Th>Description</Table.Th>
-                  <Table.Th>Price</Table.Th>
+                  <Table.Th>Unit price</Table.Th>
                   <Table.Th>Amount</Table.Th>
                 </Table.Tr>
               </Table.Thead>
@@ -119,9 +119,27 @@ export const UpdateOrder = ({ orderId }: { orderId: number }) => {
             </Table>
           </Paper>
 
-          <Stack align="flex-end" mt="xs" gap="0">
-            <Text fw={500}>Tax: {receipt.taxTotal}€</Text>
-            <Text fw={500}>Total: {receipt.totalPrice}€</Text>
+          {receipt.serviceCharges.length > 0 && (
+            <Stack mt="xs" gap="0">
+              <Text fw={600} size="sm">
+                Service charges
+              </Text>
+              <List>
+                {receipt.serviceCharges.map((c) => (
+                  <List.Item opacity={0.75}>
+                    <Text size="sm">
+                      {c.name} ({toReadablePricingStrategyAmount(c.amount, c.pricingStrategy)}): {c.appliedAmount}€
+                    </Text>
+                  </List.Item>
+                ))}
+              </List>
+            </Stack>
+          )}
+
+          <Stack mt="xs" gap="0">
+            <Text fw={600} size="sm">
+              Total: {receipt.totalPrice}€
+            </Text>
           </Stack>
         </Paper>
       )}
