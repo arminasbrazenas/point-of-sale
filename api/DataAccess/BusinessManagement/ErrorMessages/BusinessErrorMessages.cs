@@ -11,5 +11,5 @@ public class BusinessNotFoundErrorMessage : IPointOfSaleErrorMessage
         _businessId = businessId;
     }
 
-    public string En => $"Order with id '{_businessId}' not found.";
+    public string En => $"Business with id '{_businessId}' not found.";
 }

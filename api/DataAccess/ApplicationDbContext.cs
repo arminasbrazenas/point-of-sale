@@ -2,8 +2,8 @@ using System.Reflection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using PointOfSale.DataAccess.BusinessManagement;
 using PointOfSale.DataAccess.Shared.Interceptors;
+using PointOfSale.Models.ApplicationUserManagement.Entities;
 using PointOfSale.Models.BusinessManagement.Entities;
 using PointOfSale.Models.OrderManagement.Entities;
 
@@ -22,6 +22,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, IdentityR
     public DbSet<OrderItemTax> OrderItemTaxes { get; set; }
     public DbSet<ServiceCharge> ServiceCharges { get; set; }
     public DbSet<Business> Businesses { get; set; }
+    public DbSet<RefreshToken> RefreshTokens { get; set; }
 
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         : base(options) { }

@@ -1,3 +1,4 @@
+using PointOfSale.Models.ApplicationUserManagement.Entities;
 using PointOfSale.Models.Shared.Entities;
 
 namespace PointOfSale.Models.BusinessManagement.Entities;

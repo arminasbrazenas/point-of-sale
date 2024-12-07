@@ -22,6 +22,28 @@ namespace PointOfSale.DataAccess.Shared.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole<int>", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("text");
+
+                    b.Property<string>("NormalizedName")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Roles");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
                 {
                     b.Property<int>("Id")
@@ -132,29 +154,7 @@ namespace PointOfSale.DataAccess.Shared.Migrations
                     b.ToTable("ProductModifiers", "Order");
                 });
 
-            modelBuilder.Entity("PointOfSale.Models.BusinessManagement.Entities.ApplicationRole", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("ConcurrencyStamp")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("text");
-
-                    b.Property<string>("NormalizedName")
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Roles");
-                });
-
-            modelBuilder.Entity("PointOfSale.Models.BusinessManagement.Entities.ApplicationUser", b =>
+            modelBuilder.Entity("PointOfSale.Models.ApplicationUserManagement.Entities.ApplicationUser", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -217,6 +217,40 @@ namespace PointOfSale.DataAccess.Shared.Migrations
                     b.ToTable("Users");
                 });
 
+            modelBuilder.Entity("PointOfSale.Models.ApplicationUserManagement.Entities.RefreshToken", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ApplicationUserId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("ExpiryDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsRevoked")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTimeOffset>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("RefreshTokenHash")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ApplicationUserId");
+
+                    b.ToTable("RefreshTokens", "ApplicationUsers");
+                });
+
             modelBuilder.Entity("PointOfSale.Models.BusinessManagement.Entities.Business", b =>
                 {
                     b.Property<int>("Id")
@@ -252,7 +286,8 @@ namespace PointOfSale.DataAccess.Shared.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("BusinessOwnerId");
+                    b.HasIndex("BusinessOwnerId")
+                        .IsUnique();
 
                     b.ToTable("Businesses", "Business");
                 });
@@ -554,11 +589,22 @@ namespace PointOfSale.DataAccess.Shared.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("PointOfSale.Models.ApplicationUserManagement.Entities.RefreshToken", b =>
+                {
+                    b.HasOne("PointOfSale.Models.ApplicationUserManagement.Entities.ApplicationUser", "ApplicationUser")
+                        .WithMany()
+                        .HasForeignKey("ApplicationUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ApplicationUser");
+                });
+
             modelBuilder.Entity("PointOfSale.Models.BusinessManagement.Entities.Business", b =>
                 {
-                    b.HasOne("PointOfSale.Models.BusinessManagement.Entities.ApplicationUser", "BusinessOwner")
-                        .WithMany()
-                        .HasForeignKey("BusinessOwnerId")
+                    b.HasOne("PointOfSale.Models.ApplicationUserManagement.Entities.ApplicationUser", "BusinessOwner")
+                        .WithOne("Business")
+                        .HasForeignKey("PointOfSale.Models.BusinessManagement.Entities.Business", "BusinessOwnerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -616,6 +662,11 @@ namespace PointOfSale.DataAccess.Shared.Migrations
                         .HasForeignKey("TaxesId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("PointOfSale.Models.ApplicationUserManagement.Entities.ApplicationUser", b =>
+                {
+                    b.Navigation("Business");
                 });
 
             modelBuilder.Entity("PointOfSale.Models.OrderManagement.Entities.Order", b =>
