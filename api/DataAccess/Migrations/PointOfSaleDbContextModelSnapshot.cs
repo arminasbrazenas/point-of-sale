@@ -480,28 +480,6 @@ namespace PointOfSale.DataAccess.Shared.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("PointOfSale.Models.ApplicationUserManagement.Entities.RefreshToken", b =>
-                {
-                    b.HasOne("PointOfSale.Models.ApplicationUserManagement.Entities.ApplicationUser", "ApplicationUser")
-                        .WithMany()
-                        .HasForeignKey("ApplicationUserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("ApplicationUser");
-                });
-
-            modelBuilder.Entity("PointOfSale.Models.BusinessManagement.Entities.Business", b =>
-                {
-                    b.HasOne("PointOfSale.Models.ApplicationUserManagement.Entities.ApplicationUser", "BusinessOwner")
-                        .WithOne("Business")
-                        .HasForeignKey("PointOfSale.Models.BusinessManagement.Entities.Business", "BusinessOwnerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("BusinessOwner");
-                });
-
             modelBuilder.Entity("PointOfSale.Models.OrderManagement.Entities.OrderItem", b =>
                 {
                     b.HasOne("PointOfSale.Models.OrderManagement.Entities.Order", "Order")
@@ -571,11 +549,6 @@ namespace PointOfSale.DataAccess.Shared.Migrations
                         .HasForeignKey("TaxesId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("PointOfSale.Models.ApplicationUserManagement.Entities.ApplicationUser", b =>
-                {
-                    b.Navigation("Business");
                 });
 
             modelBuilder.Entity("PointOfSale.Models.OrderManagement.Entities.Order", b =>
