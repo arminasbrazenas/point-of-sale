@@ -1,6 +1,6 @@
 namespace PointOfSale.BusinessLogic.ApplicationUserManagement.Interfaces;
 
-public interface ICurrentUserAccessor
+public interface ICurrentApplicationUserAccessor
 {
     int GetApplicationUserId();
     string GetApplicationUserRole();

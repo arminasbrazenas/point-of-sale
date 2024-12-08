@@ -116,6 +116,7 @@ public static class ConfigureServicesExtensions
         services.AddScoped<IBusinessRepository, BusinessRepository>();
         services.AddScoped<IBusinessValidationService, BusinessValidationService>();
         services.AddScoped<IBusinessMappingService, BusinessMappingService>();
+        services.AddScoped<IBusinessAuthorizationService, BusinessAuthorizationService>();
         services.AddScoped<IBusinessService, BusinessService>();
 
         return services;
@@ -133,6 +134,8 @@ public static class ConfigureServicesExtensions
         services.AddScoped<IApplicationUserAuthorizationService, ApplicationUserAuthorizationService>();
 
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+
+        services.AddScoped<ICurrentApplicationUserAccessor, CurrentApplicationUserAccessor>();
 
         services
             .AddIdentityCore<ApplicationUser>(options =>

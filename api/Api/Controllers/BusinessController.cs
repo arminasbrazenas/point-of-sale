@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using PointOfSale.BusinessLogic.ApplicationUserManagement.Interfaces;
 using PointOfSale.BusinessLogic.BusinessManagement.DTOs;
 using PointOfSale.BusinessLogic.BusinessManagement.Interfaces;
 
@@ -23,5 +22,41 @@ public class BusinessesController : ControllerBase
     {
         var business = await _businessService.CreateBusiness(createBusinessDTO);
         return Ok(business);
+    }
+
+    [HttpGet]
+    [Route("{businessId:int}")]
+    [Authorize(Roles = "Admin,BusinessOwner,Employee")]
+    public async Task<ActionResult<BusinessDTO>> GetBusiness(int businessId)
+    {
+        var business = await _businessService.GetBusiness(businessId);
+        return Ok(business);
+    }
+
+    [HttpGet]
+    [Authorize(Roles = "Admin")]
+    public async Task<ActionResult<BusinessDTO>> GetBusinesses()
+    {
+        var businesses = await _businessService.GetBusinesses();
+        return Ok(businesses);
+    }
+
+    [HttpPatch]
+    [Route("{businessId:int}")]
+    [Authorize(Roles = "Admin,BusinessOwner")]
+    public async Task<IActionResult> ModifyBusiness(int businessId, [FromBody] UpdateBusinessDTO updateBusinessDTO)
+    {
+        var business = await _businessService.UpdateBusiness(businessId, updateBusinessDTO);
+
+        return Ok(business);
+    }
+
+    [HttpDelete]
+    [Route("{businessId:int}")]
+    [Authorize(Roles = "Admin,BusinessOwner")]
+    public async Task<ActionResult<BusinessDTO>> DeleteBusiness(int businessId)
+    {
+        await _businessService.DeleteBusiness(businessId);
+        return NoContent();
     }
 }
