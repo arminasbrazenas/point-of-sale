@@ -9,4 +9,6 @@ public interface IPaymentMappingService
     CashPaymentDTO MapToCashPaymentDTO(CashPayment payment);
     GiftCardPaymentDTO MapToGiftCardPaymentDTO(GiftCardPayment payment);
     OrderPaymentsDTO MapToOrderPaymentsDTO(OrderDTO order, List<Payment> payments);
+    TipDTO MapToTipDTO(Tip tip);
+    List<TipDTO> MapToTipDTOs(List<Tip> tips);
 }

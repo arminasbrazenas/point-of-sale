@@ -32,6 +32,22 @@ public class PaymentsController : ControllerBase
     }
 
     [HttpPost]
+    [Route("tip")]
+    public async Task<ActionResult<TipDTO>> AddTip([FromBody] AddTipDTO addTipDTO)
+    {
+        var tip = await _paymentService.AddTip(addTipDTO);
+        return Ok(tip);
+    }
+
+    [HttpGet]
+    [Route("tips")]
+    public async Task<ActionResult<List<TipDTO>>> GetTips([FromQuery] int orderId)
+    {
+        var tips = await _paymentService.GetTips(orderId);
+        return Ok(tips);
+    }
+
+    [HttpPost]
     [Route("complete")]
     public async Task<ActionResult<CashPaymentDTO>> CompleteOrderPayments(
         [FromBody] CompleteOrderPaymentsDTO completeOrderPaymentsDTO

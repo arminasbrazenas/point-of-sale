@@ -121,3 +121,7 @@ export type GiftCard = Entity<{
   expiresAt: string;
   usedAt?: string;
 }>;
+
+export type Tip = Entity<{
+  amount: number;
+}>;

@@ -100,6 +100,7 @@ public static class ConfigureServicesExtensions
     {
         services.AddScoped<IPaymentRepository, PaymentRepository>();
         services.AddScoped<IGiftCardRepository, GiftCardRepository>();
+        services.AddScoped<ITipRepository, TipRepository>();
 
         services.AddScoped<IPaymentMappingService, PaymentMappingService>();
         services.AddScoped<IGiftCardMappingService, GiftCardMappingService>();

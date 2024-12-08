@@ -40,6 +40,16 @@ public class PaymentMappingService : IPaymentMappingService
         };
     }
 
+    public TipDTO MapToTipDTO(Tip tip)
+    {
+        return new TipDTO { Id = tip.Id, Amount = tip.Amount };
+    }
+
+    public List<TipDTO> MapToTipDTOs(List<Tip> tips)
+    {
+        return tips.Select(MapToTipDTO).ToList();
+    }
+
     private PaymentDTO MapToPaymentDTO(Payment payment) =>
         payment.Method switch
         {

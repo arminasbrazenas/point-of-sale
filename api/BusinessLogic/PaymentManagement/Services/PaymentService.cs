@@ -4,6 +4,7 @@ using PointOfSale.BusinessLogic.PaymentManagement.DTOs;
 using PointOfSale.BusinessLogic.PaymentManagement.Extensions;
 using PointOfSale.BusinessLogic.PaymentManagement.Interfaces;
 using PointOfSale.BusinessLogic.Shared.Exceptions;
+using PointOfSale.BusinessLogic.Shared.Factories;
 using PointOfSale.DataAccess.PaymentManagement.ErrorMessages;
 using PointOfSale.DataAccess.PaymentManagement.Interfaces;
 using PointOfSale.DataAccess.Shared.Interfaces;
@@ -20,13 +21,15 @@ public class PaymentService : IPaymentService
     private readonly IUnitOfWork _unitOfWork;
     private readonly IPaymentMappingService _paymentMappingService;
     private readonly IGiftCardService _giftCardService;
+    private readonly ITipRepository _tipRepository;
 
     public PaymentService(
         IOrderService orderService,
         IPaymentRepository paymentRepository,
         IUnitOfWork unitOfWork,
         IPaymentMappingService paymentMappingService,
-        IGiftCardService giftCardService
+        IGiftCardService giftCardService,
+        ITipRepository tipRepository
     )
     {
         _orderService = orderService;
@@ -34,6 +37,7 @@ public class PaymentService : IPaymentService
         _unitOfWork = unitOfWork;
         _paymentMappingService = paymentMappingService;
         _giftCardService = giftCardService;
+        _tipRepository = tipRepository;
     }
 
     public async Task<CashPaymentDTO> PayByCash(PayByCashDTO payByCashDTO)
@@ -97,6 +101,25 @@ public class PaymentService : IPaymentService
         await _orderService.CloseOrder(completeOrderPaymentsDTO.OrderId);
     }
 
+    public async Task<TipDTO> AddTip(AddTipDTO addTipDTO)
+    {
+        var order = await _orderService.GetOrderMinimal(addTipDTO.OrderId);
+        ValidateOrderIsCompleted(order);
+
+        var tip = new Tip { OrderId = order.Id, Amount = addTipDTO.TipAmount };
+
+        _tipRepository.Add(tip);
+        await _unitOfWork.SaveChanges();
+
+        return _paymentMappingService.MapToTipDTO(tip);
+    }
+
+    public async Task<List<TipDTO>> GetTips(int orderId)
+    {
+        var tips = await _tipRepository.GetOrderTips(orderId);
+        return _paymentMappingService.MapToTipDTOs(tips);
+    }
+
     private async Task<OrderPaymentsDTO> GetOrderPayments(OrderDTO order)
     {
         var orderPayments = await _paymentRepository.GetOrderPayments(order.Id);
@@ -112,7 +135,7 @@ public class PaymentService : IPaymentService
         }
     }
 
-    private static void ValidateOrderIsCompleted(OrderDTO order)
+    private static void ValidateOrderIsCompleted(OrderMinimalDTO order)
     {
         if (order.Status != OrderStatus.Completed)
         {

@@ -71,6 +71,12 @@ public class OrderService : IOrderService
         return _orderMappingService.MapToOrderDTO(order);
     }
 
+    public async Task<OrderMinimalDTO> GetOrderMinimal(int orderId)
+    {
+        var order = await _orderRepository.Get(orderId);
+        return _orderMappingService.MapToOrderMinimalDTO(order);
+    }
+
     public async Task<OrderDTO> UpdateOrder(int orderId, UpdateOrderDTO updateOrderDTO)
     {
         var order = await _orderRepository.GetWithOrderItems(orderId);

@@ -8,4 +8,6 @@ public interface IPaymentService
     Task<GiftCardPaymentDTO> PayByGiftCard(PayByGiftCardDTO payByGiftCardDTO);
     Task<OrderPaymentsDTO> GetOrderPayments(int orderId);
     Task CompleteOrderPayments(CompleteOrderPaymentsDTO completeOrderPaymentsDTO);
+    Task<TipDTO> AddTip(AddTipDTO addTipDTO);
+    Task<List<TipDTO>> GetTips(int orderId);
 }
