@@ -12,7 +12,7 @@ export const addTipInputSchema = z.object({
 export type AddTipInput = z.infer<typeof addTipInputSchema>;
 
 export const addTip = ({ data }: { data: AddTipInput }): Promise<Tip> => {
-  return api.post('/v1/payments/tip', data);
+  return api.post('/v1/payments/tips', data);
 };
 
 type UseAddTipOptions = {

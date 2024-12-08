@@ -32,7 +32,7 @@ public class PaymentsController : ControllerBase
     }
 
     [HttpPost]
-    [Route("tip")]
+    [Route("tips")]
     public async Task<ActionResult<TipDTO>> AddTip([FromBody] AddTipDTO addTipDTO)
     {
         var tip = await _paymentService.AddTip(addTipDTO);
