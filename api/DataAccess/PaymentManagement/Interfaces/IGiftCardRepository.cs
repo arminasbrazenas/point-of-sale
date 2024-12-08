@@ -7,5 +7,6 @@ namespace PointOfSale.DataAccess.PaymentManagement.Interfaces;
 public interface IGiftCardRepository : IRepositoryBase<GiftCard, int>
 {
     Task<bool> IsCodeUsed(string code);
+    Task<GiftCard> GetByCode(string code);
     Task<List<GiftCard>> GetWithPagination(PaginationFilter paginationFilter);
 }

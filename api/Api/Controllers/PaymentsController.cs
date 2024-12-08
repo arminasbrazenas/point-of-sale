@@ -17,10 +17,18 @@ public class PaymentsController : ControllerBase
 
     [HttpPost]
     [Route("cash")]
-    public async Task<ActionResult<CashPaymentDTO>> PayByCash([FromBody] CreatePaymentDTO createPaymentDTO)
+    public async Task<ActionResult<CashPaymentDTO>> PayByCash([FromBody] PayByCashDTO payByCashDTO)
     {
-        var cashPayment = await _paymentService.PayByCash(createPaymentDTO);
+        var cashPayment = await _paymentService.PayByCash(payByCashDTO);
         return Ok(cashPayment);
+    }
+
+    [HttpPost]
+    [Route("gift-card")]
+    public async Task<ActionResult<GiftCardPaymentDTO>> PayByCash([FromBody] PayByGiftCardDTO payByGiftCardDTO)
+    {
+        var giftCardPayment = await _paymentService.PayByGiftCard(payByGiftCardDTO);
+        return Ok(giftCardPayment);
     }
 
     [HttpPost]

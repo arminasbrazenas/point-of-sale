@@ -1,3 +1,4 @@
+using PointOfSale.BusinessLogic.OrderManagement.Utilities;
 using PointOfSale.BusinessLogic.PaymentManagement.DTOs;
 using PointOfSale.BusinessLogic.PaymentManagement.Interfaces;
 using PointOfSale.BusinessLogic.Shared.DTOs;
@@ -34,7 +35,7 @@ public class GiftCardService : IGiftCardService
         var giftCard = new GiftCard
         {
             Code = createGiftCardDTO.Code.ToUpper(),
-            Amount = createGiftCardDTO.Amount,
+            Amount = createGiftCardDTO.Amount.ToRoundedPrice(),
             ExpiresAt = createGiftCardDTO.ExpiresAt,
             UsedAt = null,
         };
@@ -75,7 +76,7 @@ public class GiftCardService : IGiftCardService
 
         if (updateGiftCardDTO.Amount.HasValue)
         {
-            giftCard.Amount = updateGiftCardDTO.Amount.Value;
+            giftCard.Amount = updateGiftCardDTO.Amount.Value.ToRoundedPrice();
         }
 
         if (updateGiftCardDTO.ExpiresAt.HasValue)
@@ -93,9 +94,32 @@ public class GiftCardService : IGiftCardService
         await _giftCardRepository.Delete(giftCardId);
     }
 
+    public async Task<GiftCardDTO> GetUsableGiftCardByCode(string code)
+    {
+        var giftCard = await _giftCardRepository.GetByCode(code);
+        if (giftCard.UsedAt is not null)
+        {
+            throw new ValidationException(new GiftCardIsAlreadyUsedErrorMessage());
+        }
+
+        if (giftCard.ExpiresAt < DateTimeOffset.UtcNow)
+        {
+            throw new ValidationException(new GiftCardIsExpiredErrorMessage());
+        }
+
+        return _giftCardMappingService.MapToGiftCardDTO(giftCard);
+    }
+
+    public async Task MarkGiftCardAsUsed(int giftCardId)
+    {
+        var giftCard = await _giftCardRepository.Get(giftCardId);
+        giftCard.UsedAt = DateTimeOffset.UtcNow;
+        await _unitOfWork.SaveChanges();
+    }
+
     private async Task ValidateGiftCardCodeIsUnique(string code)
     {
-        var isCodeUsed = await _giftCardRepository.IsCodeUsed(code.ToUpper());
+        var isCodeUsed = await _giftCardRepository.IsCodeUsed(code);
         if (isCodeUsed)
         {
             throw new ValidationException(new DuplicateGiftCardCodeErrorMessage(code));

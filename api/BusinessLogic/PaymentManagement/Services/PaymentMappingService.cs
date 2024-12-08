@@ -19,6 +19,17 @@ public class PaymentMappingService : IPaymentMappingService
         };
     }
 
+    public GiftCardPaymentDTO MapToGiftCardPaymentDTO(GiftCardPayment payment)
+    {
+        return new GiftCardPaymentDTO
+        {
+            Id = payment.Id,
+            Amount = payment.Amount,
+            Method = PaymentMethod.GiftCard,
+            GiftCardCode = payment.GiftCardCode,
+        };
+    }
+
     public OrderPaymentsDTO MapToOrderPaymentsDTO(OrderDTO order, List<Payment> payments)
     {
         return new OrderPaymentsDTO
@@ -29,13 +40,11 @@ public class PaymentMappingService : IPaymentMappingService
         };
     }
 
-    private PaymentDTO MapToPaymentDTO(Payment payment)
-    {
-        return new PaymentDTO
+    private PaymentDTO MapToPaymentDTO(Payment payment) =>
+        payment.Method switch
         {
-            Id = payment.Id,
-            Amount = payment.Amount,
-            Method = payment.Method,
+            PaymentMethod.Cash => MapToCashPaymentDTO((CashPayment)payment),
+            PaymentMethod.GiftCard => MapToGiftCardPaymentDTO((GiftCardPayment)payment),
+            _ => throw new NotImplementedException($"Payment method {payment.Method} mapping is not implemented."),
         };
-    }
 }

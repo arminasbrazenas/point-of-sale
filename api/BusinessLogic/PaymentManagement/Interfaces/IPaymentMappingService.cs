@@ -7,5 +7,6 @@ namespace PointOfSale.BusinessLogic.PaymentManagement.Interfaces;
 public interface IPaymentMappingService
 {
     CashPaymentDTO MapToCashPaymentDTO(CashPayment payment);
+    GiftCardPaymentDTO MapToGiftCardPaymentDTO(GiftCardPayment payment);
     OrderPaymentsDTO MapToOrderPaymentsDTO(OrderDTO order, List<Payment> payments);
 }

@@ -1,25 +1,25 @@
 import { api } from '@/lib/api-client';
 import { MutationConfig } from '@/lib/react-query';
-import { ServiceCharge } from '@/types/api';
+import { CashPayment } from '@/types/api';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { z } from 'zod';
 
-export const createPaymentInputSchema = z.object({
+export const payByCashInputSchema = z.object({
   orderId: z.coerce.number(),
   paymentAmount: z.coerce.number(),
 });
 
-export type CreatePaymentInput = z.infer<typeof createPaymentInputSchema>;
+export type PayByCashInput = z.infer<typeof payByCashInputSchema>;
 
-export const createCashPayment = ({ data }: { data: CreatePaymentInput }): Promise<ServiceCharge> => {
+export const payByCash = ({ data }: { data: PayByCashInput }): Promise<CashPayment> => {
   return api.post('/v1/payments/cash', data);
 };
 
-type UseCreateCashPaymentOptions = {
-  mutationConfig?: MutationConfig<typeof createCashPayment>;
+type UsePayByCashOptions = {
+  mutationConfig?: MutationConfig<typeof payByCash>;
 };
 
-export const useCreateCashPayment = ({ mutationConfig }: UseCreateCashPaymentOptions = {}) => {
+export const usePayByCash = ({ mutationConfig }: UsePayByCashOptions = {}) => {
   const queryClient = useQueryClient();
 
   const { onSuccess, ...restConfig } = mutationConfig || {};
@@ -32,6 +32,6 @@ export const useCreateCashPayment = ({ mutationConfig }: UseCreateCashPaymentOpt
       onSuccess?.(...args);
     },
     ...restConfig,
-    mutationFn: createCashPayment,
+    mutationFn: payByCash,
   });
 };

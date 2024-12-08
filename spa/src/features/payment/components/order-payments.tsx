@@ -1,11 +1,14 @@
-import { Paper, Text, Button, Stack, Modal, ModalContent } from '@mantine/core';
+import { Paper, Text, Button, Stack, Modal, Tabs, TextInput } from '@mantine/core';
 import { useOrderPayments } from '../api/get-order-payments';
 import { useDisclosure } from '@mantine/hooks';
 import { useForm, zodResolver } from '@mantine/form';
-import { CreatePaymentInput, createPaymentInputSchema, useCreateCashPayment } from '../api/create-cash-payment';
+import { PayByCashInput, payByCashInputSchema, usePayByCash } from '../api/pay-by-cash';
 import { showNotification } from '@/lib/notifications';
 import { CurrencyInput } from '@/components/inputs/currency-input';
 import { useCompleteOrderPayments } from '../api/complete-order-payments';
+import { toReadablePaymentMethod } from '@/utilities';
+import { PaymentMethod } from '@/types/api';
+import { PayByGiftCardInput, payByGiftCardInputSchema, usePayByGiftCard } from '../api/pay-by-gift-card';
 
 type OrderPaymentsProps = {
   orderId: number;
@@ -15,12 +18,24 @@ export const OrderPayments = (props: OrderPaymentsProps) => {
   const orderPaymentsQuery = useOrderPayments({ params: { orderId: props.orderId } });
   const [isCreateModelOpen, { open: openCreateModal, close: closeCreateModal }] = useDisclosure();
 
-  const createCashPayment = useCreateCashPayment({
+  const payByCashMutation = usePayByCash({
     mutationConfig: {
       onSuccess: () => {
         showNotification({
           type: 'success',
-          title: 'Cash payment created successfully.',
+          title: 'Successfully paid by cash.',
+        });
+        closeCreateModal();
+      },
+    },
+  });
+
+  const payByGiftCardMutation = usePayByGiftCard({
+    mutationConfig: {
+      onSuccess: () => {
+        showNotification({
+          type: 'success',
+          title: 'Successfully paid by gift card.',
         });
         closeCreateModal();
       },
@@ -38,17 +53,30 @@ export const OrderPayments = (props: OrderPaymentsProps) => {
     },
   });
 
-  const form = useForm<CreatePaymentInput>({
+  const payByCashForm = useForm<PayByCashInput>({
     mode: 'uncontrolled',
     initialValues: {
       orderId: props.orderId,
       paymentAmount: 0,
     },
-    validate: zodResolver(createPaymentInputSchema),
+    validate: zodResolver(payByCashInputSchema),
   });
 
-  const payByCash = (values: CreatePaymentInput) => {
-    createCashPayment.mutate({ data: values });
+  const payByGiftCardForm = useForm<PayByGiftCardInput>({
+    mode: 'uncontrolled',
+    initialValues: {
+      orderId: props.orderId,
+      giftCardCode: '',
+    },
+    validate: zodResolver(payByGiftCardInputSchema),
+  });
+
+  const payByCash = (values: PayByCashInput) => {
+    payByCashMutation.mutate({ data: values });
+  };
+
+  const payByGiftCard = (values: PayByGiftCardInput) => {
+    payByGiftCardMutation.mutate({ data: values });
   };
 
   const completePayments = () => {
@@ -63,18 +91,42 @@ export const OrderPayments = (props: OrderPaymentsProps) => {
   return (
     <>
       <Modal opened={isCreateModelOpen} onClose={closeCreateModal} title="Create payment">
-        <form onSubmit={form.onSubmit(payByCash)}>
-          <Stack mt="md">
-            <CurrencyInput
-              label="Payment amount"
-              placeholder="Payment amount"
-              withAsterisk
-              key={form.key('paymentAmount')}
-              {...form.getInputProps('paymentAmount')}
-            />
-            <Button type="submit">Pay</Button>
-          </Stack>
-        </form>
+        <Tabs mt="md" variant="pills" defaultValue={PaymentMethod.Cash}>
+          <Tabs.List mb="md">
+            <Tabs.Tab value={PaymentMethod.Cash}>{toReadablePaymentMethod(PaymentMethod.Cash)}</Tabs.Tab>
+            <Tabs.Tab value={PaymentMethod.GiftCard}>{toReadablePaymentMethod(PaymentMethod.GiftCard)}</Tabs.Tab>
+          </Tabs.List>
+
+          <Tabs.Panel value={PaymentMethod.Cash}>
+            <form onSubmit={payByCashForm.onSubmit(payByCash)}>
+              <Stack>
+                <CurrencyInput
+                  label="Payment amount"
+                  placeholder="Payment amount"
+                  withAsterisk
+                  key={payByCashForm.key('paymentAmount')}
+                  {...payByCashForm.getInputProps('paymentAmount')}
+                />
+                <Button type="submit">Pay</Button>
+              </Stack>
+            </form>
+          </Tabs.Panel>
+
+          <Tabs.Panel value={PaymentMethod.GiftCard}>
+            <form onSubmit={payByGiftCardForm.onSubmit(payByGiftCard)}>
+              <Stack>
+                <TextInput
+                  label="Gift card code"
+                  placeholder="Gift card code"
+                  withAsterisk
+                  key={payByGiftCardForm.key('giftCardCode')}
+                  {...payByGiftCardForm.getInputProps('giftCardCode')}
+                />
+                <Button type="submit">Pay</Button>
+              </Stack>
+            </form>
+          </Tabs.Panel>
+        </Tabs>
       </Modal>
 
       <Paper withBorder p="md">
@@ -83,7 +135,7 @@ export const OrderPayments = (props: OrderPaymentsProps) => {
         <Stack my="sm" gap="xs">
           {orderPayments.payments.map((p) => (
             <Paper key={p.id} withBorder p="sm">
-              <Text size="sm">Method: {p.method}</Text>
+              <Text size="sm">Method: {toReadablePaymentMethod(p.method)}</Text>
               <Text size="sm">Amount: {p.amount}€</Text>
             </Paper>
           ))}

@@ -2,5 +2,6 @@ namespace PointOfSale.Models.PaymentManagement.Enums;
 
 public enum PaymentMethod
 {
-    Cash,
+    Cash = 1,
+    GiftCard = 2,
 }

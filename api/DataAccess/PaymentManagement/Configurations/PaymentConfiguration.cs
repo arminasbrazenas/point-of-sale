@@ -32,7 +32,10 @@ public class PaymentConfiguration : IEntityTypeConfiguration<Payment>
 
         builder.HasOne(p => p.Order).WithMany().HasForeignKey(p => p.OrderId).IsRequired();
 
-        builder.HasDiscriminator(p => p.Method).HasValue<CashPayment>(PaymentMethod.Cash);
+        builder
+            .HasDiscriminator(p => p.Method)
+            .HasValue<CashPayment>(PaymentMethod.Cash)
+            .HasValue<GiftCardPayment>(PaymentMethod.GiftCard);
 
         builder.ToTable("OrderPayments", Constants.SchemaName);
     }

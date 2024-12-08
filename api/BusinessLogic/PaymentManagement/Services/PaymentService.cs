@@ -19,38 +19,66 @@ public class PaymentService : IPaymentService
     private readonly IPaymentRepository _paymentRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IPaymentMappingService _paymentMappingService;
+    private readonly IGiftCardService _giftCardService;
 
     public PaymentService(
         IOrderService orderService,
         IPaymentRepository paymentRepository,
         IUnitOfWork unitOfWork,
-        IPaymentMappingService paymentMappingService
+        IPaymentMappingService paymentMappingService,
+        IGiftCardService giftCardService
     )
     {
         _orderService = orderService;
         _paymentRepository = paymentRepository;
         _unitOfWork = unitOfWork;
         _paymentMappingService = paymentMappingService;
+        _giftCardService = giftCardService;
     }
 
-    public async Task<CashPaymentDTO> PayByCash(CreatePaymentDTO createPaymentDTO)
+    public async Task<CashPaymentDTO> PayByCash(PayByCashDTO payByCashDTO)
     {
-        var order = await _orderService.GetOrder(createPaymentDTO.OrderId);
+        var order = await _orderService.GetOrder(payByCashDTO.OrderId);
         ValidateOrderIsCompleted(order);
-        await ValidatePaymentAmount(order, createPaymentDTO);
+        await ValidatePaymentAmount(order, payByCashDTO);
 
         var payment = new CashPayment
         {
-            OrderId = createPaymentDTO.OrderId,
+            OrderId = payByCashDTO.OrderId,
             Method = PaymentMethod.Cash,
             Status = PaymentStatus.Confirmed,
-            Amount = createPaymentDTO.PaymentAmount,
+            Amount = payByCashDTO.PaymentAmount,
         };
 
         _paymentRepository.Add(payment);
         await _unitOfWork.SaveChanges();
 
         return _paymentMappingService.MapToCashPaymentDTO(payment);
+    }
+
+    public async Task<GiftCardPaymentDTO> PayByGiftCard(PayByGiftCardDTO payByGiftCardDTO)
+    {
+        var order = await _orderService.GetOrder(payByGiftCardDTO.OrderId);
+        ValidateOrderIsCompleted(order);
+
+        var giftCard = await _giftCardService.GetUsableGiftCardByCode(payByGiftCardDTO.GiftCardCode);
+        var payment = new GiftCardPayment
+        {
+            OrderId = payByGiftCardDTO.OrderId,
+            Method = PaymentMethod.GiftCard,
+            Status = PaymentStatus.Confirmed,
+            Amount = giftCard.Amount,
+            GiftCardCode = giftCard.Code,
+        };
+
+        await _unitOfWork.ExecuteInTransaction(async () =>
+        {
+            _paymentRepository.Add(payment);
+            await _giftCardService.MarkGiftCardAsUsed(giftCard.Id);
+            await _unitOfWork.SaveChanges();
+        });
+
+        return _paymentMappingService.MapToGiftCardPaymentDTO(payment);
     }
 
     public async Task<OrderPaymentsDTO> GetOrderPayments(int orderId)
@@ -92,16 +120,16 @@ public class PaymentService : IPaymentService
         }
     }
 
-    private async Task ValidatePaymentAmount(OrderDTO order, CreatePaymentDTO createPaymentDTO)
+    private async Task ValidatePaymentAmount(OrderDTO order, PayByCashDTO payByCashDTO)
     {
-        if (createPaymentDTO.PaymentAmount <= 0m)
+        if (payByCashDTO.PaymentAmount <= 0m)
         {
             throw new ValidationException(new PaymentAmountMustBePositiveErrorMessage());
         }
 
         var orderPayments = await _paymentRepository.GetOrderPayments(order.Id);
         var unpaidAmount = orderPayments.GetUnpaidAmount(order);
-        if (createPaymentDTO.PaymentAmount - unpaidAmount > 0.005m)
+        if (payByCashDTO.PaymentAmount - unpaidAmount > 0.005m)
         {
             throw new ValidationException(new PaymentAmountExceedsOrderPriceErrorMessage());
         }

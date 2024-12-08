@@ -1,5 +1,5 @@
 import { formatDate as formatDateFn } from 'date-fns';
-import { PricingStrategy } from './types/api';
+import { PaymentMethod, PricingStrategy } from './types/api';
 
 export const toRoundedPrice = (price: number): number => {
   const factor = Math.pow(10, 2); // 2 decimal places
@@ -45,5 +45,16 @@ export const toReadablePricingStrategyAmount = (value: number, s: PricingStrateg
       return `${value}%`;
     default:
       return value;
+  }
+};
+
+export const toReadablePaymentMethod = (method: PaymentMethod) => {
+  switch (method) {
+    case PaymentMethod.Cash:
+      return 'Cash';
+    case PaymentMethod.GiftCard:
+      return 'Gift card';
+    default:
+      return method;
   }
 };

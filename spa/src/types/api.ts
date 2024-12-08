@@ -13,6 +13,7 @@ export enum PricingStrategy {
 
 export enum PaymentMethod {
   Cash = 'Cash',
+  GiftCard = 'GiftCard',
 }
 
 export type EntityBase = {
@@ -101,6 +102,12 @@ export type Payment = Entity<{
   amount: number;
   method: PaymentMethod;
 }>;
+
+export type CashPayment = Payment;
+
+export type GiftCardPayment = Payment & {
+  giftCardCode: string;
+};
 
 export type OrderPayments = {
   payments: Payment[];
