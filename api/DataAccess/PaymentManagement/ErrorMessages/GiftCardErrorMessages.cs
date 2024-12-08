@@ -11,3 +11,8 @@ public class DuplicateGiftCardCodeErrorMessage(string code) : IPointOfSaleErrorM
 {
     public string En => $"Gift card code '{code}' is already used.";
 }
+
+public class UsedGiftCardCannotBeModifiedErrorMessage : IPointOfSaleErrorMessage
+{
+    public string En => "Used gift card cannot be modified.";
+}

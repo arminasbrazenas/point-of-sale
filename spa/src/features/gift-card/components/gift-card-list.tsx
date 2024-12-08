@@ -36,6 +36,7 @@ export const GiftCardList = () => {
               <Table.Th>Code</Table.Th>
               <Table.Th>Amount</Table.Th>
               <Table.Th>Valid until</Table.Th>
+              <Table.Th>Used</Table.Th>
             </Table.Tr>
           </Table.Thead>
           <Table.Tbody>
@@ -44,6 +45,7 @@ export const GiftCardList = () => {
                 <Table.Td>{g.code}</Table.Td>
                 <Table.Td>{g.amount}€</Table.Td>
                 <Table.Td>{formatDate(g.expiresAt)}</Table.Td>
+                <Table.Td>{g.usedAt == null ? 'No' : 'Yes'}</Table.Td>
               </Table.Tr>
             ))}
           </Table.Tbody>

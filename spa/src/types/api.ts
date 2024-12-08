@@ -112,4 +112,5 @@ export type GiftCard = Entity<{
   code: string;
   amount: number;
   expiresAt: string;
+  usedAt?: string;
 }>;

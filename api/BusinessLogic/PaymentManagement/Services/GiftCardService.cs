@@ -62,6 +62,10 @@ public class GiftCardService : IGiftCardService
     public async Task<GiftCardDTO> UpdateGiftCard(int giftCardId, UpdateGiftCardDTO updateGiftCardDTO)
     {
         var giftCard = await _giftCardRepository.Get(giftCardId);
+        if (giftCard.UsedAt is not null)
+        {
+            throw new ValidationException(new UsedGiftCardCannotBeModifiedErrorMessage());
+        }
 
         if (updateGiftCardDTO.Code is not null)
         {
