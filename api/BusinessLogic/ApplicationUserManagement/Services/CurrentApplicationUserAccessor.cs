@@ -6,11 +6,11 @@ using PointOfSale.DataAccess.ApplicationUserManagement.ErrorMessages;
 
 namespace PointOfSale.BusinessLogic.ApplicationUserManagement.Services;
 
-public class CurrentUserAccessor : ICurrentUserAccessor
+public class CurrentApplicationUserAccessor : ICurrentApplicationUserAccessor
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
 
-    public CurrentUserAccessor(IHttpContextAccessor httpContextAccessor)
+    public CurrentApplicationUserAccessor(IHttpContextAccessor httpContextAccessor)
     {
         _httpContextAccessor = httpContextAccessor;
     }
