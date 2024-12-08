@@ -107,3 +107,9 @@ export type OrderPayments = {
   paidAmount: number;
   unpaidAmount: number;
 };
+
+export type GiftCard = Entity<{
+  code: string;
+  amount: number;
+  expiresAt: string;
+}>;

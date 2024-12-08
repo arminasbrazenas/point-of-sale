@@ -153,6 +153,27 @@ const createAppRouter = () =>
             return { Component: AddDiscountManagementRoute };
           },
         },
+        {
+          path: paths.management.giftCards.path,
+          lazy: async () => {
+            const { GiftCardsManagementRoute } = await import('./routes/management/gift-card/gift-cards');
+            return { Component: GiftCardsManagementRoute };
+          },
+        },
+        {
+          path: paths.management.updateGiftCard.path,
+          lazy: async () => {
+            const { UpdateGiftCardManagementRoute } = await import('./routes/management/gift-card/update-gift-card');
+            return { Component: UpdateGiftCardManagementRoute };
+          },
+        },
+        {
+          path: paths.management.addGiftCard.path,
+          lazy: async () => {
+            const { AddGiftCardManagementRoute } = await import('./routes/management/gift-card/add-gift-card');
+            return { Component: AddGiftCardManagementRoute };
+          },
+        },
       ],
     },
   ]);

@@ -99,8 +99,13 @@ public static class ConfigureServicesExtensions
     public static IServiceCollection AddPaymentManagement(this IServiceCollection services)
     {
         services.AddScoped<IPaymentRepository, PaymentRepository>();
+        services.AddScoped<IGiftCardRepository, GiftCardRepository>();
+
         services.AddScoped<IPaymentMappingService, PaymentMappingService>();
+        services.AddScoped<IGiftCardMappingService, GiftCardMappingService>();
+
         services.AddScoped<IPaymentService, PaymentService>();
+        services.AddScoped<IGiftCardService, GiftCardService>();
 
         return services;
     }

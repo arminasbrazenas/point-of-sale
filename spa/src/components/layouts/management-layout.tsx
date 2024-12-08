@@ -23,6 +23,7 @@ export const ManagementLayout = (props: ManagementLayoutProps) => {
         <NavLink label="Taxes" component={Link} to={paths.management.taxes.getHref()} fw={600} />
         <NavLink label="Service charges" component={Link} to={paths.management.serviceCharges.getHref()} fw={600} />
         <NavLink label="Discounts" component={Link} to={paths.management.discounts.getHref()} fw={600} />
+        <NavLink label="Gift cards" component={Link} to={paths.management.giftCards.getHref()} fw={600} />
       </AppShell.Navbar>
       <AppShell.Main>
         <Center px="md" py="lg">

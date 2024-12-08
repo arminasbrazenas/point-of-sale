@@ -90,5 +90,17 @@ export const paths = {
       path: 'discounts/add',
       getHref: () => '/management/discounts/add',
     },
+    giftCards: {
+      path: 'gift-cards',
+      getHref: () => '/management/gift-cards',
+    },
+    updateGiftCard: {
+      path: 'gift-cards/:giftCardId',
+      getHref: (giftCardId: number) => `/management/gift-cards/${giftCardId}`,
+    },
+    addGiftCard: {
+      path: 'gift-cards/add',
+      getHref: () => '/management/gift-cards/add',
+    },
   },
 } as const;
