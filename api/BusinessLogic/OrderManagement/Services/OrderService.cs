@@ -101,7 +101,7 @@ public class OrderService : IOrderService
         var order = await _orderRepository.GetWithOrderItems(orderId);
         if (order.Status != OrderStatus.Open)
         {
-            throw new ValidationException(new CannotModifyNonOpenOrderErrorMessage());
+            throw new ValidationException(new CannotCancelNonOpenOrderErrorMessage());
         }
 
         await ReturnOrderItems(order.Items);
@@ -114,6 +114,30 @@ public class OrderService : IOrderService
     {
         var order = await _orderRepository.GetWithOrderItems(orderId);
         return _orderMappingService.MapToOrderReceiptDTO(order);
+    }
+
+    public async Task CompleteOrder(int orderId)
+    {
+        var order = await _orderRepository.Get(orderId);
+        if (order.Status != OrderStatus.Open)
+        {
+            throw new ValidationException(new CannotCompleteNonOpenOrderErrorMessage());
+        }
+
+        order.Status = OrderStatus.Completed;
+        await _unitOfWork.SaveChanges();
+    }
+
+    public async Task CloseOrder(int orderId)
+    {
+        var order = await _orderRepository.Get(orderId);
+        if (order.Status != OrderStatus.Completed)
+        {
+            throw new ValidationException(new CannotCloseNonCompletedOrderErrorMessage());
+        }
+
+        order.Status = OrderStatus.Closed;
+        await _unitOfWork.SaveChanges();
     }
 
     private async Task<List<OrderItem>> ReserveOrderItems(List<CreateOrUpdateOrderItemDTO> createOrderItemDTOs)

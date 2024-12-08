@@ -1,4 +1,4 @@
-import { Button, Card, List, Paper, Stack, Table, Text } from '@mantine/core';
+import { Button, Card, Group, List, Paper, SimpleGrid, Stack, Table, Text } from '@mantine/core';
 import { useOrder } from '../api/get-order';
 import { useCancelOrder } from '../api/cancel-order';
 import { showNotification } from '@/lib/notifications';
@@ -9,18 +9,32 @@ import { OrderProducts } from './order-products';
 import { Product, OrderReceipt } from '@/types/api';
 import { formatDate, toReadablePricingStrategyAmount } from '@/utilities';
 import { useOrderReceipt } from '../api/get-order-receipt';
+import { OrderPayments } from '@/features/payment/components/order-payments';
+import { useCompleteOrder } from '../api/complete-order';
 
 export const UpdateOrder = ({ orderId }: { orderId: number }) => {
   const [receipt, setReceipt] = useState<OrderReceipt | undefined>(undefined);
   const orderQuery = useOrder({ orderId });
   const productsQuery = useProducts({ paginationFilter: { itemsPerPage: 50, page: 1 } });
   const receiptQuery = useOrderReceipt({ orderId, queryConfig: { enabled: false } });
+
   const cancelOrderMutation = useCancelOrder({
     mutationConfig: {
       onSuccess: () => {
         showNotification({
           type: 'success',
           title: 'Order canceled successfully.',
+        });
+      },
+    },
+  });
+
+  const completeOrderMutation = useCompleteOrder({
+    mutationConfig: {
+      onSuccess: () => {
+        showNotification({
+          type: 'success',
+          title: 'Order completed successfully.',
         });
       },
     },
@@ -74,24 +88,37 @@ export const UpdateOrder = ({ orderId }: { orderId: number }) => {
     cancelOrderMutation.mutate({ orderId });
   };
 
+  const completeOrder = () => {
+    completeOrderMutation.mutate({ data: { orderId } });
+  };
+
   const showReceipt = () => {
     receiptQuery.refetch();
   };
 
   return (
     <Stack>
-      <Paper withBorder p="md">
-        <Text fw={600}>Order #{order.id}</Text>
-        <Text>Status: {order.status}</Text>
-        <Text>Created at: {formatDate(order.createdAt)}</Text>
+      <SimpleGrid cols={2}>
+        <Paper withBorder p="md">
+          <Text fw={600}>Order #{order.id}</Text>
+          <Text size="sm">Status: {order.status}</Text>
+          <Text size="sm">Created at: {formatDate(order.createdAt)}</Text>
 
-        <Stack mt="lg" gap="xs">
-          <Button onClick={showReceipt}>View receipt</Button>
-          <Button color="red" variant="light" onClick={cancelOrder}>
-            Cancel order
-          </Button>
-        </Stack>
-      </Paper>
+          <Stack mt="lg" gap="xs">
+            <Button onClick={showReceipt} variant="light">
+              View receipt
+            </Button>
+            <Button color="teal" variant="light" onClick={completeOrder}>
+              Complete order
+            </Button>
+            <Button color="red" variant="light" onClick={cancelOrder}>
+              Cancel order
+            </Button>
+          </Stack>
+        </Paper>
+
+        <OrderPayments orderId={order.id} />
+      </SimpleGrid>
 
       {receipt && (
         <Paper withBorder p="md">

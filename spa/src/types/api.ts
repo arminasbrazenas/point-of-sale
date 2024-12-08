@@ -1,5 +1,6 @@
 export enum OrderStatus {
   Open = 'Open',
+  Completed = 'Completed',
   Closed = 'Closed',
   Canceled = 'Canceled',
   Refunded = 'Refunded',
@@ -8,6 +9,10 @@ export enum OrderStatus {
 export enum PricingStrategy {
   FixedAmount = 'FixedAmount',
   Percentage = 'Percentage',
+}
+
+export enum PaymentMethod {
+  Cash = 'Cash',
 }
 
 export type EntityBase = {
@@ -91,3 +96,14 @@ export type Discount = Entity<{
   validUntil: string;
   appliesToProductIds: number[];
 }>;
+
+export type Payment = Entity<{
+  amount: number;
+  method: PaymentMethod;
+}>;
+
+export type OrderPayments = {
+  payments: Payment[];
+  paidAmount: number;
+  unpaidAmount: number;
+};

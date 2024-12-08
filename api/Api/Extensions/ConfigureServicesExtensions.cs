@@ -11,12 +11,16 @@ using PointOfSale.BusinessLogic.BusinessManagement.Interfaces;
 using PointOfSale.BusinessLogic.BusinessManagement.Services;
 using PointOfSale.BusinessLogic.OrderManagement.Interfaces;
 using PointOfSale.BusinessLogic.OrderManagement.Services;
+using PointOfSale.BusinessLogic.PaymentManagement.Interfaces;
+using PointOfSale.BusinessLogic.PaymentManagement.Services;
 using PointOfSale.DataAccess;
 using PointOfSale.DataAccess.ApplicationUserManagement.Interfaces;
 using PointOfSale.DataAccess.BusinessManagement.Interfaces;
 using PointOfSale.DataAccess.BusinessManagement.Repositories;
 using PointOfSale.DataAccess.OrderManagement.Interfaces;
 using PointOfSale.DataAccess.OrderManagement.Repositories;
+using PointOfSale.DataAccess.PaymentManagement.Interfaces;
+using PointOfSale.DataAccess.PaymentManagement.Repositories;
 using PointOfSale.DataAccess.Shared.Interfaces;
 using PointOfSale.DataAccess.Shared.Repositories;
 using PointOfSale.Models.ApplicationUserManagement.Entities;
@@ -92,6 +96,15 @@ public static class ConfigureServicesExtensions
         return services;
     }
 
+    public static IServiceCollection AddPaymentManagement(this IServiceCollection services)
+    {
+        services.AddScoped<IPaymentRepository, PaymentRepository>();
+        services.AddScoped<IPaymentMappingService, PaymentMappingService>();
+        services.AddScoped<IPaymentService, PaymentService>();
+
+        return services;
+    }
+
     public static IServiceCollection AddBusinessManagement(this IServiceCollection services)
     {
         services.AddScoped<IBusinessRepository, BusinessRepository>();
@@ -102,7 +115,10 @@ public static class ConfigureServicesExtensions
         return services;
     }
 
-    public static IServiceCollection AddApplicattionUserManagement(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddApplicationUserManagement(
+        this IServiceCollection services,
+        IConfiguration configuration
+    )
     {
         services.AddScoped<IApplicationUserService, ApplicationUserService>();
         services.AddScoped<IApplicationUserMappingService, ApplicationUserMappingService>();
@@ -129,7 +145,8 @@ public static class ConfigureServicesExtensions
 
         services.AddHttpContextAccessor();
 
-        services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+        services
+            .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
             {
                 options.TokenValidationParameters = new TokenValidationParameters
@@ -141,7 +158,7 @@ public static class ConfigureServicesExtensions
                     ValidateAudience = true,
                     ValidAudience = configuration["Jwt:Audience"],
                     ValidateLifetime = true,
-                    ClockSkew = TimeSpan.Zero
+                    ClockSkew = TimeSpan.Zero,
                 };
 
                 options.Events = new JwtBearerEvents
@@ -154,9 +171,8 @@ public static class ConfigureServicesExtensions
                             context.Token = accessToken;
                         }
                         return Task.CompletedTask;
-                    }
+                    },
                 };
-
             });
 
         return services;

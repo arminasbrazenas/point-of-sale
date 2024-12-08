@@ -6,6 +6,7 @@ using PointOfSale.DataAccess.Shared.Interceptors;
 using PointOfSale.Models.ApplicationUserManagement.Entities;
 using PointOfSale.Models.BusinessManagement.Entities;
 using PointOfSale.Models.OrderManagement.Entities;
+using PointOfSale.Models.PaymentManagement.Entities;
 
 namespace PointOfSale.DataAccess;
 
@@ -26,6 +27,8 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, IdentityR
     public DbSet<RefreshToken> RefreshTokens { get; set; }
     public DbSet<OrderItemDiscount> OrderItemDiscounts { get; set; }
     public DbSet<OrderServiceCharge> OrderServiceCharges { get; set; }
+    public DbSet<Payment> Payments { get; set; }
+    public DbSet<CashPayment> CashPayments { get; set; }
 
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         : base(options) { }
