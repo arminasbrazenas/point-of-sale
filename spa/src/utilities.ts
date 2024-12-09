@@ -54,6 +54,8 @@ export const toReadablePaymentMethod = (method: PaymentMethod) => {
       return 'Cash';
     case PaymentMethod.GiftCard:
       return 'Gift card';
+    case PaymentMethod.Card:
+      return 'Card';
     default:
       return method;
   }

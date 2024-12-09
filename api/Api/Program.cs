@@ -10,7 +10,7 @@ builder
     .AddApplicationUserManagement(builder.Configuration)
     .AddBusinessManagement()
     .AddOrderManagement()
-    .AddPaymentManagement();
+    .AddPaymentManagement(builder.Configuration);
 
 var app = builder.Build();
 

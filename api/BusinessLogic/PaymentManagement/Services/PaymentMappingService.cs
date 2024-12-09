@@ -16,6 +16,7 @@ public class PaymentMappingService : IPaymentMappingService
             Id = payment.Id,
             Amount = payment.Amount,
             Method = PaymentMethod.Cash,
+            Status = payment.Status,
         };
     }
 
@@ -26,7 +27,19 @@ public class PaymentMappingService : IPaymentMappingService
             Id = payment.Id,
             Amount = payment.Amount,
             Method = PaymentMethod.GiftCard,
+            Status = payment.Status,
             GiftCardCode = payment.GiftCardCode,
+        };
+    }
+
+    public OnlinePaymentDTO MapToOnlinePaymentDTO(OnlinePayment payment)
+    {
+        return new OnlinePaymentDTO
+        {
+            Id = payment.Id,
+            Amount = payment.Amount,
+            Status = payment.Status,
+            Method = PaymentMethod.Online,
         };
     }
 
@@ -37,6 +50,7 @@ public class PaymentMappingService : IPaymentMappingService
             Payments = payments.Select(MapToPaymentDTO).ToList(),
             PaidAmount = payments.GetPaidAmount(),
             UnpaidAmount = payments.GetUnpaidAmount(order),
+            TotalAmount = order.TotalPrice,
         };
     }
 
@@ -55,6 +69,7 @@ public class PaymentMappingService : IPaymentMappingService
         {
             PaymentMethod.Cash => MapToCashPaymentDTO((CashPayment)payment),
             PaymentMethod.GiftCard => MapToGiftCardPaymentDTO((GiftCardPayment)payment),
+            PaymentMethod.Online => MapToOnlinePaymentDTO((OnlinePayment)payment),
             _ => throw new NotImplementedException($"Payment method {payment.Method} mapping is not implemented."),
         };
 }

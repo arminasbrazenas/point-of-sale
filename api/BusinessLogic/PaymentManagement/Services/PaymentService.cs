@@ -4,7 +4,6 @@ using PointOfSale.BusinessLogic.PaymentManagement.DTOs;
 using PointOfSale.BusinessLogic.PaymentManagement.Extensions;
 using PointOfSale.BusinessLogic.PaymentManagement.Interfaces;
 using PointOfSale.BusinessLogic.Shared.Exceptions;
-using PointOfSale.BusinessLogic.Shared.Factories;
 using PointOfSale.DataAccess.PaymentManagement.ErrorMessages;
 using PointOfSale.DataAccess.PaymentManagement.Interfaces;
 using PointOfSale.DataAccess.Shared.Interfaces;
@@ -22,6 +21,7 @@ public class PaymentService : IPaymentService
     private readonly IPaymentMappingService _paymentMappingService;
     private readonly IGiftCardService _giftCardService;
     private readonly ITipRepository _tipRepository;
+    private readonly IStripeService _stripeService;
 
     public PaymentService(
         IOrderService orderService,
@@ -29,7 +29,8 @@ public class PaymentService : IPaymentService
         IUnitOfWork unitOfWork,
         IPaymentMappingService paymentMappingService,
         IGiftCardService giftCardService,
-        ITipRepository tipRepository
+        ITipRepository tipRepository,
+        IStripeService stripeService
     )
     {
         _orderService = orderService;
@@ -38,19 +39,20 @@ public class PaymentService : IPaymentService
         _paymentMappingService = paymentMappingService;
         _giftCardService = giftCardService;
         _tipRepository = tipRepository;
+        _stripeService = stripeService;
     }
 
     public async Task<CashPaymentDTO> PayByCash(PayByCashDTO payByCashDTO)
     {
         var order = await _orderService.GetOrder(payByCashDTO.OrderId);
         ValidateOrderIsCompleted(order);
-        await ValidatePaymentAmount(order, payByCashDTO);
+        await ValidatePaymentAmount(order, payByCashDTO.PaymentAmount);
 
         var payment = new CashPayment
         {
             OrderId = payByCashDTO.OrderId,
             Method = PaymentMethod.Cash,
-            Status = PaymentStatus.Confirmed,
+            Status = PaymentStatus.Succeeded,
             Amount = payByCashDTO.PaymentAmount,
         };
 
@@ -70,7 +72,7 @@ public class PaymentService : IPaymentService
         {
             OrderId = payByGiftCardDTO.OrderId,
             Method = PaymentMethod.GiftCard,
-            Status = PaymentStatus.Confirmed,
+            Status = PaymentStatus.Succeeded,
             Amount = giftCard.Amount,
             GiftCardCode = giftCard.Code,
         };
@@ -83,6 +85,57 @@ public class PaymentService : IPaymentService
         });
 
         return _paymentMappingService.MapToGiftCardPaymentDTO(payment);
+    }
+
+    public async Task<PaymentIntentDTO> CreateOnlinePaymentIntent(CreatePaymentIntentDTO createPaymentIntentDTO)
+    {
+        var order = await _orderService.GetOrder(createPaymentIntentDTO.OrderId);
+        ValidateOrderIsCompleted(order);
+        await ValidatePaymentAmount(order, createPaymentIntentDTO.PaymentAmount);
+
+        var paymentIntent = await _stripeService.CreatePaymentIntent(createPaymentIntentDTO);
+
+        var payment = new OnlinePayment
+        {
+            OrderId = order.Id,
+            Method = PaymentMethod.Online,
+            Status = PaymentStatus.Pending,
+            Amount = createPaymentIntentDTO.PaymentAmount,
+            ExternalId = paymentIntent.PaymentId,
+        };
+
+        _paymentRepository.Add(payment);
+        await _unitOfWork.SaveChanges();
+
+        return paymentIntent;
+    }
+
+    public async Task ProcessPendingOnlinePayments()
+    {
+        var pendingPayments = await _paymentRepository.GetPendingOnlinePayments();
+        foreach (var pendingPayment in pendingPayments)
+        {
+            var stripePaymentStatus = await _stripeService.GetPaymentIntentStatus(pendingPayment.ExternalId);
+            if (stripePaymentStatus != PaymentStatus.Pending)
+            {
+                pendingPayment.Status = stripePaymentStatus;
+            }
+        }
+
+        await _unitOfWork.SaveChanges();
+    }
+
+    public async Task CancelPendingOutdatedOnlinePayments()
+    {
+        var olderThan = TimeSpan.FromMinutes(5);
+        var outdatedPayments = await _paymentRepository.GetPendingOnlinePaymentsOlderThan(olderThan);
+        foreach (var outdatedPayment in outdatedPayments)
+        {
+            await _stripeService.CancelPaymentIntent(outdatedPayment.ExternalId);
+            outdatedPayment.Status = PaymentStatus.Canceled;
+        }
+
+        await _unitOfWork.SaveChanges();
     }
 
     public async Task<OrderPaymentsDTO> GetOrderPayments(int orderId)
@@ -143,16 +196,16 @@ public class PaymentService : IPaymentService
         }
     }
 
-    private async Task ValidatePaymentAmount(OrderDTO order, PayByCashDTO payByCashDTO)
+    private async Task ValidatePaymentAmount(OrderDTO order, decimal paymentAmount)
     {
-        if (payByCashDTO.PaymentAmount <= 0m)
+        if (paymentAmount <= 0m)
         {
             throw new ValidationException(new PaymentAmountMustBePositiveErrorMessage());
         }
 
         var orderPayments = await _paymentRepository.GetOrderPayments(order.Id);
         var unpaidAmount = orderPayments.GetUnpaidAmount(order);
-        if (payByCashDTO.PaymentAmount - unpaidAmount > 0.005m)
+        if (paymentAmount - unpaidAmount > 0.005m)
         {
             throw new ValidationException(new PaymentAmountExceedsOrderPriceErrorMessage());
         }

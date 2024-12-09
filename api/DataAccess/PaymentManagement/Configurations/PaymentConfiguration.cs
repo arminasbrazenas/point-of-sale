@@ -35,7 +35,8 @@ public class PaymentConfiguration : IEntityTypeConfiguration<Payment>
         builder
             .HasDiscriminator(p => p.Method)
             .HasValue<CashPayment>(PaymentMethod.Cash)
-            .HasValue<GiftCardPayment>(PaymentMethod.GiftCard);
+            .HasValue<GiftCardPayment>(PaymentMethod.GiftCard)
+            .HasValue<OnlinePayment>(PaymentMethod.Online);
 
         builder.ToTable("OrderPayments", Constants.SchemaName);
     }

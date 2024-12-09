@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using PointOfSale.Api.BackgroundServices;
 using PointOfSale.BusinessLogic.ApplicationUserManagement.Interfaces;
 using PointOfSale.BusinessLogic.ApplicationUserManagement.Services;
 using PointOfSale.BusinessLogic.BusinessManagement.Interfaces;
@@ -24,6 +25,10 @@ using PointOfSale.DataAccess.PaymentManagement.Repositories;
 using PointOfSale.DataAccess.Shared.Interfaces;
 using PointOfSale.DataAccess.Shared.Repositories;
 using PointOfSale.Models.ApplicationUserManagement.Entities;
+using Stripe;
+using DiscountService = PointOfSale.BusinessLogic.OrderManagement.Services.DiscountService;
+using ProductService = PointOfSale.BusinessLogic.OrderManagement.Services.ProductService;
+using TaxService = PointOfSale.BusinessLogic.OrderManagement.Services.TaxService;
 
 namespace PointOfSale.Api.Extensions;
 
@@ -96,7 +101,10 @@ public static class ConfigureServicesExtensions
         return services;
     }
 
-    public static IServiceCollection AddPaymentManagement(this IServiceCollection services)
+    public static IServiceCollection AddPaymentManagement(
+        this IServiceCollection services,
+        IConfiguration configuration
+    )
     {
         services.AddScoped<IPaymentRepository, PaymentRepository>();
         services.AddScoped<IGiftCardRepository, GiftCardRepository>();
@@ -107,6 +115,10 @@ public static class ConfigureServicesExtensions
 
         services.AddScoped<IPaymentService, PaymentService>();
         services.AddScoped<IGiftCardService, GiftCardService>();
+
+        StripeConfiguration.ApiKey = configuration["Stripe:SecretKey"];
+        services.AddScoped<IStripeService, StripeService>();
+        services.AddHostedService<PaymentBackgroundService>();
 
         return services;
     }

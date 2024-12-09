@@ -24,11 +24,21 @@ public class PaymentsController : ControllerBase
     }
 
     [HttpPost]
-    [Route("gift-card")]
+    [Route("gift-cards")]
     public async Task<ActionResult<GiftCardPaymentDTO>> PayByCash([FromBody] PayByGiftCardDTO payByGiftCardDTO)
     {
         var giftCardPayment = await _paymentService.PayByGiftCard(payByGiftCardDTO);
         return Ok(giftCardPayment);
+    }
+
+    [HttpPost]
+    [Route("online/intents")]
+    public async Task<ActionResult<PaymentIntentDTO>> CreateOnlinePaymentIntent(
+        [FromBody] CreatePaymentIntentDTO createPaymentIntentDTO
+    )
+    {
+        var paymentIntent = await _paymentService.CreateOnlinePaymentIntent(createPaymentIntentDTO);
+        return Ok(paymentIntent);
     }
 
     [HttpPost]

@@ -12,7 +12,7 @@ export const payByGiftCardInputSchema = z.object({
 export type PayByGiftCardInput = z.infer<typeof payByGiftCardInputSchema>;
 
 export const payByGiftCard = ({ data }: { data: PayByGiftCardInput }): Promise<GiftCardPayment> => {
-  return api.post('/v1/payments/gift-card', data);
+  return api.post('/v1/payments/gift-cards', data);
 };
 
 type UsePayByGiftCardOptions = {

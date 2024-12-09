@@ -14,6 +14,13 @@ export enum PricingStrategy {
 export enum PaymentMethod {
   Cash = 'Cash',
   GiftCard = 'GiftCard',
+  Card = 'Card',
+}
+
+export enum PaymentStatus {
+  Pending = 'Pending',
+  Canceled = 'Canceled',
+  Succeeded = 'Succeeded',
 }
 
 export type EntityBase = {
@@ -101,6 +108,7 @@ export type Discount = Entity<{
 export type Payment = Entity<{
   amount: number;
   method: PaymentMethod;
+  status: PaymentStatus;
 }>;
 
 export type CashPayment = Payment;
@@ -113,6 +121,7 @@ export type OrderPayments = {
   payments: Payment[];
   paidAmount: number;
   unpaidAmount: number;
+  totalAmount: number;
 };
 
 export type GiftCard = Entity<{
@@ -125,3 +134,7 @@ export type GiftCard = Entity<{
 export type Tip = Entity<{
   amount: number;
 }>;
+
+export type PaymentIntent = {
+  clientSecret: string;
+};

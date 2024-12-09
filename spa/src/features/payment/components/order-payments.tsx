@@ -7,10 +7,20 @@ import { showNotification } from '@/lib/notifications';
 import { CurrencyInput } from '@/components/inputs/currency-input';
 import { useCompleteOrderPayments } from '../api/complete-order-payments';
 import { toReadablePaymentMethod } from '@/utilities';
-import { PaymentMethod } from '@/types/api';
+import { PaymentIntent, PaymentMethod } from '@/types/api';
 import { PayByGiftCardInput, payByGiftCardInputSchema, usePayByGiftCard } from '../api/pay-by-gift-card';
 import { AddTipInput, addTipInputSchema, useAddTip } from '../api/add-tip';
 import { useOrderTips } from '../api/get-order-tips';
+import {
+  createOnlinePaymentIntent,
+  CreateOnlinePaymentIntentInput,
+  createOnlinePaymentIntentSchema,
+  useCreateOnlinePaymentIntent,
+} from '../api/create-online-payment-intent';
+import { useState } from 'react';
+import { Elements, PaymentElement, useElements, useStripe } from '@stripe/react-stripe-js';
+import { stripePromise } from '@/lib/stripe-client';
+import { StripeCheckout } from './stripe-checkout';
 
 type OrderPaymentsProps = {
   orderId: number;
@@ -21,6 +31,7 @@ export const OrderPayments = (props: OrderPaymentsProps) => {
   const orderTipsQuery = useOrderTips({ params: { orderId: props.orderId } });
   const [isCreateModelOpen, { open: openCreateModal, close: closeCreateModal }] = useDisclosure();
   const [isTipModalOpen, { open: openTipModal, close: closeTipModal }] = useDisclosure();
+  const [paymentIntent, setPaymentIntent] = useState<PaymentIntent | null>(null);
 
   const payByCashMutation = usePayByCash({
     mutationConfig: {
@@ -69,6 +80,18 @@ export const OrderPayments = (props: OrderPaymentsProps) => {
     },
   });
 
+  const createCardPaymentIntentMutation = useCreateOnlinePaymentIntent({
+    mutationConfig: {
+      onSuccess: (result) => {
+        showNotification({
+          type: 'success',
+          title: 'Online payment intent created successfully.',
+        });
+        setPaymentIntent(result);
+      },
+    },
+  });
+
   const payByCashForm = useForm<PayByCashInput>({
     mode: 'uncontrolled',
     initialValues: {
@@ -96,6 +119,15 @@ export const OrderPayments = (props: OrderPaymentsProps) => {
     validate: zodResolver(addTipInputSchema),
   });
 
+  const createCardPaymentIntentForm = useForm<CreateOnlinePaymentIntentInput>({
+    mode: 'uncontrolled',
+    initialValues: {
+      orderId: props.orderId,
+      paymentAmount: 0,
+    },
+    validate: zodResolver(createOnlinePaymentIntentSchema),
+  });
+
   const payByCash = (values: PayByCashInput) => {
     payByCashMutation.mutate({ data: values });
   };
@@ -104,12 +136,32 @@ export const OrderPayments = (props: OrderPaymentsProps) => {
     payByGiftCardMutation.mutate({ data: values });
   };
 
+  const createCardPaymentIntent = (values: CreateOnlinePaymentIntentInput) => {
+    createCardPaymentIntentMutation.mutate({ data: values });
+  };
+
   const addTip = (values: AddTipInput) => {
     addTipMutation.mutate({ data: values });
   };
 
   const completePayments = () => {
     completeOrderPayments.mutate({ data: { orderId: props.orderId } });
+  };
+
+  const onOnlinePaymentSuccess = () => {
+    showNotification({
+      type: 'success',
+      title: 'Online payment succeeded.',
+    });
+    setPaymentIntent(null);
+    closeCreateModal();
+  };
+
+  const onCardPaymentFailure = (error: string) => {
+    showNotification({
+      type: 'failure',
+      title: error,
+    });
   };
 
   const orderPayments = orderPaymentsQuery.data;
@@ -125,6 +177,7 @@ export const OrderPayments = (props: OrderPaymentsProps) => {
           <Tabs.List mb="md">
             <Tabs.Tab value={PaymentMethod.Cash}>{toReadablePaymentMethod(PaymentMethod.Cash)}</Tabs.Tab>
             <Tabs.Tab value={PaymentMethod.GiftCard}>{toReadablePaymentMethod(PaymentMethod.GiftCard)}</Tabs.Tab>
+            <Tabs.Tab value={PaymentMethod.Card}>{toReadablePaymentMethod(PaymentMethod.Card)}</Tabs.Tab>
           </Tabs.List>
 
           <Tabs.Panel value={PaymentMethod.Cash}>
@@ -156,6 +209,29 @@ export const OrderPayments = (props: OrderPaymentsProps) => {
               </Stack>
             </form>
           </Tabs.Panel>
+
+          <Tabs.Panel value={PaymentMethod.Card}>
+            {paymentIntent ? (
+              <Elements stripe={stripePromise} options={{ clientSecret: paymentIntent.clientSecret }}>
+                <StripeCheckout onSuccess={onOnlinePaymentSuccess} onFailure={onCardPaymentFailure} />
+              </Elements>
+            ) : (
+              <form onSubmit={createCardPaymentIntentForm.onSubmit(createCardPaymentIntent)}>
+                <Stack>
+                  <CurrencyInput
+                    label="Payment amount"
+                    placeholder="Payment amount"
+                    withAsterisk
+                    key={createCardPaymentIntentForm.key('paymentAmount')}
+                    {...createCardPaymentIntentForm.getInputProps('paymentAmount')}
+                  />
+                  <Button type="submit" loading={createCardPaymentIntentMutation.isPending}>
+                    Begin payment
+                  </Button>
+                </Stack>
+              </form>
+            )}
+          </Tabs.Panel>
         </Tabs>
       </Modal>
 
@@ -182,10 +258,14 @@ export const OrderPayments = (props: OrderPaymentsProps) => {
             <Paper key={p.id} withBorder p="sm">
               <Text size="sm">Method: {toReadablePaymentMethod(p.method)}</Text>
               <Text size="sm">Amount: {p.amount}€</Text>
+              <Text size="sm">Status: {p.status}</Text>
             </Paper>
           ))}
         </Stack>
 
+        <Text ta="right" size="sm" fw={500}>
+          Total amount: {orderPayments.totalAmount}€
+        </Text>
         <Text ta="right" size="sm" fw={500}>
           Paid amount: {orderPayments.paidAmount}€
         </Text>

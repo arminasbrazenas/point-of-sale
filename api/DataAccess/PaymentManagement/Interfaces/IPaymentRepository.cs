@@ -6,4 +6,6 @@ namespace PointOfSale.DataAccess.PaymentManagement.Interfaces;
 public interface IPaymentRepository : IRepositoryBase<Payment, int>
 {
     Task<List<Payment>> GetOrderPayments(int orderId);
+    Task<List<OnlinePayment>> GetPendingOnlinePayments();
+    Task<List<OnlinePayment>> GetPendingOnlinePaymentsOlderThan(TimeSpan olderThan);
 }
