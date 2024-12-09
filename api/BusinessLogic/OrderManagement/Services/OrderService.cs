@@ -9,6 +9,8 @@ using PointOfSale.DataAccess.OrderManagement.Interfaces;
 using PointOfSale.DataAccess.Shared.Interfaces;
 using PointOfSale.Models.OrderManagement.Entities;
 using PointOfSale.Models.OrderManagement.Enums;
+using PointOfSale.Models.PaymentProcessing.Enums;
+using PointOfSale.DataAccess.PaymentProcessing.Interfaces;
 
 namespace PointOfSale.BusinessLogic.OrderManagement.Services;
 
@@ -20,6 +22,7 @@ public class OrderService : IOrderService
     private readonly IOrderRepository _orderRepository;
     private readonly IOrderMappingService _orderMappingService;
     private readonly IServiceChargeRepository _serviceChargeRepository;
+    private readonly IPaymentRepository _paymentRepository;
 
     public OrderService(
         IUnitOfWork unitOfWork,
@@ -27,7 +30,8 @@ public class OrderService : IOrderService
         IModifierRepository modifierRepository,
         IOrderRepository orderRepository,
         IOrderMappingService orderMappingService,
-        IServiceChargeRepository serviceChargeRepository
+        IServiceChargeRepository serviceChargeRepository,
+        IPaymentRepository paymentRepository
     )
     {
         _unitOfWork = unitOfWork;
@@ -36,6 +40,7 @@ public class OrderService : IOrderService
         _orderRepository = orderRepository;
         _orderMappingService = orderMappingService;
         _serviceChargeRepository = serviceChargeRepository;
+        _paymentRepository = paymentRepository;
     }
 
     public async Task<OrderDTO> CreateOrder(CreateOrderDTO createOrderDTO)
@@ -224,5 +229,42 @@ public class OrderService : IOrderService
                 Amount = c.Amount,
             })
             .ToList();
+    }
+
+    public async Task<PaymentDTO> PayForOrder(int orderID, PaymentDTO paymentDTO)
+    {
+        var order = await GetOrder(orderID);
+        if (order == null)
+        {
+            throw new Exception("Order not found");
+        }
+
+        var payment = new OrderPayment
+        {
+            OrderId = orderID,
+            Amount = paymentDTO.TotalPaid,
+            PaymentMethod = paymentDTO.PaymentMethod,
+            PaymentStatus = PaymentStatus.Pending,
+        };
+        _paymentRepository.Add(payment);
+
+        if (paymentDTO.PaymentStatus == PaymentStatus.Confirmed)
+        {
+            //Change order status to closed
+        }
+        else if (paymentDTO.PaymentStatus == PaymentStatus.Failed)
+        {
+            //Change order status to cancelled 
+        }
+
+        await _unitOfWork.SaveChanges();
+
+        return new PaymentDTO
+        {
+            OrderId = orderID,
+            TotalPaid = paymentDTO.TotalPaid,
+            PaymentStatus = paymentDTO.PaymentStatus,
+            PaymentMethod = paymentDTO.PaymentMethod,
+        };
     }
 }

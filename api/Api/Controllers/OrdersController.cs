@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using PointOfSale.BusinessLogic.OrderManagement.DTOs;
 using PointOfSale.BusinessLogic.OrderManagement.Interfaces;
+using PointOfSale.BusinessLogic.PaymentProcessing.DTOs;
 using PointOfSale.BusinessLogic.Shared.DTOs;
 
 namespace PointOfSale.Api.Controllers;
@@ -69,9 +70,9 @@ public class OrdersController : ControllerBase
 
     [HttpPost]
     [Route("{orderId:int}/pay")]
-    public async Task<IActionResult> PayForOrder([FromRoute] int orderId)
+    public async Task<IActionResult> PayForOrder([FromRoute] int orderId, PaymentDTO paymentDTO)
     {
-        var payment = await _orderService.PayForOrder(orderId);
-        return Ok(payment);
+        var paymentResult = await _orderService.PayForOrder(orderId, paymentDTO);
+        return Ok(paymentResult);
     }
 }

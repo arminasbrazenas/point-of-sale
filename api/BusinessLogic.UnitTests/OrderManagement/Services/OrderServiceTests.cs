@@ -5,6 +5,7 @@ using PointOfSale.BusinessLogic.OrderManagement.Services;
 using PointOfSale.BusinessLogic.Shared.Exceptions;
 using PointOfSale.DataAccess.OrderManagement.ErrorMessages;
 using PointOfSale.DataAccess.OrderManagement.Interfaces;
+using PointOfSale.DataAccess.PaymentProcessing.Interfaces;
 using PointOfSale.DataAccess.Shared.Interfaces;
 using PointOfSale.Models.OrderManagement.Enums;
 
@@ -25,12 +26,17 @@ public class OrderServiceTests
         _productRepository = new Mock<IProductRepository>();
         _modifierRepository = new Mock<IModifierRepository>();
         _orderRepository = new Mock<IOrderRepository>();
+        var serviceChargeRepository = new Mock<IServiceChargeRepository>();
+        var paymentRepository = new Mock<IPaymentRepository>();
+
         _orderService = new OrderService(
             _unitOfWork.Object,
             _productRepository.Object,
             _modifierRepository.Object,
             _orderRepository.Object,
-            orderMappingService
+            orderMappingService,
+            serviceChargeRepository.Object,
+            paymentRepository.Object
         );
     }
 
@@ -64,6 +70,7 @@ public class OrderServiceTests
                     Quantity = 2,
                 },
             ],
+            ServiceChargeIds = [],
         };
 
         // Act
@@ -143,6 +150,7 @@ public class OrderServiceTests
                     Quantity = 3,
                 },
             ],
+            ServiceChargeIds = [],
         };
 
         // Act
@@ -184,6 +192,7 @@ public class OrderServiceTests
                     Quantity = 2,
                 },
             ],
+            ServiceChargeIds = [],
         };
 
         // Act & Assert
@@ -221,6 +230,7 @@ public class OrderServiceTests
                     Quantity = 2,
                 },
             ],
+            ServiceChargeIds = [],
         };
 
         // Act & Assert
@@ -258,6 +268,7 @@ public class OrderServiceTests
                     Quantity = 2,
                 },
             ],
+            ServiceChargeIds = [],
         };
 
         // Act & Assert
@@ -302,6 +313,7 @@ public class OrderServiceTests
                     Quantity = 2,
                 },
             ],
+            ServiceChargeIds = []
         };
 
         // Act & Assert

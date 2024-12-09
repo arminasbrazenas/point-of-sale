@@ -7,5 +7,6 @@ namespace PointOfSale.BusinessLogic.PaymentProcessing.DTOs
 		public required int OrderId { get; set; }
 		public required decimal TotalPaid { get; set; }
         public required PaymentStatus PaymentStatus { get; set; }
+        public required PaymentMethod PaymentMethod { get; set; }
     }
 }
