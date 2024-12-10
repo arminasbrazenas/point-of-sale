@@ -2,6 +2,7 @@ using System.Reflection;
 using Microsoft.EntityFrameworkCore;
 using PointOfSale.DataAccess.Shared.Interceptors;
 using PointOfSale.Models.OrderManagement.Entities;
+using PointOfSale.Models.ServiceManagement.Entities;
 
 namespace PointOfSale.DataAccess;
 
@@ -18,6 +19,11 @@ public class ApplicationDbContext : DbContext
     public DbSet<OrderItemModifier> OrderItemModifiers { get; set; }
     public DbSet<OrderItemTax> OrderItemTaxes { get; set; }
     public DbSet<OrderServiceCharge> OrderServiceCharges { get; set; }
+    public DbSet<ContactInfo> ContactInfo { get; set; }
+    public DbSet<ServiceResource> ServiceResources { get; set; }
+    public DbSet<Service> Services { get; set; }
+    public DbSet<ServiceAvailability> ServiceAvailabilities { get; set; }
+    public DbSet<Reservation> Reservations { get; set; }
 
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         : base(options) { }

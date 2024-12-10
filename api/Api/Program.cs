@@ -1,5 +1,7 @@
+using Microsoft.Extensions.Options;
 using PointOfSale.Api.Extensions;
 using PointOfSale.Api.Middlewares;
+using PointOfSale.DataAccess;
 
 var builder = WebApplication.CreateBuilder(args);
 
