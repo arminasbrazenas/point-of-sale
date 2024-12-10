@@ -42,6 +42,14 @@ public class PaymentsController : ControllerBase
     }
 
     [HttpPost]
+    [Route("online/intents/{paymentIntentId}/confirm")]
+    public async Task<IActionResult> ConfirmOnlinePayment([FromRoute] string paymentIntentId)
+    {
+        await _paymentService.ConfirmOnlinePayment(paymentIntentId);
+        return NoContent();
+    }
+
+    [HttpPost]
     [Route("tips")]
     public async Task<ActionResult<TipDTO>> AddTip([FromBody] AddTipDTO addTipDTO)
     {

@@ -136,5 +136,6 @@ export type Tip = Entity<{
 }>;
 
 export type PaymentIntent = {
+  paymentIntentId: string;
   clientSecret: string;
 };

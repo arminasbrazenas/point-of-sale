@@ -101,13 +101,24 @@ public class PaymentService : IPaymentService
             Method = PaymentMethod.Online,
             Status = PaymentStatus.Pending,
             Amount = createPaymentIntentDTO.PaymentAmount,
-            ExternalId = paymentIntent.PaymentId,
+            ExternalId = paymentIntent.PaymentIntentId,
         };
 
         _paymentRepository.Add(payment);
         await _unitOfWork.SaveChanges();
 
         return paymentIntent;
+    }
+
+    public async Task ConfirmOnlinePayment(string paymentIntentId)
+    {
+        var payment = await _paymentRepository.GetOnlinePaymentByExternalId(paymentIntentId);
+        var stripePaymentStatus = await _stripeService.GetPaymentIntentStatus(paymentIntentId);
+        if (stripePaymentStatus == PaymentStatus.Succeeded)
+        {
+            payment.Status = PaymentStatus.Succeeded;
+            await _unitOfWork.SaveChanges();
+        }
     }
 
     public async Task ProcessPendingOnlinePayments()

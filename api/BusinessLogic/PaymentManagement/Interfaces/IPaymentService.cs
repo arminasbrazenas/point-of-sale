@@ -7,6 +7,7 @@ public interface IPaymentService
     Task<CashPaymentDTO> PayByCash(PayByCashDTO payByCashDTO);
     Task<GiftCardPaymentDTO> PayByGiftCard(PayByGiftCardDTO payByGiftCardDTO);
     Task<PaymentIntentDTO> CreateOnlinePaymentIntent(CreatePaymentIntentDTO createPaymentIntentDTO);
+    Task ConfirmOnlinePayment(string paymentIntentId);
     Task ProcessPendingOnlinePayments();
     Task CancelPendingOutdatedOnlinePayments();
     Task<OrderPaymentsDTO> GetOrderPayments(int orderId);

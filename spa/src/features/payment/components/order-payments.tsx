@@ -1,4 +1,4 @@
-import { Paper, Text, Button, Stack, Modal, Tabs, TextInput, Divider, Card, List, ListItem } from '@mantine/core';
+import { Paper, Text, Button, Stack, Modal, Tabs, TextInput, Divider, List, ListItem } from '@mantine/core';
 import { useOrderPayments } from '../api/get-order-payments';
 import { useDisclosure } from '@mantine/hooks';
 import { useForm, zodResolver } from '@mantine/form';
@@ -12,15 +12,15 @@ import { PayByGiftCardInput, payByGiftCardInputSchema, usePayByGiftCard } from '
 import { AddTipInput, addTipInputSchema, useAddTip } from '../api/add-tip';
 import { useOrderTips } from '../api/get-order-tips';
 import {
-  createOnlinePaymentIntent,
   CreateOnlinePaymentIntentInput,
   createOnlinePaymentIntentSchema,
   useCreateOnlinePaymentIntent,
 } from '../api/create-online-payment-intent';
 import { useState } from 'react';
-import { Elements, PaymentElement, useElements, useStripe } from '@stripe/react-stripe-js';
+import { Elements } from '@stripe/react-stripe-js';
 import { stripePromise } from '@/lib/stripe-client';
 import { StripeCheckout } from './stripe-checkout';
+import { useConfirmPaymentIntent } from '../api/confirm-payment-intent';
 
 type OrderPaymentsProps = {
   orderId: number;
@@ -32,6 +32,8 @@ export const OrderPayments = (props: OrderPaymentsProps) => {
   const [isCreateModelOpen, { open: openCreateModal, close: closeCreateModal }] = useDisclosure();
   const [isTipModalOpen, { open: openTipModal, close: closeTipModal }] = useDisclosure();
   const [paymentIntent, setPaymentIntent] = useState<PaymentIntent | null>(null);
+
+  const confirmPaymentIntent = useConfirmPaymentIntent();
 
   const payByCashMutation = usePayByCash({
     mutationConfig: {
@@ -148,11 +150,12 @@ export const OrderPayments = (props: OrderPaymentsProps) => {
     completeOrderPayments.mutate({ data: { orderId: props.orderId } });
   };
 
-  const onOnlinePaymentSuccess = () => {
+  const onOnlinePaymentSuccess = (paymentIntent: PaymentIntent) => {
     showNotification({
       type: 'success',
       title: 'Online payment succeeded.',
     });
+    confirmPaymentIntent.mutate({ paymentIntentId: paymentIntent.paymentIntentId });
     setPaymentIntent(null);
     closeCreateModal();
   };
@@ -213,7 +216,11 @@ export const OrderPayments = (props: OrderPaymentsProps) => {
           <Tabs.Panel value={PaymentMethod.Card}>
             {paymentIntent ? (
               <Elements stripe={stripePromise} options={{ clientSecret: paymentIntent.clientSecret }}>
-                <StripeCheckout onSuccess={onOnlinePaymentSuccess} onFailure={onCardPaymentFailure} />
+                <StripeCheckout
+                  onSuccess={onOnlinePaymentSuccess}
+                  onFailure={onCardPaymentFailure}
+                  paymentIntent={paymentIntent}
+                />
               </Elements>
             ) : (
               <form onSubmit={createCardPaymentIntentForm.onSubmit(createCardPaymentIntent)}>

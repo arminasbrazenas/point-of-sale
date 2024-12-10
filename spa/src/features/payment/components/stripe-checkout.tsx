@@ -1,9 +1,11 @@
+import { PaymentIntent } from '@/types/api';
 import { Button } from '@mantine/core';
 import { PaymentElement, useElements, useStripe } from '@stripe/react-stripe-js';
 import { useState } from 'react';
 
 type StripeCheckoutProps = {
-  onSuccess: () => void;
+  paymentIntent: PaymentIntent;
+  onSuccess: (paymentIntent: PaymentIntent) => void;
   onFailure: (error: string) => void;
 };
 
@@ -32,7 +34,7 @@ export const StripeCheckout = (props: StripeCheckoutProps) => {
       if (result.error) {
         props.onFailure(result.error.message ?? result.error.code ?? 'Unknown error');
       } else {
-        props.onSuccess();
+        props.onSuccess(props.paymentIntent);
       }
     } finally {
       setIsLoading(false);

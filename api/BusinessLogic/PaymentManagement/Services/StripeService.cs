@@ -29,7 +29,11 @@ public class StripeService : IStripeService
         {
             var paymentIntent = await _paymentIntentService.CreateAsync(paymentIntentOptions);
 
-            return new PaymentIntentDTO { PaymentId = paymentIntent.Id, ClientSecret = paymentIntent.ClientSecret };
+            return new PaymentIntentDTO
+            {
+                PaymentIntentId = paymentIntent.Id,
+                ClientSecret = paymentIntent.ClientSecret,
+            };
         }
         catch (StripeException ex)
         {
