@@ -8,4 +8,5 @@ public record CreateDiscountDTO
     public required PricingStrategy PricingStrategy { get; init; }
     public required DateTimeOffset ValidUntil { get; init; }
     public required List<int> AppliesToProductIds { get; init; }
+    public required int BusinessId { get; init; }
 }
