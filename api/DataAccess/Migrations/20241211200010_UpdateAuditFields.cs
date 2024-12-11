@@ -95,14 +95,6 @@ namespace PointOfSale.DataAccess.Shared.Migrations
                 nullable: true);
 
             migrationBuilder.AddColumn<int>(
-                name: "BusinessId",
-                schema: "Order",
-                table: "Orders",
-                type: "integer",
-                nullable: false,
-                defaultValue: 0);
-
-            migrationBuilder.AddColumn<int>(
                 name: "CreatedById",
                 schema: "Order",
                 table: "Orders",
@@ -313,12 +305,6 @@ namespace PointOfSale.DataAccess.Shared.Migrations
                 schema: "Order",
                 table: "OrderServiceCharges",
                 column: "ModifiedById");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Orders_BusinessId",
-                schema: "Order",
-                table: "Orders",
-                column: "BusinessId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Orders_CreatedById",
@@ -583,16 +569,6 @@ namespace PointOfSale.DataAccess.Shared.Migrations
                 column: "ModifiedById",
                 principalTable: "Users",
                 principalColumn: "Id");
-
-            migrationBuilder.AddForeignKey(
-                name: "FK_Orders_Businesses_BusinessId",
-                schema: "Order",
-                table: "Orders",
-                column: "BusinessId",
-                principalSchema: "Business",
-                principalTable: "Businesses",
-                principalColumn: "Id",
-                onDelete: ReferentialAction.Cascade);
 
             migrationBuilder.AddForeignKey(
                 name: "FK_Orders_Users_CreatedById",
@@ -801,11 +777,6 @@ namespace PointOfSale.DataAccess.Shared.Migrations
                 table: "OrderPayments");
 
             migrationBuilder.DropForeignKey(
-                name: "FK_Orders_Businesses_BusinessId",
-                schema: "Order",
-                table: "Orders");
-
-            migrationBuilder.DropForeignKey(
                 name: "FK_Orders_Users_CreatedById",
                 schema: "Order",
                 table: "Orders");
@@ -934,11 +905,6 @@ namespace PointOfSale.DataAccess.Shared.Migrations
                 name: "IX_OrderServiceCharges_ModifiedById",
                 schema: "Order",
                 table: "OrderServiceCharges");
-
-            migrationBuilder.DropIndex(
-                name: "IX_Orders_BusinessId",
-                schema: "Order",
-                table: "Orders");
 
             migrationBuilder.DropIndex(
                 name: "IX_Orders_CreatedById",
@@ -1099,11 +1065,6 @@ namespace PointOfSale.DataAccess.Shared.Migrations
                 name: "ModifiedById",
                 schema: "Order",
                 table: "OrderServiceCharges");
-
-            migrationBuilder.DropColumn(
-                name: "BusinessId",
-                schema: "Order",
-                table: "Orders");
 
             migrationBuilder.DropColumn(
                 name: "CreatedById",
