@@ -5,11 +5,11 @@ using PointOfSale.Models.OrderManagement.Entities;
 
 namespace PointOfSale.DataAccess.OrderManagement.Configurations;
 
-public class OrderItemDiscountConfiguration : IEntityTypeConfiguration<OrderItemDiscount>
+public class OrderItemDiscountConfiguration : EntityBaseConfiguration<OrderItemDiscount, int>
 {
-    public void Configure(EntityTypeBuilder<OrderItemDiscount> builder)
+    public override void Configure(EntityTypeBuilder<OrderItemDiscount> builder)
     {
-        builder.HasKey(m => m.Id);
+        base.Configure(builder);
 
         builder.Property(m => m.PricingStrategy).HasMaxLength(SharedConstants.EnumMaxLength).IsRequired();
 

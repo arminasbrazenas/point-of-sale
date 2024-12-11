@@ -7,14 +7,14 @@ using PointOfSale.Models.Shared.Enums;
 
 namespace PointOfSale.DataAccess.OrderManagement.Configurations;
 
-public class DiscountConfiguration : IEntityTypeConfiguration<Discount>
+public class DiscountConfiguration : EntityBaseConfiguration<Discount, int>
 {
     private const string TableName = "Discounts";
     private const string ProductDiscountsTableName = "ProductDiscounts";
 
-    public void Configure(EntityTypeBuilder<Discount> builder)
+    public override void Configure(EntityTypeBuilder<Discount> builder)
     {
-        builder.HasKey(d => d.Id);
+        base.Configure(builder);
 
         builder
             .Property(d => d.Amount)
