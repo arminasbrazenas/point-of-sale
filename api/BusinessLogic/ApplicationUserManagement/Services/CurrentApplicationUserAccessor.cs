@@ -1,8 +1,8 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
 using PointOfSale.BusinessLogic.ApplicationUserManagement.Exceptions;
-using PointOfSale.BusinessLogic.ApplicationUserManagement.Interfaces;
 using PointOfSale.DataAccess.ApplicationUserManagement.ErrorMessages;
+using PointOfSale.DataAccess.ApplicationUserManagement.Interfaces;
 
 namespace PointOfSale.BusinessLogic.ApplicationUserManagement.Services;
 
@@ -25,6 +25,20 @@ public class CurrentApplicationUserAccessor : ICurrentApplicationUserAccessor
         }
 
         return int.Parse(userIdClaim);
+    }
+
+    public int? GetApplicationUserIdOrDefault()
+    {
+        var userIdClaim = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        if (string.IsNullOrEmpty(userIdClaim))
+        {
+            return null;
+        }
+        else
+        {
+            return int.Parse(userIdClaim);
+        }
     }
 
     public string GetApplicationUserRole()

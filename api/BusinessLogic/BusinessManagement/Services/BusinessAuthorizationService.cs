@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using PointOfSale.BusinessLogic.ApplicationUserManagement.Exceptions;
-using PointOfSale.BusinessLogic.ApplicationUserManagement.Interfaces;
 using PointOfSale.BusinessLogic.BusinessManagement.Interfaces;
+using PointOfSale.DataAccess.ApplicationUserManagement.Interfaces;
 using PointOfSale.DataAccess.BusinessManagement.ErrorMessages;
 using PointOfSale.DataAccess.BusinessManagement.Interfaces;
 using PointOfSale.Models.ApplicationUserManagement.Entities;

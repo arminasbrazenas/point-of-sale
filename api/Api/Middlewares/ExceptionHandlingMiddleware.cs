@@ -1,3 +1,4 @@
+using Microsoft.OpenApi.Extensions;
 using PointOfSale.Api.DTOs;
 using PointOfSale.BusinessLogic.ApplicationUserManagement.Exceptions;
 using PointOfSale.BusinessLogic.Shared.Exceptions;
@@ -59,6 +60,6 @@ public class ExceptionHandlingMiddleware
         {
             PointOfSaleException posEx => posEx.ErrorMessage.En,
             UnauthorizedAccessException e => e.Message,
-            _ => "Unexpected error happenned in the application",
+            Exception e => e.Message,
         };
 }
