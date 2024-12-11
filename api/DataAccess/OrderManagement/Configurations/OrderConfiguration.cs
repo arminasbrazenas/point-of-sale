@@ -14,7 +14,7 @@ public class OrderConfiguration : EntityBaseConfiguration<Order, int>
     public override void Configure(EntityTypeBuilder<Order> builder)
     {
         base.Configure(builder);
-        
+
         builder
             .Property(o => o.Status)
             .HasConversion(new EnumToStringConverter<OrderStatus>())

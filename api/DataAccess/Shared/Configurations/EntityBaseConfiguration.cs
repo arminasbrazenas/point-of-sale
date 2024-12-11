@@ -9,7 +9,7 @@ public class EntityBaseConfiguration<TEntity, TKey> : IEntityTypeConfiguration<T
     public virtual void Configure(EntityTypeBuilder<TEntity> builder)
     {
         builder.HasKey(d => d.Id);
-        
+
         builder.HasOne(e => e.CreatedBy).WithMany().HasForeignKey(e => e.CreatedById);
 
         builder.HasOne(e => e.ModifiedBy).WithMany().HasForeignKey(e => e.ModifiedById);

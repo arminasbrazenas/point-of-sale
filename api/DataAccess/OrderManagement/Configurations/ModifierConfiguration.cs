@@ -12,7 +12,7 @@ public class ModifierConfiguration : EntityBaseConfiguration<Modifier, int>
     public override void Configure(EntityTypeBuilder<Modifier> builder)
     {
         base.Configure(builder);
-        
+
         builder.Property(p => p.RowVersion).IsRowVersion();
 
         builder.Property(v => v.Name).HasMaxLength(Constants.ModifierNameMaxLength).IsRequired();
