@@ -2,6 +2,7 @@ using System.Reflection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using PointOfSale.DataAccess.ApplicationUserManagement.Interfaces;
 using PointOfSale.DataAccess.Shared.Interceptors;
 using PointOfSale.Models.ApplicationUserManagement.Entities;
 using PointOfSale.Models.BusinessManagement.Entities;
@@ -12,7 +13,7 @@ namespace PointOfSale.DataAccess;
 
 public class ApplicationDbContext : IdentityDbContext<ApplicationUser, IdentityRole<int>, int>
 {
-    private static readonly AuditingInterceptor AuditingInterceptor = new();
+    private readonly ICurrentApplicationUserAccessor _currentApplicationUserAccessor;
 
     public DbSet<Tax> Taxes { get; set; }
     public DbSet<Product> Products { get; set; }
@@ -31,12 +32,18 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, IdentityR
     public DbSet<GiftCard> GiftCards { get; set; }
     public DbSet<Tip> Tips { get; set; }
 
-    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
-        : base(options) { }
+    public ApplicationDbContext(
+        DbContextOptions<ApplicationDbContext> options,
+        ICurrentApplicationUserAccessor currentApplicationUserAccessor
+    )
+        : base(options)
+    {
+        _currentApplicationUserAccessor = currentApplicationUserAccessor;
+    }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        optionsBuilder.AddInterceptors(AuditingInterceptor);
+        optionsBuilder.AddInterceptors(new AuditingInterceptor(_currentApplicationUserAccessor));
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

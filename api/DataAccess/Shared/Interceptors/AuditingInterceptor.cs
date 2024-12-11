@@ -1,11 +1,19 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using PointOfSale.DataAccess.ApplicationUserManagement.Interfaces;
 using PointOfSale.Models.Shared.Interfaces;
 
 namespace PointOfSale.DataAccess.Shared.Interceptors;
 
 public class AuditingInterceptor : SaveChangesInterceptor
 {
+    private readonly ICurrentApplicationUserAccessor _currentApplicationUserAccessor;
+
+    public AuditingInterceptor(ICurrentApplicationUserAccessor currentApplicationUserAccessor)
+    {
+        _currentApplicationUserAccessor = currentApplicationUserAccessor;
+    }
+
     public override ValueTask<InterceptionResult<int>> SavingChangesAsync(
         DbContextEventData eventData,
         InterceptionResult<int> result,
@@ -20,7 +28,7 @@ public class AuditingInterceptor : SaveChangesInterceptor
         return base.SavingChangesAsync(eventData, result, cancellationToken);
     }
 
-    private static void AuditChangedEntities(DbContext dbContext)
+    private void AuditChangedEntities(DbContext dbContext)
     {
         var addedEntityEntries = dbContext
             .ChangeTracker.Entries<IAuditable>()
@@ -32,9 +40,17 @@ public class AuditingInterceptor : SaveChangesInterceptor
             if (entityEntry.State == EntityState.Added)
             {
                 entityEntry.Entity.CreatedAt = DateTimeOffset.UtcNow;
+            if(_currentApplicationUserAccessor.GetApplicationUserIdOrDefault() is { } createdApplicationUserId)
+            {
+                entityEntry.Entity.CreatedById = createdApplicationUserId;
+            }
             }
 
             entityEntry.Entity.ModifiedAt = DateTimeOffset.UtcNow;
+            if (_currentApplicationUserAccessor.GetApplicationUserIdOrDefault() is { } modifiedApplicationUserId)
+            {
+                entityEntry.Entity.ModifiedById = modifiedApplicationUserId;
+            }
         }
     }
 }

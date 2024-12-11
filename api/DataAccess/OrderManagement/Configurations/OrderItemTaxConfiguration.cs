@@ -5,13 +5,13 @@ using PointOfSale.Models.OrderManagement.Entities;
 
 namespace PointOfSale.DataAccess.OrderManagement.Configurations;
 
-public class OrderItemTaxConfiguration : IEntityTypeConfiguration<OrderItemTax>
+public class OrderItemTaxConfiguration : EntityBaseConfiguration<OrderItemTax, int>
 {
     private const string TableName = "OrderItemTaxes";
 
-    public void Configure(EntityTypeBuilder<OrderItemTax> builder)
+    public override void Configure(EntityTypeBuilder<OrderItemTax> builder)
     {
-        builder.HasKey(t => t.Id);
+        base.Configure(builder);
 
         builder.Property(t => t.Name).HasMaxLength(Constants.TaxNameMaxLength).IsRequired();
 

@@ -5,14 +5,14 @@ using PointOfSale.Models.OrderManagement.Entities;
 
 namespace PointOfSale.DataAccess.OrderManagement.Configurations;
 
-public class ModifierConfiguration : IEntityTypeConfiguration<Modifier>
+public class ModifierConfiguration : EntityBaseConfiguration<Modifier, int>
 {
     private const string TableName = "Modifiers";
 
-    public void Configure(EntityTypeBuilder<Modifier> builder)
+    public override void Configure(EntityTypeBuilder<Modifier> builder)
     {
-        builder.HasKey(v => v.Id);
-
+        base.Configure(builder);
+        
         builder.Property(p => p.RowVersion).IsRowVersion();
 
         builder.Property(v => v.Name).HasMaxLength(Constants.ModifierNameMaxLength).IsRequired();
