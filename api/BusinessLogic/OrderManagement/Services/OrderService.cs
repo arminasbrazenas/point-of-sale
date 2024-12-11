@@ -44,7 +44,6 @@ public class OrderService : IOrderService
         var orderItems = await ReserveOrderItems(createOrderDTO.OrderItems);
         var order = new Order
         {
-            BusinessId = createOrderDTO.BusinessId,
             Items = orderItems,
             Status = OrderStatus.Open,
             ServiceCharges = [],

@@ -423,9 +423,6 @@ namespace PointOfSale.DataAccess.Shared.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("BusinessId")
-                        .HasColumnType("integer");
-
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -444,8 +441,6 @@ namespace PointOfSale.DataAccess.Shared.Migrations
                         .HasColumnType("character varying(50)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("BusinessId");
 
                     b.HasIndex("CreatedById");
 
@@ -1116,12 +1111,6 @@ namespace PointOfSale.DataAccess.Shared.Migrations
 
             modelBuilder.Entity("PointOfSale.Models.OrderManagement.Entities.Order", b =>
                 {
-                    b.HasOne("PointOfSale.Models.BusinessManagement.Entities.Business", "Business")
-                        .WithMany()
-                        .HasForeignKey("BusinessId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("PointOfSale.Models.ApplicationUserManagement.Entities.ApplicationUser", "CreatedBy")
                         .WithMany()
                         .HasForeignKey("CreatedById");
@@ -1129,8 +1118,6 @@ namespace PointOfSale.DataAccess.Shared.Migrations
                     b.HasOne("PointOfSale.Models.ApplicationUserManagement.Entities.ApplicationUser", "ModifiedBy")
                         .WithMany()
                         .HasForeignKey("ModifiedById");
-
-                    b.Navigation("Business");
 
                     b.Navigation("CreatedBy");
 

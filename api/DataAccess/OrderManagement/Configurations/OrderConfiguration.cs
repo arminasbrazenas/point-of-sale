@@ -35,8 +35,6 @@ public class OrderConfiguration : EntityBaseConfiguration<Order, int>
             .OnDelete(DeleteBehavior.Cascade)
             .IsRequired();
 
-        builder.HasOne(o => o.Business).WithMany().HasForeignKey(o => o.BusinessId).IsRequired();
-
         builder.ToTable(TableName, Constants.SchemaName);
     }
 }
