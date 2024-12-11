@@ -21,6 +21,7 @@ public class OrderService : IOrderService
     private readonly IOrderRepository _orderRepository;
     private readonly IOrderMappingService _orderMappingService;
     private readonly IServiceChargeRepository _serviceChargeRepository;
+    private readonly IOrderManagementAuthorizationService _orderAuthorizationService;
 
     public OrderService(
         IUnitOfWork unitOfWork,
@@ -28,7 +29,8 @@ public class OrderService : IOrderService
         IModifierRepository modifierRepository,
         IOrderRepository orderRepository,
         IOrderMappingService orderMappingService,
-        IServiceChargeRepository serviceChargeRepository
+        IServiceChargeRepository serviceChargeRepository,
+        IOrderManagementAuthorizationService orderAuthorizationService
     )
     {
         _unitOfWork = unitOfWork;
@@ -37,10 +39,13 @@ public class OrderService : IOrderService
         _orderRepository = orderRepository;
         _orderMappingService = orderMappingService;
         _serviceChargeRepository = serviceChargeRepository;
+        _orderAuthorizationService = orderAuthorizationService;
     }
 
     public async Task<OrderDTO> CreateOrder(CreateOrderDTO createOrderDTO)
     {
+        await _orderAuthorizationService.AuthorizeApplicationUser(createOrderDTO.BusinessId);
+
         var orderItems = await ReserveOrderItems(createOrderDTO.OrderItems);
         var order = new Order
         {
@@ -69,6 +74,9 @@ public class OrderService : IOrderService
     public async Task<OrderDTO> GetOrder(int orderId)
     {
         var order = await _orderRepository.GetWithOrderItems(orderId);
+
+        await _orderAuthorizationService.AuthorizeApplicationUser(order.BusinessId);
+
         return _orderMappingService.MapToOrderDTO(order);
     }
 
@@ -81,6 +89,9 @@ public class OrderService : IOrderService
     public async Task<OrderDTO> UpdateOrder(int orderId, UpdateOrderDTO updateOrderDTO)
     {
         var order = await _orderRepository.GetWithOrderItems(orderId);
+
+        await _orderAuthorizationService.AuthorizeApplicationUser(order.BusinessId);
+
         if (order.Status != OrderStatus.Open)
         {
             throw new ValidationException(new CannotModifyNonOpenOrderErrorMessage());
@@ -106,6 +117,11 @@ public class OrderService : IOrderService
     public async Task CancelOrder(int orderId)
     {
         var order = await _orderRepository.GetWithOrderItems(orderId);
+
+        await _orderAuthorizationService.AuthorizeApplicationUser(order.BusinessId);
+
+        await _orderAuthorizationService.AuthorizeApplicationUser(order.BusinessId);
+
         if (order.Status != OrderStatus.Open)
         {
             throw new ValidationException(new CannotCancelNonOpenOrderErrorMessage());
@@ -120,12 +136,18 @@ public class OrderService : IOrderService
     public async Task<OrderReceiptDTO> GetOrderReceipt(int orderId)
     {
         var order = await _orderRepository.GetWithOrderItems(orderId);
+
+        await _orderAuthorizationService.AuthorizeApplicationUser(order.BusinessId);
+
         return _orderMappingService.MapToOrderReceiptDTO(order);
     }
 
     public async Task CompleteOrder(int orderId)
     {
         var order = await _orderRepository.Get(orderId);
+
+        await _orderAuthorizationService.AuthorizeApplicationUser(order.BusinessId);
+
         if (order.Status != OrderStatus.Open)
         {
             throw new ValidationException(new CannotCompleteNonOpenOrderErrorMessage());
