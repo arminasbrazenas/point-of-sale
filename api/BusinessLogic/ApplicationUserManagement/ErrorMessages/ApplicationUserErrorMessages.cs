@@ -40,3 +40,20 @@ public class NoApplicationUserRoleErrorMessage : IPointOfSaleErrorMessage
 {
     public string En => "Cannot access application user role.";
 }
+
+public class ApplicationUserUnauthorizedErrorMessage : IPointOfSaleErrorMessage
+{
+    public string En => "Application user has no access to the content.";
+}
+
+public class ApplicationUserNotFoundErrorMessage : IPointOfSaleErrorMessage
+{
+    private readonly int _id;
+
+    public ApplicationUserNotFoundErrorMessage(int id)
+    {
+        _id = id;
+    }
+
+    public string En => $"No application user with id {_id} exists.";
+}
