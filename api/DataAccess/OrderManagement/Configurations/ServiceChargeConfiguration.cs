@@ -28,6 +28,8 @@ public class ServiceChargeConfiguration : EntityBaseConfiguration<ServiceCharge,
             .HasPrecision(SharedConstants.MoneyPrecision, SharedConstants.MoneyScale)
             .IsRequired();
 
+        builder.HasOne(o => o.Business).WithMany().HasForeignKey(o => o.BusinessId).IsRequired();
+
         builder.ToTable(TableName, Constants.SchemaName);
     }
 }
