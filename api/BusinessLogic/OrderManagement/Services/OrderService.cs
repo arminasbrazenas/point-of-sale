@@ -52,6 +52,7 @@ public class OrderService : IOrderService
             Items = orderItems,
             Status = OrderStatus.Open,
             ServiceCharges = [],
+            BusinessId = createOrderDTO.BusinessId,
         };
 
         order.ServiceCharges = await CreateOrderServiceCharges(order, createOrderDTO.ServiceChargeIds);

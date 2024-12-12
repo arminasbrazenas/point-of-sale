@@ -22,6 +22,8 @@ public class ModifierConfiguration : EntityBaseConfiguration<Modifier, int>
             .HasPrecision(SharedConstants.MoneyPrecision, SharedConstants.MoneyScale)
             .IsRequired();
 
+        builder.HasOne(o => o.Business).WithMany().HasForeignKey(o => o.BusinessId).IsRequired();
+
         builder.ToTable(TableName, Constants.SchemaName);
     }
 }

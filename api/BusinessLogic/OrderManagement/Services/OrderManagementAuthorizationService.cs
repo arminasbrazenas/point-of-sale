@@ -7,12 +7,12 @@ using PointOfSale.Models.ApplicationUserManagement.Entities;
 
 namespace PointOfSale.BusinessLogic.OrderManagement.Services;
 
-public class OrderAuthorizationService : IOrderManagementAuthorizationService
+public class OrderManagementAuthorizationService : IOrderManagementAuthorizationService
 {
     private readonly ICurrentApplicationUserAccessor _currentApplicationUserAccessor;
     private readonly UserManager<ApplicationUser> _userManager;
 
-    public OrderAuthorizationService(
+    public OrderManagementAuthorizationService(
         ICurrentApplicationUserAccessor currentApplicationUserAccessor,
         UserManager<ApplicationUser> userManager
     )

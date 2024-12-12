@@ -32,6 +32,8 @@ public class DiscountConfiguration : EntityBaseConfiguration<Discount, int>
             .WithMany(d => d.Discounts)
             .UsingEntity(e => e.ToTable(ProductDiscountsTableName));
 
+        builder.HasOne(o => o.Business).WithMany().HasForeignKey(o => o.BusinessId).IsRequired();
+
         builder.ToTable(TableName, Constants.SchemaName);
     }
 }

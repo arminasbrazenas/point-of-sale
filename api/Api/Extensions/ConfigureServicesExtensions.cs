@@ -165,6 +165,7 @@ public static class ConfigureServicesExtensions
             .AddRoleManager<RoleManager<IdentityRole<int>>>();
 
         services.AddHttpContextAccessor();
+        services.AddScoped<IOrderManagementAuthorizationService, OrderManagementAuthorizationService>();
 
         services
             .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

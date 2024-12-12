@@ -13,15 +13,15 @@ public class PaymentBackgroundService : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        using var scope = _serviceScopeFactory.CreateScope();
-        var paymentService = scope.ServiceProvider.GetRequiredService<IPaymentService>();
+        // using var scope = _serviceScopeFactory.CreateScope();
+        // var paymentService = scope.ServiceProvider.GetRequiredService<IPaymentService>();
 
-        while (!stoppingToken.IsCancellationRequested)
-        {
-            await paymentService.ProcessPendingOnlinePayments();
-            await paymentService.CancelPendingOutdatedOnlinePayments();
+        // while (!stoppingToken.IsCancellationRequested)
+        // {
+        //     await paymentService.ProcessPendingOnlinePayments();
+        //     await paymentService.CancelPendingOutdatedOnlinePayments();
 
-            await Task.Delay(TimeSpan.FromSeconds(10), stoppingToken);
-        }
+        //     await Task.Delay(TimeSpan.FromSeconds(10), stoppingToken);
+        // }
     }
 }
