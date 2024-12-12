@@ -3,11 +3,16 @@ using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 using PointOfSale.BusinessLogic.OrderManagement.Interfaces;
 using PointOfSale.BusinessLogic.OrderManagement.Services;
+using PointOfSale.BusinessLogic.PaymentProcessing.Interfaces;
+using PointOfSale.BusinessLogic.PaymentProcessing.Services;
 using PointOfSale.DataAccess;
 using PointOfSale.DataAccess.OrderManagement.Interfaces;
 using PointOfSale.DataAccess.OrderManagement.Repositories;
+using PointOfSale.DataAccess.PaymentProcessing.Interfaces;
+using PointOfSale.DataAccess.PaymentProcessing.Repositories;
 using PointOfSale.DataAccess.Shared.Interfaces;
 using PointOfSale.DataAccess.Shared.Repositories;
+using PointOfSale.Models.PaymentProcessing.Enums;
 
 namespace PointOfSale.Api.Extensions;
 
@@ -73,6 +78,23 @@ public static class ConfigureServicesExtensions
         services.AddScoped<IOrderService, OrderService>();
         services.AddScoped<IModifierService, ModifierService>();
         services.AddScoped<IServiceChargeService, ServiceChargeService>();
+
+        return services;
+    }
+    public static IServiceCollection AddPaymentProcessing(this IServiceCollection services)
+    {
+        services.AddScoped<IPaymentRepository, PaymentRepository>();
+
+        services.AddScoped<CashPaymentHandler>();
+
+        services.AddScoped<Func<PaymentMethod, IPaymentHandler>>(serviceProvider => paymentMethod =>
+        {
+            return paymentMethod switch
+            {
+                PaymentMethod.Cash => serviceProvider.GetRequiredService<CashPaymentHandler>(),
+                _ => throw new ArgumentException($"No handler registered for payment method {paymentMethod}")
+            };
+        });
 
         return services;
     }

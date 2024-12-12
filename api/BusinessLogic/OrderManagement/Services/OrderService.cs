@@ -11,6 +11,8 @@ using PointOfSale.Models.OrderManagement.Entities;
 using PointOfSale.Models.OrderManagement.Enums;
 using PointOfSale.Models.PaymentProcessing.Enums;
 using PointOfSale.DataAccess.PaymentProcessing.Interfaces;
+using PointOfSale.BusinessLogic.OrderManagement.Utilities;
+using PointOfSale.BusinessLogic.PaymentProcessing.Interfaces;
 
 namespace PointOfSale.BusinessLogic.OrderManagement.Services;
 
@@ -23,6 +25,7 @@ public class OrderService : IOrderService
     private readonly IOrderMappingService _orderMappingService;
     private readonly IServiceChargeRepository _serviceChargeRepository;
     private readonly IPaymentRepository _paymentRepository;
+    private readonly Func<PaymentMethod, IPaymentHandler> _paymentHandlerFactory;
 
     public OrderService(
         IUnitOfWork unitOfWork,
@@ -31,7 +34,8 @@ public class OrderService : IOrderService
         IOrderRepository orderRepository,
         IOrderMappingService orderMappingService,
         IServiceChargeRepository serviceChargeRepository,
-        IPaymentRepository paymentRepository
+        IPaymentRepository paymentRepository,
+        Func<PaymentMethod, IPaymentHandler> paymentHandlerFactory
     )
     {
         _unitOfWork = unitOfWork;
@@ -41,6 +45,7 @@ public class OrderService : IOrderService
         _orderMappingService = orderMappingService;
         _serviceChargeRepository = serviceChargeRepository;
         _paymentRepository = paymentRepository;
+        _paymentHandlerFactory = paymentHandlerFactory;
     }
 
     public async Task<OrderDTO> CreateOrder(CreateOrderDTO createOrderDTO)
@@ -231,40 +236,32 @@ public class OrderService : IOrderService
             .ToList();
     }
 
-    public async Task<PaymentDTO> PayForOrder(int orderID, PaymentDTO paymentDTO)
+    public async Task<OrderPayment> PayForOrder(int orderID, PaymentDTO paymentDTO)
     {
-        var order = await GetOrder(orderID);
+        var order = await _orderRepository.GetWithOrderItems(orderID);
         if (order == null)
         {
             throw new Exception("Order not found");
         }
 
-        var payment = new OrderPayment
+        var orderPayment = new OrderPayment
         {
             OrderId = orderID,
-            Amount = paymentDTO.TotalPaid,
+            Order = order,
             PaymentMethod = paymentDTO.PaymentMethod,
             PaymentStatus = PaymentStatus.Pending,
+            Amount = PriceUtility.CalculateTotalDue(order.ServiceCharges),
+            TotalPaid = 0,
         };
-        _paymentRepository.Add(payment);
 
-        if (paymentDTO.PaymentStatus == PaymentStatus.Confirmed)
-        {
-            //Change order status to closed
-        }
-        else if (paymentDTO.PaymentStatus == PaymentStatus.Failed)
-        {
-            //Change order status to cancelled 
-        }
+        var paymentHandler = _paymentHandlerFactory(paymentDTO.PaymentMethod);
+        await paymentHandler.ProcessPayment(orderPayment, paymentDTO);
 
+        _paymentRepository.Add(orderPayment);
+        _orderRepository.Update(order);
         await _unitOfWork.SaveChanges();
 
-        return new PaymentDTO
-        {
-            OrderId = orderID,
-            TotalPaid = paymentDTO.TotalPaid,
-            PaymentStatus = paymentDTO.PaymentStatus,
-            PaymentMethod = paymentDTO.PaymentMethod,
-        };
+        return orderPayment;
     }
 }
+

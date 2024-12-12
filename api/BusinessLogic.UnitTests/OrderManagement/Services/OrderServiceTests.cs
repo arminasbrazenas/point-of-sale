@@ -2,12 +2,14 @@ using BusinessLogic.UnitTests.OrderManagement.TestUtilities;
 using Moq;
 using PointOfSale.BusinessLogic.OrderManagement.DTOs;
 using PointOfSale.BusinessLogic.OrderManagement.Services;
+using PointOfSale.BusinessLogic.PaymentProcessing.Interfaces;
 using PointOfSale.BusinessLogic.Shared.Exceptions;
 using PointOfSale.DataAccess.OrderManagement.ErrorMessages;
 using PointOfSale.DataAccess.OrderManagement.Interfaces;
 using PointOfSale.DataAccess.PaymentProcessing.Interfaces;
 using PointOfSale.DataAccess.Shared.Interfaces;
 using PointOfSale.Models.OrderManagement.Enums;
+using PointOfSale.Models.PaymentProcessing.Enums;
 
 namespace BusinessLogic.UnitTests.OrderManagement.Services;
 
@@ -28,6 +30,7 @@ public class OrderServiceTests
         _orderRepository = new Mock<IOrderRepository>();
         var serviceChargeRepository = new Mock<IServiceChargeRepository>();
         var paymentRepository = new Mock<IPaymentRepository>();
+        var paymentHandlerFactory = new Mock<Func<PaymentMethod, IPaymentHandler>>();
 
         _orderService = new OrderService(
             _unitOfWork.Object,
@@ -36,7 +39,8 @@ public class OrderServiceTests
             _orderRepository.Object,
             orderMappingService,
             serviceChargeRepository.Object,
-            paymentRepository.Object
+            paymentRepository.Object,
+            paymentHandlerFactory.Object
         );
     }
 

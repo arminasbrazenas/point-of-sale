@@ -10,6 +10,8 @@
     ports:
       - "8080:8080"
       - "8081:8081"
+    depends_on:
+      - pos.database
 
   pos.database:
     image: postgres:latest
@@ -22,4 +24,4 @@
     volumes:
       - ./.containers/pointofsale-db:/var/lib/postgresql/data
     ports:
-      - "5433:5433"
+      - "5432:5432"

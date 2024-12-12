@@ -3,7 +3,7 @@ using PointOfSale.Api.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddSharedServices(builder.Configuration, builder.Environment).AddOrderManagement();
+builder.Services.AddSharedServices(builder.Configuration, builder.Environment).AddOrderManagement().AddPaymentProcessing();
 
 var app = builder.Build();
 
