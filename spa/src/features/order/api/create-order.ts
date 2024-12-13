@@ -5,16 +5,26 @@ import { Order } from '@/types/api';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { z } from 'zod';
 
+export const createOrUpdateOrderDiscountInputSchema = z.object({
+  amount: z.coerce.number(),
+  pricingStrategy: z.string(),
+  type: z.string(),
+});
+
 export const createOrUpdateOrderItemInputSchema = z.object({
   productId: z.number(),
   modifierIds: z.array(z.number()),
   quantity: z.coerce.number(),
+  discounts: z.array(createOrUpdateOrderDiscountInputSchema),
 });
 
 export const createOrderInputSchema = z.object({
   orderItems: z.array(createOrUpdateOrderItemInputSchema),
   serviceChargeIds: z.array(z.number()),
+  discounts: z.array(createOrUpdateOrderDiscountInputSchema),
 });
+
+export type CreateOrUpdateDiscountInput = z.infer<typeof createOrUpdateOrderDiscountInputSchema>;
 
 export type CreateOrUpdateOrderItemInput = z.infer<typeof createOrUpdateOrderItemInputSchema>;
 

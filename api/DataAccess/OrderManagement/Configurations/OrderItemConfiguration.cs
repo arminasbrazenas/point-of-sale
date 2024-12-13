@@ -16,7 +16,7 @@ public class OrderItemConfiguration : EntityBaseConfiguration<OrderItem, int>
         builder.Property(i => i.Name).HasMaxLength(Constants.ProductNameMaxLength).IsRequired();
 
         builder
-            .Property(i => i.BaseUnitGrossPrice)
+            .Property(i => i.BaseUnitPrice)
             .HasPrecision(SharedConstants.MoneyPrecision, SharedConstants.MoneyScale)
             .IsRequired();
 

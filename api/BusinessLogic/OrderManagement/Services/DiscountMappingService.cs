@@ -17,6 +17,7 @@ public class DiscountMappingService : IDiscountMappingService
             PricingStrategy = discount.PricingStrategy,
             AppliesToProductIds = discount.AppliesTo.Select(p => p.Id).ToList(),
             ValidUntil = discount.ValidUntil,
+            Target = discount.Target,
         };
     }
 

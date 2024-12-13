@@ -47,7 +47,7 @@ export const UpdateOrder = ({ orderId }: { orderId: number }) => {
       return [];
     }
 
-    return orderItems.map((i): EnhancedCreateOrderItemInput => {
+    return orderItems.map((i, idx): EnhancedCreateOrderItemInput => {
       const product: Product =
         products.find((p) => p.id == i.productId) ??
         ({
@@ -56,7 +56,7 @@ export const UpdateOrder = ({ orderId }: { orderId: number }) => {
         } as Product);
 
       return {
-        cartItemId: crypto.randomUUID(),
+        cartItemId: idx + 1,
         product: product,
         productId: product.id ?? 0,
         modifierIds: i.modifiers.map((m) => m.modifierId ?? 0),
@@ -64,6 +64,7 @@ export const UpdateOrder = ({ orderId }: { orderId: number }) => {
         price: i.totalPrice,
         orderedQuantity: i.quantity,
         modifiers: i.modifiers,
+        discounts: i.discounts,
       };
     });
   }, [orderQuery.data, productsQuery.data]);
@@ -130,6 +131,8 @@ export const UpdateOrder = ({ orderId }: { orderId: number }) => {
                   <Table.Th>QTY</Table.Th>
                   <Table.Th>Description</Table.Th>
                   <Table.Th>Unit price</Table.Th>
+                  <Table.Th>Discounts</Table.Th>
+                  <Table.Th>Taxes</Table.Th>
                   <Table.Th>Amount</Table.Th>
                 </Table.Tr>
               </Table.Thead>
@@ -139,6 +142,8 @@ export const UpdateOrder = ({ orderId }: { orderId: number }) => {
                     <Table.Td>{x.quantity}</Table.Td>
                     <Table.Td>{x.name}</Table.Td>
                     <Table.Td>{x.unitPrice}€</Table.Td>
+                    <Table.Td>{x.discountsTotal}€</Table.Td>
+                    <Table.Td>{x.taxTotal}€</Table.Td>
                     <Table.Td>{x.totalPrice}€</Table.Td>
                   </Table.Tr>
                 ))}
@@ -146,28 +151,51 @@ export const UpdateOrder = ({ orderId }: { orderId: number }) => {
             </Table>
           </Paper>
 
-          {receipt.serviceCharges.length > 0 && (
-            <Stack mt="xs" gap="0">
-              <Text fw={600} size="sm">
-                Service charges
-              </Text>
-              <List>
-                {receipt.serviceCharges.map((c) => (
-                  <List.Item opacity={0.75}>
-                    <Text size="sm">
-                      {c.name} ({toReadablePricingStrategyAmount(c.amount, c.pricingStrategy)}): {c.appliedAmount}€
-                    </Text>
-                  </List.Item>
-                ))}
-              </List>
-            </Stack>
+          {receipt.discounts.length > 0 && (
+            <Paper withBorder mt="xs">
+              <Table>
+                <Table.Thead>
+                  <Table.Tr>
+                    <Table.Th>Discount</Table.Th>
+                    <Table.Th>Amount</Table.Th>
+                  </Table.Tr>
+                </Table.Thead>
+                <Table.Tbody>
+                  {receipt.discounts.map((d) => (
+                    <Table.Tr>
+                      <Table.Td>{toReadablePricingStrategyAmount(d.amount, d.pricingStrategy)}</Table.Td>
+                      <Table.Td>{d.appliedAmount}€</Table.Td>
+                    </Table.Tr>
+                  ))}
+                </Table.Tbody>
+              </Table>
+            </Paper>
           )}
 
-          <Stack mt="xs" gap="0">
-            <Text fw={600} size="sm">
-              Total: {receipt.totalPrice}€
-            </Text>
-          </Stack>
+          {receipt.serviceCharges.length > 0 && (
+            <Paper withBorder mt="xs">
+              <Table>
+                <Table.Thead>
+                  <Table.Tr>
+                    <Table.Th>Service charge</Table.Th>
+                    <Table.Th>Amount</Table.Th>
+                  </Table.Tr>
+                </Table.Thead>
+                <Table.Tbody>
+                  {receipt.serviceCharges.map((s) => (
+                    <Table.Tr>
+                      <Table.Td>{toReadablePricingStrategyAmount(s.amount, s.pricingStrategy)}</Table.Td>
+                      <Table.Td>{s.appliedAmount}€</Table.Td>
+                    </Table.Tr>
+                  ))}
+                </Table.Tbody>
+              </Table>
+            </Paper>
+          )}
+
+          <Text fw={600} ta="right" mt="md">
+            Total: {receipt.totalPrice}€
+          </Text>
         </Paper>
       )}
 
@@ -175,6 +203,7 @@ export const UpdateOrder = ({ orderId }: { orderId: number }) => {
         orderItems={enhancedOrderItems}
         orderId={order.id}
         selectedServiceCharges={order.serviceCharges.map((c) => c.name)}
+        discounts={order.discounts.map((d) => ({ ...d, id: crypto.randomUUID() }))}
       />
     </Stack>
   );

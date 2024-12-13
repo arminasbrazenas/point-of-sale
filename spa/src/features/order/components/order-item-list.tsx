@@ -1,29 +1,50 @@
-import { Button, Card, Checkbox, Stack, Text } from '@mantine/core';
+import { Button, Card, Checkbox, Group, Paper, Select, SimpleGrid, Stack, Text, TextInput } from '@mantine/core';
 import { EnhancedCreateOrderItemInput } from './order-product';
 import { OrderItem } from './order-item';
-import { toReadablePricingStrategyAmount, toRoundedPrice } from '@/utilities';
-import { useMemo, useState } from 'react';
-import { ServiceCharge } from '@/types/api';
+import { toReadablePricingStrategy, toReadablePricingStrategyAmount } from '@/utilities';
+import { useState } from 'react';
+import { DiscountTarget, DiscountType, PricingStrategy, ServiceCharge } from '@/types/api';
+import { CreateOrUpdateDiscountInput, createOrUpdateOrderDiscountInputSchema } from '../api/create-order';
+import { useForm, zodResolver } from '@mantine/form';
+import { EnhancedOrderDiscount } from './order-item-form';
 
 export type OrderItemListProps = {
   orderItems: EnhancedCreateOrderItemInput[];
-  onConfirm: (serviceChargeIds: number[]) => void;
+  onConfirm: (serviceChargeIds: number[], discounts: CreateOrUpdateDiscountInput[]) => void;
   updateOrderItem: (orderItem: EnhancedCreateOrderItemInput) => void;
   removeOrderItem: (orderItem: EnhancedCreateOrderItemInput) => void;
   isLoading: boolean;
   confirmText: string;
   serviceCharges: ServiceCharge[];
   selectedServiceCharges: string[];
+  discounts: CreateOrUpdateDiscountInput[];
 };
 
 export const OrderItemList = (props: OrderItemListProps) => {
   const [selectedServiceChargeNames, setSelectedServiceChargeNames] = useState<string[]>(props.selectedServiceCharges);
+  const [discounts, setDiscounts] = useState<EnhancedOrderDiscount[]>(
+    props.discounts.map((d) => ({ ...d, id: crypto.randomUUID() })),
+  );
+
+  const discountForm = useForm<EnhancedOrderDiscount>({
+    mode: 'uncontrolled',
+    initialValues: {
+      id: '',
+      pricingStrategy: PricingStrategy.Percentage,
+      amount: 0,
+      type: DiscountType.Flexible,
+    },
+    validate: zodResolver(createOrUpdateOrderDiscountInputSchema),
+  });
 
   const onConfirm = () => {
     const serviceChargeIds = props.serviceCharges
       .filter((c) => selectedServiceChargeNames.includes(c.name))
       .map((c) => c.id);
-    props.onConfirm(serviceChargeIds);
+    props.onConfirm(
+      serviceChargeIds,
+      discounts.filter((d) => d.type === DiscountType.Flexible),
+    );
   };
 
   const addServiceCharge = (name: string) => {
@@ -34,9 +55,13 @@ export const OrderItemList = (props: OrderItemListProps) => {
     setSelectedServiceChargeNames((prev) => prev.filter((c) => c !== name));
   };
 
-  const orderItemsPrice = useMemo(() => {
-    return toRoundedPrice(props.orderItems.reduce((acc, curr) => acc + curr.price, 0));
-  }, [props.orderItems]);
+  const addOrderDiscount = (values: CreateOrUpdateDiscountInput) => {
+    setDiscounts((prev) => [...prev, { ...values, id: crypto.randomUUID() }]);
+  };
+
+  const removeOrderDiscount = (id: string) => {
+    setDiscounts((prev) => prev.filter((d) => d.id != id));
+  };
 
   if (props.orderItems.length <= 0) {
     return null;
@@ -47,32 +72,109 @@ export const OrderItemList = (props: OrderItemListProps) => {
       <Text fw={600}>Order items</Text>
       <Stack gap="xs" mt="xs" mb="md">
         {props.orderItems.map((orderItem, idx) => (
-          <OrderItem update={props.updateOrderItem} remove={props.removeOrderItem} orderItem={orderItem} key={idx} />
-        ))}
-      </Stack>
-
-      <Text fw={600} ta="right">
-        Items price: {orderItemsPrice}€
-      </Text>
-
-      <Text fw={600}>Service charges</Text>
-      <Stack gap="xs" mt="xs">
-        {props.serviceCharges.map((c, idx) => (
-          <Checkbox
-            label={
-              <Text size="sm">
-                {c.name}{' '}
-                <Text component="span" opacity={0.5}>
-                  ({toReadablePricingStrategyAmount(c.amount, c.pricingStrategy)})
-                </Text>
-              </Text>
-            }
-            checked={selectedServiceChargeNames.includes(c.name)}
-            onChange={(e) => (e.currentTarget.checked ? addServiceCharge(c.name) : removeServiceCharge(c.name))}
+          <OrderItem
+            update={props.updateOrderItem}
+            remove={props.removeOrderItem}
+            orderItem={orderItem}
             key={idx}
+            orderItemId={idx + 1}
           />
         ))}
       </Stack>
+
+      {props.serviceCharges.length > 0 && (
+        <>
+          <Text fw={600}>Service charges</Text>
+          <Stack gap="xs" mt="xs">
+            {props.serviceCharges.map((c, idx) => (
+              <Checkbox
+                label={
+                  <Text size="sm">
+                    {c.name}{' '}
+                    <Text component="span" opacity={0.5}>
+                      ({toReadablePricingStrategyAmount(c.amount, c.pricingStrategy)})
+                    </Text>
+                  </Text>
+                }
+                checked={selectedServiceChargeNames.includes(c.name)}
+                onChange={(e) => (e.currentTarget.checked ? addServiceCharge(c.name) : removeServiceCharge(c.name))}
+                key={idx}
+              />
+            ))}
+          </Stack>
+        </>
+      )}
+
+      <SimpleGrid cols={2} mt="md">
+        <Stack gap="xs">
+          <Text fw={600}>Apply discount</Text>
+          <form onSubmit={discountForm.onSubmit(addOrderDiscount)}>
+            <Stack gap="xs">
+              <Select
+                label="Target"
+                placeholder="Target"
+                data={[
+                  { value: DiscountTarget.Order, label: 'Order' },
+                  {
+                    value: DiscountTarget.Product,
+                    label: 'Product',
+                  },
+                ]}
+                value={discountForm.getInputProps('target').defaultValue}
+                allowDeselect={false}
+                onChange={(value) => (value ? discountForm.setFieldValue('target', value) : {})}
+                withAsterisk
+              />
+              <Select
+                label="Type"
+                placeholder="Type"
+                data={[
+                  { value: PricingStrategy.Percentage, label: toReadablePricingStrategy(PricingStrategy.Percentage) },
+                  {
+                    value: PricingStrategy.FixedAmount,
+                    label: toReadablePricingStrategy(PricingStrategy.FixedAmount),
+                  },
+                ]}
+                value={discountForm.getInputProps('pricingStrategy').defaultValue}
+                allowDeselect={false}
+                onChange={(value) => (value ? discountForm.setFieldValue('pricingStrategy', value) : {})}
+                withAsterisk
+              />
+              <TextInput
+                label="Amount"
+                placeholder="Amount"
+                withAsterisk
+                key={discountForm.key('amount')}
+                {...discountForm.getInputProps('amount')}
+              />
+              <Button variant="light" type="submit">
+                Add discount
+              </Button>
+            </Stack>
+          </form>
+        </Stack>
+
+        <Stack gap="xs">
+          <Text fw={600}>Applied discounts</Text>
+          <Stack gap="xs">
+            {discounts.map((d) => (
+              <Paper withBorder px="md" py="xs" key={d.id}>
+                <Group justify="space-between">
+                  <Text>{toReadablePricingStrategyAmount(d.amount, d.pricingStrategy as PricingStrategy)}</Text>
+                  <Button
+                    variant="light"
+                    color="red"
+                    onClick={() => removeOrderDiscount(d.id)}
+                    disabled={d.type === DiscountType.Predefined}
+                  >
+                    Remove
+                  </Button>
+                </Group>
+              </Paper>
+            ))}
+          </Stack>
+        </Stack>
+      </SimpleGrid>
 
       <Button onClick={onConfirm} loading={props.isLoading} mt="lg">
         {props.confirmText}

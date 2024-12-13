@@ -16,7 +16,7 @@ public class OrderItemTaxConfiguration : EntityBaseConfiguration<OrderItemTax, i
         builder.Property(t => t.Name).HasMaxLength(Constants.TaxNameMaxLength).IsRequired();
 
         builder
-            .Property(m => m.AppliedUnitAmount)
+            .Property(m => m.AppliedAmount)
             .HasPrecision(SharedConstants.MoneyPrecision, SharedConstants.MoneyScale)
             .IsRequired();
 

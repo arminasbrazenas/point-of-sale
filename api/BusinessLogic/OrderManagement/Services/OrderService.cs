@@ -1,7 +1,6 @@
 using PointOfSale.BusinessLogic.OrderManagement.DTOs;
 using PointOfSale.BusinessLogic.OrderManagement.Extensions;
 using PointOfSale.BusinessLogic.OrderManagement.Interfaces;
-using PointOfSale.BusinessLogic.OrderManagement.Utilities;
 using PointOfSale.BusinessLogic.Shared.DTOs;
 using PointOfSale.BusinessLogic.Shared.Exceptions;
 using PointOfSale.BusinessLogic.Shared.Factories;
@@ -22,6 +21,7 @@ public class OrderService : IOrderService
     private readonly IOrderMappingService _orderMappingService;
     private readonly IServiceChargeRepository _serviceChargeRepository;
     private readonly IOrderManagementAuthorizationService _orderAuthorizationService;
+    private readonly IDiscountRepository _discountRepository;
 
     public OrderService(
         IUnitOfWork unitOfWork,
@@ -30,7 +30,8 @@ public class OrderService : IOrderService
         IOrderRepository orderRepository,
         IOrderMappingService orderMappingService,
         IServiceChargeRepository serviceChargeRepository,
-        IOrderManagementAuthorizationService orderAuthorizationService
+        IOrderManagementAuthorizationService orderAuthorizationService,
+        IDiscountRepository discountRepository
     )
     {
         _unitOfWork = unitOfWork;
@@ -40,6 +41,7 @@ public class OrderService : IOrderService
         _orderMappingService = orderMappingService;
         _serviceChargeRepository = serviceChargeRepository;
         _orderAuthorizationService = orderAuthorizationService;
+        _discountRepository = discountRepository;
     }
 
     public async Task<OrderDTO> CreateOrder(CreateOrderDTO createOrderDTO)
@@ -47,15 +49,17 @@ public class OrderService : IOrderService
         await _orderAuthorizationService.AuthorizeApplicationUser(createOrderDTO.BusinessId);
 
         var orderItems = await ReserveOrderItems(createOrderDTO.OrderItems);
+        var orderDiscounts = await GetOrderDiscounts(orderItems, createOrderDTO.Discounts);
+        var serviceCharges = await GetOrderServiceCharges(createOrderDTO.ServiceChargeIds, orderItems, orderDiscounts);
+
         var order = new Order
         {
             Items = orderItems,
             Status = OrderStatus.Open,
-            ServiceCharges = [],
             BusinessId = createOrderDTO.BusinessId,
+            ServiceCharges = serviceCharges,
+            Discounts = orderDiscounts,
         };
-
-        order.ServiceCharges = await CreateOrderServiceCharges(order, createOrderDTO.ServiceChargeIds);
 
         _orderRepository.Add(order);
         await _unitOfWork.SaveChanges();
@@ -101,12 +105,34 @@ public class OrderService : IOrderService
         {
             await ReturnOrderItems(order.Items);
             order.Items = await ReserveOrderItems(updateOrderDTO.OrderItems);
+
+            // Recalculate order discounts
+            var orderDiscounts = order
+                .Discounts.Select(d => new CreateOrderDiscountDTO
+                {
+                    Amount = d.Amount,
+                    PricingStrategy = d.PricingStrategy,
+                })
+                .ToList();
+            order.Discounts = await GetOrderDiscounts(order.Items, orderDiscounts);
+
+            // Recalculate order service charges
+            var serviceChargesIds = order.ServiceCharges.Select(c => c.Id).ToList();
+            order.ServiceCharges = await GetOrderServiceCharges(serviceChargesIds, order.Items, order.Discounts);
+        }
+
+        if (updateOrderDTO.Discounts is not null)
+        {
+            order.Discounts = await GetOrderDiscounts(order.Items, updateOrderDTO.Discounts);
         }
 
         if (updateOrderDTO.ServiceChargeIds is not null)
         {
-            var serviceCharges = await CreateOrderServiceCharges(order, updateOrderDTO.ServiceChargeIds);
-            order.ServiceCharges = serviceCharges;
+            order.ServiceCharges = await GetOrderServiceCharges(
+                updateOrderDTO.ServiceChargeIds,
+                order.Items,
+                order.Discounts
+            );
         }
 
         await _unitOfWork.SaveChanges();
@@ -177,103 +203,219 @@ public class OrderService : IOrderService
         List<OrderItem> orderItems = [];
         foreach (var createOrderItemDTO in createOrderItemDTOs)
         {
-            var product = products.FirstOrDefault(x => x.Id == createOrderItemDTO.ProductId);
-            if (product is null)
-            {
-                throw new ValidationException(new ProductNotFoundErrorMessage(createOrderItemDTO.ProductId));
-            }
-
-            if (product.Stock < createOrderItemDTO.Quantity)
-            {
-                throw new ValidationException(new ProductOutOfStockErrorMessage(product.Name));
-            }
-
-            product.Stock -= createOrderItemDTO.Quantity;
-
-            List<OrderItemModifier> orderItemModifiers = [];
-            foreach (var modifierId in createOrderItemDTO.ModifierIds)
-            {
-                var modifier = product.Modifiers.FirstOrDefault(x => x.Id == modifierId);
-                if (modifier is null)
-                {
-                    throw new ValidationException(new IncompatibleProductModifierErrorMessage(product.Id, modifierId));
-                }
-
-                if (modifier.Stock < createOrderItemDTO.Quantity)
-                {
-                    throw new ValidationException(new ModifierOutOfStockErrorMessage(modifier.Name));
-                }
-
-                modifier.Stock -= createOrderItemDTO.Quantity;
-
-                var orderItemModifier = new OrderItemModifier
-                {
-                    ModifierId = modifier.Id,
-                    Name = modifier.Name,
-                    GrossPrice = modifier.Price.ToRoundedPrice(),
-                    TaxTotal = 0,
-                };
-
-                orderItemModifiers.Add(orderItemModifier);
-            }
-
-            // Apply predefined discounts only to the base product
-            var baseUnitGrossPrice = product.Price.ToRoundedPrice();
-            var orderItemDiscounts = product
-                .Discounts.OrderBy(d => d.PricingStrategy)
-                .Select(d =>
-                {
-                    var unitDiscountAmount = d.GetAmountToApply(baseUnitGrossPrice);
-                    baseUnitGrossPrice -= unitDiscountAmount;
-
-                    return new OrderItemDiscount
-                    {
-                        Amount = d.Amount,
-                        PricingStrategy = d.PricingStrategy,
-                        AppliedUnitAmount = unitDiscountAmount,
-                    };
-                })
-                .ToList();
-
-            // Apply taxes
-            var baseUnitNetPrice = baseUnitGrossPrice;
-            var orderItemTaxes = product
-                .Taxes.Select(t =>
-                {
-                    var taxTotal = t.GetAmountToApply(baseUnitNetPrice);
-                    baseUnitNetPrice += taxTotal;
-
-                    foreach (var orderItemModifier in orderItemModifiers)
-                    {
-                        var modifierTax = t.GetAmountToApply(orderItemModifier.GrossPrice + orderItemModifier.TaxTotal);
-                        orderItemModifier.TaxTotal += modifierTax;
-                        taxTotal += modifierTax;
-                    }
-
-                    return new OrderItemTax
-                    {
-                        Name = t.Name,
-                        Rate = t.Rate,
-                        AppliedUnitAmount = taxTotal,
-                    };
-                })
-                .ToList();
-
-            var orderItem = new OrderItem
-            {
-                Name = product.Name,
-                Quantity = createOrderItemDTO.Quantity,
-                Product = product,
-                BaseUnitGrossPrice = product.Price.ToRoundedPrice(),
-                Taxes = orderItemTaxes,
-                Modifiers = orderItemModifiers,
-                Discounts = orderItemDiscounts,
-            };
-
+            var orderItem = ReserveOrderProduct(createOrderItemDTO, products);
+            orderItem.Discounts = GetOrderItemDiscounts(orderItem, createOrderItemDTO.Discounts);
+            orderItem.Taxes = GetOrderItemTaxes(orderItem);
             orderItems.Add(orderItem);
         }
 
         return orderItems;
+    }
+
+    private static OrderItem ReserveOrderProduct(CreateOrUpdateOrderItemDTO createOrderItemDTO, List<Product> products)
+    {
+        var product = products.FirstOrDefault(x => x.Id == createOrderItemDTO.ProductId);
+        if (product is null)
+        {
+            throw new ValidationException(new ProductNotFoundErrorMessage(createOrderItemDTO.ProductId));
+        }
+
+        if (product.Stock < createOrderItemDTO.Quantity)
+        {
+            throw new ValidationException(new ProductOutOfStockErrorMessage(product.Name));
+        }
+
+        product.Stock -= createOrderItemDTO.Quantity;
+        var modifiers = ReserveOrderProductModifiers(createOrderItemDTO, product);
+
+        return new OrderItem
+        {
+            Name = product.Name,
+            Quantity = createOrderItemDTO.Quantity,
+            Product = product,
+            BaseUnitPrice = product.Price,
+            Taxes = [],
+            Modifiers = modifiers,
+            Discounts = [],
+        };
+    }
+
+    private static List<OrderItemModifier> ReserveOrderProductModifiers(
+        CreateOrUpdateOrderItemDTO createOrderItemDTO,
+        Product product
+    )
+    {
+        List<OrderItemModifier> orderItemModifiers = [];
+        foreach (var modifierId in createOrderItemDTO.ModifierIds)
+        {
+            var modifier = product.Modifiers.FirstOrDefault(x => x.Id == modifierId);
+            if (modifier is null)
+            {
+                throw new ValidationException(new IncompatibleProductModifierErrorMessage(product.Id, modifierId));
+            }
+
+            if (modifier.Stock < createOrderItemDTO.Quantity)
+            {
+                throw new ValidationException(new ModifierOutOfStockErrorMessage(modifier.Name));
+            }
+
+            var orderItemModifier = new OrderItemModifier
+            {
+                ModifierId = modifier.Id,
+                Name = modifier.Name,
+                Price = modifier.Price,
+            };
+
+            modifier.Stock -= createOrderItemDTO.Quantity;
+            orderItemModifiers.Add(orderItemModifier);
+        }
+
+        return orderItemModifiers;
+    }
+
+    private static List<OrderItemTax> GetOrderItemTaxes(OrderItem orderItem)
+    {
+        var modifiersPrice = orderItem.Modifiers.Sum(x => x.Price);
+        var discounts = orderItem.Discounts.Sum(d => d.AppliedAmount);
+        var price = (orderItem.BaseUnitPrice + modifiersPrice) * orderItem.Quantity - discounts;
+
+        return orderItem
+            .Product!.Taxes.Select(t =>
+            {
+                var appliedAmount = t.GetAmountToApply(price);
+                price += appliedAmount;
+                return new OrderItemTax
+                {
+                    AppliedAmount = appliedAmount,
+                    Rate = t.Rate,
+                    Name = t.Name,
+                };
+            })
+            .ToList();
+    }
+
+    private static List<OrderItemDiscount> GetOrderItemDiscounts(
+        OrderItem orderItem,
+        List<CreateOrderDiscountDTO> createOrderDiscountDTOs
+    )
+    {
+        var modifiersPrice = orderItem.Modifiers.Sum(x => x.Price);
+        var price = (orderItem.BaseUnitPrice + modifiersPrice) * orderItem.Quantity;
+
+        var predefinedDiscounts = orderItem
+            .Product!.Discounts.OrderBy(d => d.CreatedAt)
+            .Select(d =>
+            {
+                var appliedAmount = d.GetAmountToApply(price);
+                price -= appliedAmount;
+                return new OrderItemDiscount
+                {
+                    Amount = d.Amount,
+                    PricingStrategy = d.PricingStrategy,
+                    AppliedAmount = appliedAmount,
+                    Type = OrderDiscountType.Predefined,
+                };
+            })
+            .ToList();
+
+        var flexibleDiscounts = createOrderDiscountDTOs
+            .Select(d =>
+            {
+                var appliedAmount = d.GetAmountToApply(price);
+                price -= appliedAmount;
+                return new OrderItemDiscount
+                {
+                    Amount = d.Amount,
+                    PricingStrategy = d.PricingStrategy,
+                    AppliedAmount = appliedAmount,
+                    Type = OrderDiscountType.Flexible,
+                };
+            })
+            .ToList();
+
+        return predefinedDiscounts.Concat(flexibleDiscounts).ToList();
+    }
+
+    private async Task<List<OrderDiscount>> GetOrderDiscounts(
+        List<OrderItem> orderItems,
+        List<CreateOrderDiscountDTO> createOrderDiscountDTOs
+    )
+    {
+        var orderDiscounts = await _discountRepository.GetOrderDiscounts();
+        var price = orderItems.Sum(i =>
+        {
+            var productPrice = (i.BaseUnitPrice + i.Modifiers.Sum(m => m.Price)) * i.Quantity;
+            var discounts = i.Discounts.Sum(d => d.AppliedAmount);
+            var taxes = i.Taxes.Sum(t => t.AppliedAmount);
+            return productPrice - discounts + taxes;
+        });
+
+        var predefinedDiscounts = orderDiscounts
+            .OrderBy(d => d.CreatedAt)
+            .Select(d =>
+            {
+                var appliedAmount = d.GetAmountToApply(price);
+                price -= appliedAmount;
+                return new OrderDiscount
+                {
+                    Type = OrderDiscountType.Predefined,
+                    Amount = d.Amount,
+                    PricingStrategy = d.PricingStrategy,
+                    AppliedAmount = appliedAmount,
+                };
+            })
+            .ToList();
+
+        var flexibleDiscounts = createOrderDiscountDTOs
+            .Select(d =>
+            {
+                var appliedAmount = d.GetAmountToApply(price);
+                price -= appliedAmount;
+                return new OrderDiscount
+                {
+                    Type = OrderDiscountType.Flexible,
+                    Amount = d.Amount,
+                    PricingStrategy = d.PricingStrategy,
+                    AppliedAmount = appliedAmount,
+                };
+            })
+            .ToList();
+
+        return predefinedDiscounts.Concat(flexibleDiscounts).ToList();
+    }
+
+    private async Task<List<OrderServiceCharge>> GetOrderServiceCharges(
+        List<int> serviceChargeIds,
+        List<OrderItem> orderItems,
+        List<OrderDiscount> orderDiscounts
+    )
+    {
+        var price =
+            orderItems.Sum(i =>
+            {
+                var productPrice = (i.BaseUnitPrice + i.Modifiers.Sum(m => m.Price)) * i.Quantity;
+                var discounts = i.Discounts.Sum(d => d.AppliedAmount);
+                var taxes = i.Taxes.Sum(t => t.AppliedAmount);
+                return productPrice - discounts + taxes;
+            }) - orderDiscounts.Sum(d => d.AppliedAmount);
+
+        var serviceCharges = await _serviceChargeRepository.GetMany(serviceChargeIds);
+        return serviceCharges
+            .OrderBy(c => c.PricingStrategy)
+            .Select(c =>
+            {
+                var appliedAmount = c.GetAmountToApply(price);
+                price += appliedAmount;
+
+                return new OrderServiceCharge
+                {
+                    Name = c.Name,
+                    PricingStrategy = c.PricingStrategy,
+                    Amount = c.Amount,
+                    AppliedAmount = appliedAmount,
+                };
+            })
+            .ToList();
     }
 
     private async Task ReturnOrderItems(List<OrderItem> orderItems)
@@ -304,27 +446,5 @@ public class OrderService : IOrderService
                 }
             }
         }
-    }
-
-    private async Task<List<OrderServiceCharge>> CreateOrderServiceCharges(Order order, List<int> serviceChargeIds)
-    {
-        var serviceCharges = await _serviceChargeRepository.GetMany(serviceChargeIds);
-        var orderPrice = order.GetOrderItemsPrice();
-        return serviceCharges
-            .OrderBy(c => c.PricingStrategy)
-            .Select(c =>
-            {
-                var appliedAmount = c.GetAmountToApply(orderPrice);
-                orderPrice += appliedAmount;
-
-                return new OrderServiceCharge
-                {
-                    Name = c.Name,
-                    PricingStrategy = c.PricingStrategy,
-                    Amount = c.Amount,
-                    AppliedAmount = appliedAmount,
-                };
-            })
-            .ToList();
     }
 }

@@ -7,6 +7,7 @@ type OrderItemProps = {
   orderItem: EnhancedCreateOrderItemInput;
   remove: (orderItem: EnhancedCreateOrderItemInput) => void;
   update: (orderItem: EnhancedCreateOrderItemInput) => void;
+  orderItemId: number;
 };
 
 export const OrderItem = (props: OrderItemProps) => {
@@ -32,6 +33,7 @@ export const OrderItem = (props: OrderItemProps) => {
           onConfirm={update}
           onRemove={remove}
           confirmText="Confirm"
+          cartItemId={props.orderItemId}
         />
       </Modal>
 

@@ -10,8 +10,8 @@ export const formatDate = (date: string): string => {
   return formatDateFn(new Date(date), 'yyyy-MM-dd HH:mm');
 };
 
-export const isSameNumberSet = (a: number[], b: number[]): boolean => {
-  if (a.length != b.length) {
+export const isSameNumberSet = (a?: number[], b?: number[]): boolean => {
+  if (!a || !b || a?.length != b?.length) {
     return false;
   }
 

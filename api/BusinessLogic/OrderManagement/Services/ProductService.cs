@@ -1,5 +1,6 @@
 using PointOfSale.BusinessLogic.OrderManagement.DTOs;
 using PointOfSale.BusinessLogic.OrderManagement.Interfaces;
+using PointOfSale.BusinessLogic.OrderManagement.Utilities;
 using PointOfSale.BusinessLogic.Shared.DTOs;
 using PointOfSale.BusinessLogic.Shared.Factories;
 using PointOfSale.DataAccess.OrderManagement.Interfaces;
@@ -36,7 +37,7 @@ public class ProductService : IProductService
         await _orderManagementAuthorizationService.AuthorizeApplicationUser(createProductDTO.BusinessId);
 
         var name = await _productValidationService.ValidateName(createProductDTO.Name);
-        var price = _productValidationService.ValidatePrice(createProductDTO.Price);
+        var price = _productValidationService.ValidatePrice(createProductDTO.Price).ToRoundedPrice();
         var stock = _productValidationService.ValidateStock(createProductDTO.Stock);
         var taxes = await _productValidationService.ValidateTaxes(createProductDTO.TaxIds);
         var modifiers = await _productValidationService.ValidateModifiers(createProductDTO.ModifierIds);
@@ -71,7 +72,7 @@ public class ProductService : IProductService
 
         if (updateProductDTO.Price.HasValue)
         {
-            product.Price = _productValidationService.ValidatePrice(updateProductDTO.Price.Value);
+            product.Price = _productValidationService.ValidatePrice(updateProductDTO.Price.Value).ToRoundedPrice();
         }
 
         if (updateProductDTO.Stock.HasValue)

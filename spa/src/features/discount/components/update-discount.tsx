@@ -10,7 +10,7 @@ import { useProducts } from '@/features/product/api/get-products';
 import { UpdateDiscountInput, useUpdateDiscount } from '../api/update-discount';
 import { useDeleteDiscount } from '../api/delete-discount';
 import { CreateDiscountInput, createDiscountInputSchema } from '../api/create-discount';
-import { PricingStrategy } from '@/types/api';
+import { DiscountTarget, PricingStrategy } from '@/types/api';
 import { isSameNumberSet, toReadablePricingStrategy } from '@/utilities';
 import { DateTimePicker } from '@mantine/dates';
 
@@ -55,6 +55,7 @@ export const UpdateDiscount = ({ discountId }: { discountId: number }) => {
       pricingStrategy: PricingStrategy.Percentage,
       validUntil: new Date(),
       appliesToProductIds: [],
+      target: DiscountTarget.Product,
     },
     validate: zodResolver(createDiscountInputSchema),
     onValuesChange: (updatedDiscount) => {
@@ -94,11 +95,11 @@ export const UpdateDiscount = ({ discountId }: { discountId: number }) => {
   useEffect(() => {
     const discount = discountQuery.data;
     const products = productsQuery.data?.items;
-    if (!discount || !products) {
+    if (!discount?.appliesToProductIds || !products) {
       return;
     }
 
-    const productNames = products.filter((p) => discount.appliesToProductIds.includes(p.id)).map((p) => p.name);
+    const productNames = products.filter((p) => discount.appliesToProductIds?.includes(p.id)).map((p) => p.name);
     setSelectedProductNames(productNames);
   }, [discountQuery.data, productsQuery.data]);
 
@@ -166,12 +167,14 @@ export const UpdateDiscount = ({ discountId }: { discountId: number }) => {
             key={form.key('validUntil')}
             {...form.getInputProps('validUntil')}
           />
-          <MultiSelect
-            label="Applies to products"
-            data={products.map((product) => product.name)}
-            value={selectedProductNames}
-            onChange={setSelectedProductNames}
-          />
+          {discount.target === DiscountTarget.Product && (
+            <MultiSelect
+              label="Applies to products"
+              data={products.map((product) => product.name)}
+              value={selectedProductNames}
+              onChange={setSelectedProductNames}
+            />
+          )}
           <Group justify="space-between" mt="xs">
             <Button color="red" variant="light" onClick={openDeleteModal}>
               Delete

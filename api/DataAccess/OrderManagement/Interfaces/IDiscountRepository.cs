@@ -8,4 +8,5 @@ public interface IDiscountRepository : IRepositoryBase<Discount, int>
 {
     Task<Discount> GetWithProducts(int discountId);
     Task<List<Discount>> GetPagedWithProducts(PaginationFilter paginationFilter);
+    Task<List<Discount>> GetOrderDiscounts();
 }

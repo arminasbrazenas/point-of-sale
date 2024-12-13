@@ -16,12 +16,7 @@ public class OrderItemModifierConfiguration : EntityBaseConfiguration<OrderItemM
         builder.Property(m => m.Name).HasMaxLength(Constants.ModifierNameMaxLength).IsRequired();
 
         builder
-            .Property(m => m.GrossPrice)
-            .HasPrecision(SharedConstants.MoneyPrecision, SharedConstants.MoneyScale)
-            .IsRequired();
-
-        builder
-            .Property(m => m.TaxTotal)
+            .Property(m => m.Price)
             .HasPrecision(SharedConstants.MoneyPrecision, SharedConstants.MoneyScale)
             .IsRequired();
 

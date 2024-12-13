@@ -23,6 +23,16 @@ export enum PaymentStatus {
   Succeeded = 'Succeeded',
 }
 
+export enum DiscountType {
+  Predefined = 'Predefined',
+  Flexible = 'Flexible',
+}
+
+export enum DiscountTarget {
+  Product = 'Product',
+  Order = 'Order',
+}
+
 export type EntityBase = {
   id: number;
   createdAt: string;
@@ -52,16 +62,25 @@ export type ErrorResponse = {
 export type Product = Entity<{
   name: string;
   basePrice: number;
-  priceDiscountExcluded?: number;
+  priceDiscountExcluded: number;
   price: number;
   stock: number;
   taxes: Tax[];
   modifiers: Modifier[];
+  discounts: Discount[];
 }>;
 
 export type Tax = Entity<{ name: string; rate: number }>;
 
 export type OrderItemModifier = Entity<{ modifierId?: number; name: string; price: number }>;
+
+export type OrderDiscount = Entity<{
+  id: number;
+  amount: number;
+  pricingStrategy: PricingStrategy;
+  appliedAmount: number;
+  type: DiscountType;
+}>;
 
 export type OrderItem = Entity<{
   productId?: number;
@@ -70,6 +89,9 @@ export type OrderItem = Entity<{
   unitPrice: number;
   totalPrice: number;
   modifiers: OrderItemModifier[];
+  discounts: OrderDiscount[];
+  discountsTotal: number;
+  taxTotal: number;
 }>;
 
 export type OrderServiceCharge = Entity<{
@@ -84,14 +106,14 @@ export type Order = Entity<{
   totalPrice: number;
   status: OrderStatus;
   serviceCharges: OrderServiceCharge[];
+  discounts: OrderDiscount[];
 }>;
 
 export type OrderReceipt = {
   totalPrice: number;
   orderItems: OrderItem[];
-  taxTotal: number;
   serviceCharges: OrderServiceCharge[];
-  serviceChargeTotal: number;
+  discounts: OrderDiscount[];
 };
 
 export type Modifier = Entity<{ name: string; priceTaxExcluded: number; price: number; stock: number }>;
@@ -102,7 +124,8 @@ export type Discount = Entity<{
   amount: number;
   pricingStrategy: PricingStrategy;
   validUntil: string;
-  appliesToProductIds: number[];
+  appliesToProductIds?: number[];
+  target: DiscountTarget;
 }>;
 
 export type Payment = Entity<{

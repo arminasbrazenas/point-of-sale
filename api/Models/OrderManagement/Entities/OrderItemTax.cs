@@ -8,5 +8,5 @@ public class OrderItemTax : EntityBase<int>
     public OrderItem OrderItem { get; set; } = null!;
     public required string Name { get; set; }
     public required decimal Rate { get; set; }
-    public required decimal AppliedUnitAmount { get; set; }
+    public required decimal AppliedAmount { get; set; }
 }
