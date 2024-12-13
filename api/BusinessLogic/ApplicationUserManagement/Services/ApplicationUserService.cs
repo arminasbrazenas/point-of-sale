@@ -3,6 +3,7 @@ using PointOfSale.BusinessLogic.ApplicationUserManagement.DTOs;
 using PointOfSale.BusinessLogic.ApplicationUserManagement.Exceptions;
 using PointOfSale.BusinessLogic.ApplicationUserManagement.Interfaces;
 using PointOfSale.DataAccess.ApplicationUserManagement.ErrorMessages;
+using PointOfSale.DataAccess.BusinessManagement.Interfaces;
 using PointOfSale.Models.ApplicationUserManagement.Entities;
 
 namespace PointOfSale.BusinessLogic.ApplicationUserManagement.Services;
@@ -10,6 +11,7 @@ namespace PointOfSale.BusinessLogic.ApplicationUserManagement.Services;
 public class ApplicationUserService : IApplicationUserService
 {
     private readonly UserManager<ApplicationUser> _userManager;
+    private readonly IApplicationUserRepository _applicationUserRepository;
     private readonly IApplicationUserValidationService _applicationUserValidationService;
     private readonly IApplicationUserMappingService _applicationUserMappingService;
     private readonly IApplicationUserAuthorizationService _applicationUserAuthorizationService;
@@ -18,13 +20,15 @@ public class ApplicationUserService : IApplicationUserService
         UserManager<ApplicationUser> userManager,
         IApplicationUserValidationService applicationUserValidationService,
         IApplicationUserMappingService applicationUserMappingService,
-        IApplicationUserAuthorizationService applicationUserAuthorizationService
+        IApplicationUserAuthorizationService applicationUserAuthorizationService,
+        IApplicationUserRepository applicationUserRepository
     )
     {
         _userManager = userManager;
         _applicationUserValidationService = applicationUserValidationService;
         _applicationUserMappingService = applicationUserMappingService;
         _applicationUserAuthorizationService = applicationUserAuthorizationService;
+        _applicationUserRepository = applicationUserRepository;
     }
 
     public async Task<TokensDTO> AuthenticateApplicationUser(LoginApplicationUserDTO dto)
@@ -45,6 +49,32 @@ public class ApplicationUserService : IApplicationUserService
         }
 
         throw new ApplicationUserAuthenticationException(new InvalidApplicationUserCredentialsErrorMessage());
+    }
+
+    public async Task<ApplicationUserDTO> GetApplicationUserByEmail(string email)
+    {
+        if (await _applicationUserRepository.GetUserByEmailWithBusinessAsync(email) is { } user)
+        {
+            var role = (await _userManager.GetRolesAsync(user)).FirstOrDefault();
+            return _applicationUserMappingService.MapApplicationUserDTO(user, role!);
+        }
+        else
+        {
+            throw new ApplicationUserAuthenticationException(new InvalidApplicationUserCredentialsErrorMessage());
+        }
+    }
+
+    public async Task<ApplicationUserDTO> GetApplicationUserById(int id)
+    {
+        if (await _applicationUserRepository.GetUserByIdWithBusinessAsync(id) is { } user)
+        {
+            var role = (await _userManager.GetRolesAsync(user)).FirstOrDefault();
+            return _applicationUserMappingService.MapApplicationUserDTO(user, role!);
+        }
+        else
+        {
+            throw new ApplicationUserAuthenticationException(new InvalidApplicationUserCredentialsErrorMessage());
+        }
     }
 
     public async Task<ApplicationUserDTO> CreateApplicationUser(RegisterApplicationUserDTO dto)
@@ -79,12 +109,13 @@ public class ApplicationUserService : IApplicationUserService
 
     public async Task<List<ApplicationUserDTO>> GetApplicationUsers()
     {
-        var users = _userManager.Users.ToList();
+        var users = await _applicationUserRepository.GetAllUsersWithBusinessAsync();
 
         var userDtos = await Task.WhenAll(
             users.Select(async user =>
             {
-                var role = (await _userManager.GetRolesAsync(user)).FirstOrDefault();
+                var roles = await _userManager.GetRolesAsync(user);
+                var role = roles.FirstOrDefault();
                 return _applicationUserMappingService.MapApplicationUserDTO(user, role!);
             })
         );
