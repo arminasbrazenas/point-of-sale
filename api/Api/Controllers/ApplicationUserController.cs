@@ -46,6 +46,15 @@ public class ApplicationUserController : ControllerBase
 
     [HttpGet]
     [Authorize(Roles = "Admin,BusinessOwner")]
+    [Route("currentUser")]
+    public async Task<IActionResult> GetCurrentApplicationUser()
+    {
+        var user =await  _applicationUserService.GetCurrentApplicationUser();
+        return Ok(user);
+    }
+
+    [HttpGet]
+    [Authorize(Roles = "Admin,BusinessOwner")]
     [Route("{userId:int}")]
     public async Task<IActionResult> GetApplicationUsers(int userId)
     {

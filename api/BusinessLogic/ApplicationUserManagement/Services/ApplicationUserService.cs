@@ -3,6 +3,7 @@ using PointOfSale.BusinessLogic.ApplicationUserManagement.DTOs;
 using PointOfSale.BusinessLogic.ApplicationUserManagement.Exceptions;
 using PointOfSale.BusinessLogic.ApplicationUserManagement.Interfaces;
 using PointOfSale.DataAccess.ApplicationUserManagement.ErrorMessages;
+using PointOfSale.DataAccess.ApplicationUserManagement.Interfaces;
 using PointOfSale.DataAccess.BusinessManagement.Interfaces;
 using PointOfSale.Models.ApplicationUserManagement.Entities;
 
@@ -15,13 +16,16 @@ public class ApplicationUserService : IApplicationUserService
     private readonly IApplicationUserValidationService _applicationUserValidationService;
     private readonly IApplicationUserMappingService _applicationUserMappingService;
     private readonly IApplicationUserAuthorizationService _applicationUserAuthorizationService;
+    private readonly ICurrentApplicationUserAccessor _currentApplicationUserAccessor;
+
 
     public ApplicationUserService(
         UserManager<ApplicationUser> userManager,
         IApplicationUserValidationService applicationUserValidationService,
         IApplicationUserMappingService applicationUserMappingService,
         IApplicationUserAuthorizationService applicationUserAuthorizationService,
-        IApplicationUserRepository applicationUserRepository
+        IApplicationUserRepository applicationUserRepository,
+        ICurrentApplicationUserAccessor currentApplicationUserAccessor
     )
     {
         _userManager = userManager;
@@ -29,6 +33,7 @@ public class ApplicationUserService : IApplicationUserService
         _applicationUserMappingService = applicationUserMappingService;
         _applicationUserAuthorizationService = applicationUserAuthorizationService;
         _applicationUserRepository = applicationUserRepository;
+        _currentApplicationUserAccessor = currentApplicationUserAccessor;
     }
 
     public async Task<TokensDTO> AuthenticateApplicationUser(LoginApplicationUserDTO dto)
@@ -121,5 +126,11 @@ public class ApplicationUserService : IApplicationUserService
         );
 
         return userDtos.ToList();
+    }
+    public async Task<ApplicationUserDTO> GetCurrentApplicationUser(){
+        var applicationUserId = _currentApplicationUserAccessor.GetApplicationUserId();
+        var role = _currentApplicationUserAccessor.GetApplicationUserRole();
+        var applicationUser = await _applicationUserRepository.GetUserByIdWithBusinessAsync(applicationUserId);
+        return _applicationUserMappingService.MapApplicationUserDTO(applicationUser!, role);
     }
 }

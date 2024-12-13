@@ -9,4 +9,5 @@ public interface IApplicationUserService
     Task<List<ApplicationUserDTO>> GetApplicationUsers();
     Task<TokensDTO> AuthenticateApplicationUser(LoginApplicationUserDTO dto);
     Task<ApplicationUserDTO> GetApplicationUserById(int id);
+    Task<ApplicationUserDTO> GetCurrentApplicationUser();
 }
