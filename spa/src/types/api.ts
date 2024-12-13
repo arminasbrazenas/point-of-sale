@@ -139,3 +139,13 @@ export type PaymentIntent = {
   paymentIntentId: string;
   clientSecret: string;
 };
+
+export type ApplicationUser = {
+  id: number;
+  businessId : number | null;
+  firstName : string;
+  lastName : string;
+  email : string;
+  phoneNumber : string;
+  role: string;
+};
