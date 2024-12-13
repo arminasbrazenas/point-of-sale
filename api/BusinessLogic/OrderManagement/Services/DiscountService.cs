@@ -1,10 +1,13 @@
 using PointOfSale.BusinessLogic.OrderManagement.DTOs;
 using PointOfSale.BusinessLogic.OrderManagement.Interfaces;
 using PointOfSale.BusinessLogic.Shared.DTOs;
+using PointOfSale.BusinessLogic.Shared.Exceptions;
 using PointOfSale.BusinessLogic.Shared.Factories;
+using PointOfSale.DataAccess.OrderManagement.ErrorMessages;
 using PointOfSale.DataAccess.OrderManagement.Interfaces;
 using PointOfSale.DataAccess.Shared.Interfaces;
 using PointOfSale.Models.OrderManagement.Entities;
+using PointOfSale.Models.OrderManagement.Enums;
 
 namespace PointOfSale.BusinessLogic.OrderManagement.Services;
 
@@ -30,13 +33,27 @@ public class DiscountService : IDiscountService
 
     public async Task<DiscountDTO> CreateDiscount(CreateDiscountDTO createDiscountDTO)
     {
-        var products = await _productRepository.GetMany(createDiscountDTO.AppliesToProductIds);
+        switch (createDiscountDTO)
+        {
+            case { Target: DiscountTarget.Product, AppliesToProductIds: null }:
+                throw new ValidationException(new EntitledDiscountMustHaveProductsErrorMessage());
+            case { Target: DiscountTarget.Order, AppliesToProductIds: not null }:
+                throw new ValidationException(new EverythingDiscountCannotBeAppliedToProductsErrorMessage());
+        }
+
+        List<Product> products = [];
+        if (createDiscountDTO.AppliesToProductIds is not null)
+        {
+            products = await _productRepository.GetMany(createDiscountDTO.AppliesToProductIds);
+        }
+
         var discount = new Discount
         {
             Amount = createDiscountDTO.Amount,
             PricingStrategy = createDiscountDTO.PricingStrategy,
             AppliesTo = products,
             ValidUntil = createDiscountDTO.ValidUntil,
+            Target = createDiscountDTO.Target,
         };
 
         _discountRepository.Add(discount);
@@ -80,6 +97,11 @@ public class DiscountService : IDiscountService
 
         if (updateDiscountDTO.AppliesToProductIds is not null)
         {
+            if (discount.Target == DiscountTarget.Order)
+            {
+                throw new ValidationException(new EverythingDiscountCannotBeAppliedToProductsErrorMessage());
+            }
+
             var products = await _productRepository.GetMany(updateDiscountDTO.AppliesToProductIds);
             discount.AppliesTo = products;
         }

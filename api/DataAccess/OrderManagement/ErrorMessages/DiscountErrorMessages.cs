@@ -13,3 +13,13 @@ public class DiscountNotFoundErrorMessage : IPointOfSaleErrorMessage
 
     public string En => $"Discount with id {_discountId} was not found.";
 }
+
+public class EntitledDiscountMustHaveProductsErrorMessage : IPointOfSaleErrorMessage
+{
+    public string En => "Entitled discount must have products.";
+}
+
+public class EverythingDiscountCannotBeAppliedToProductsErrorMessage : IPointOfSaleErrorMessage
+{
+    public string En => "Everything discount cannot be applied to products.";
+}

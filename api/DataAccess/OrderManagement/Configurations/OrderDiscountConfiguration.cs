@@ -8,17 +8,19 @@ using PointOfSale.Models.Shared.Enums;
 
 namespace PointOfSale.DataAccess.OrderManagement.Configurations;
 
-public class DiscountConfiguration : EntityBaseConfiguration<Discount, int>
+public class OrderDiscountConfiguration : IEntityTypeConfiguration<OrderDiscount>
 {
-    private const string TableName = "Discounts";
-    private const string ProductDiscountsTableName = "ProductDiscounts";
-
-    public override void Configure(EntityTypeBuilder<Discount> builder)
+    public void Configure(EntityTypeBuilder<OrderDiscount> builder)
     {
-        base.Configure(builder);
+        builder.HasKey(d => d.Id);
 
         builder
             .Property(d => d.Amount)
+            .HasPrecision(SharedConstants.MoneyPrecision, SharedConstants.MoneyScale)
+            .IsRequired();
+
+        builder
+            .Property(d => d.AppliedAmount)
             .HasPrecision(SharedConstants.MoneyPrecision, SharedConstants.MoneyScale)
             .IsRequired();
 
@@ -29,16 +31,11 @@ public class DiscountConfiguration : EntityBaseConfiguration<Discount, int>
             .IsRequired();
 
         builder
-            .Property(d => d.Target)
-            .HasConversion(new EnumToStringConverter<DiscountTarget>())
+            .Property(d => d.Type)
+            .HasConversion(new EnumToStringConverter<OrderDiscountType>())
             .HasMaxLength(SharedConstants.EnumMaxLength)
             .IsRequired();
 
-        builder
-            .HasMany(d => d.AppliesTo)
-            .WithMany(d => d.Discounts)
-            .UsingEntity(e => e.ToTable(ProductDiscountsTableName));
-
-        builder.ToTable(TableName, Constants.SchemaName);
+        builder.ToTable("OrderDiscounts", Constants.SchemaName);
     }
 }

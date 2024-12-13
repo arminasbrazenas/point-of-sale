@@ -4,7 +4,7 @@ import { showNotification } from '@/lib/notifications';
 import { useNavigate } from 'react-router-dom';
 import { paths } from '@/config/paths';
 import { CreateDiscountInput, createDiscountInputSchema, useCreateDiscount } from '../api/create-discount';
-import { PricingStrategy } from '@/types/api';
+import { DiscountTarget, PricingStrategy } from '@/types/api';
 import { useProducts } from '@/features/product/api/get-products';
 import { toReadablePricingStrategy } from '@/utilities';
 import { DateTimePicker } from '@mantine/dates';
@@ -22,6 +22,7 @@ export const AddDiscount = () => {
       pricingStrategy: PricingStrategy.Percentage,
       validUntil: new Date(),
       appliesToProductIds: [],
+      target: DiscountTarget.Product,
     },
     validate: zodResolver(createDiscountInputSchema),
   });
@@ -49,7 +50,11 @@ export const AddDiscount = () => {
   }
 
   const handleSubmit = (values: CreateDiscountInput) => {
-    const appliesToProductIds = products.filter((p) => selectedProductNames.includes(p.name)).map((p) => p.id);
+    let appliesToProductIds = undefined;
+    if (values.target === DiscountTarget.Product) {
+      appliesToProductIds = products.filter((p) => selectedProductNames.includes(p.name)).map((p) => p.id);
+    }
+
     createDiscountMutation.mutate({ data: { ...values, appliesToProductIds } });
   };
 
@@ -57,6 +62,18 @@ export const AddDiscount = () => {
     <Paper withBorder p="lg">
       <form onSubmit={form.onSubmit(handleSubmit)}>
         <Stack>
+          <Select
+            label="Target"
+            placeholder="Target"
+            data={[
+              { value: DiscountTarget.Product, label: 'Product' },
+              { value: DiscountTarget.Order, label: 'Order' },
+            ]}
+            value={form.getInputProps('target').defaultValue}
+            allowDeselect={false}
+            onChange={(value) => (value ? form.setFieldValue('target', value) : {})}
+            withAsterisk
+          />
           <Select
             label="Type"
             placeholder="Type"
@@ -84,12 +101,14 @@ export const AddDiscount = () => {
             key={form.key('validUntil')}
             {...form.getInputProps('validUntil')}
           />
-          <MultiSelect
-            label="Applies to products"
-            data={products.map((product) => product.name)}
-            value={selectedProductNames}
-            onChange={setSelectedProductNames}
-          />
+          {form.getInputProps('target').defaultValue === DiscountTarget.Product && (
+            <MultiSelect
+              label="Applies to products"
+              data={products.map((product) => product.name)}
+              value={selectedProductNames}
+              onChange={setSelectedProductNames}
+            />
+          )}
           <Button type="submit" mt="xs" fullWidth loading={createDiscountMutation.isPending}>
             Add
           </Button>

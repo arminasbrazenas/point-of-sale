@@ -5,7 +5,7 @@ namespace PointOfSale.Models.OrderManagement.Entities;
 public class OrderItem : EntityBase<int>
 {
     public required string Name { get; set; }
-    public required decimal BaseUnitGrossPrice { get; set; }
+    public required decimal BaseUnitPrice { get; set; }
     public required int Quantity { get; set; }
     public int OrderId { get; set; }
     public Order Order { get; set; } = null!;

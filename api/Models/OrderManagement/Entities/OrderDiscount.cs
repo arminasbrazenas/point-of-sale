@@ -4,11 +4,11 @@ using PointOfSale.Models.Shared.Enums;
 
 namespace PointOfSale.Models.OrderManagement.Entities;
 
-public class Discount : EntityBase<int>
+public class OrderDiscount : EntityBase<int>
 {
+    public int OrderId { get; set; }
     public required decimal Amount { get; set; }
     public required PricingStrategy PricingStrategy { get; set; }
-    public required DateTimeOffset ValidUntil { get; set; }
-    public required List<Product> AppliesTo { get; set; }
-    public required DiscountTarget Target { get; set; }
+    public required decimal AppliedAmount { get; set; }
+    public required OrderDiscountType Type { get; set; }
 }

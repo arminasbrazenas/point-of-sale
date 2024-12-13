@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using PointOfSale.DataAccess;
@@ -11,9 +12,11 @@ using PointOfSale.DataAccess;
 namespace PointOfSale.DataAccess.Shared.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class PointOfSaleDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241213061058_Discountsv2")]
+    partial class Discountsv2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -246,9 +249,6 @@ namespace PointOfSale.DataAccess.Shared.Migrations
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<int?>("CreatedById")
-                        .HasColumnType("integer");
-
                     b.Property<DateTime>("ExpiryDate")
                         .HasColumnType("timestamp with time zone");
 
@@ -258,9 +258,6 @@ namespace PointOfSale.DataAccess.Shared.Migrations
                     b.Property<DateTimeOffset>("ModifiedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<int?>("ModifiedById")
-                        .HasColumnType("integer");
-
                     b.Property<string>("RefreshTokenHash")
                         .IsRequired()
                         .HasColumnType("text");
@@ -268,10 +265,6 @@ namespace PointOfSale.DataAccess.Shared.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("ApplicationUserId");
-
-                    b.HasIndex("CreatedById");
-
-                    b.HasIndex("ModifiedById");
 
                     b.ToTable("RefreshTokens", "ApplicationUsers");
                 });
@@ -294,18 +287,12 @@ namespace PointOfSale.DataAccess.Shared.Migrations
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<int?>("CreatedById")
-                        .HasColumnType("integer");
-
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<DateTimeOffset>("ModifiedAt")
                         .HasColumnType("timestamp with time zone");
-
-                    b.Property<int?>("ModifiedById")
-                        .HasColumnType("integer");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -319,10 +306,6 @@ namespace PointOfSale.DataAccess.Shared.Migrations
 
                     b.HasIndex("BusinessOwnerId")
                         .IsUnique();
-
-                    b.HasIndex("CreatedById");
-
-                    b.HasIndex("ModifiedById");
 
                     b.ToTable("Businesses", "Business");
                 });
@@ -342,14 +325,8 @@ namespace PointOfSale.DataAccess.Shared.Migrations
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<int?>("CreatedById")
-                        .HasColumnType("integer");
-
                     b.Property<DateTimeOffset>("ModifiedAt")
                         .HasColumnType("timestamp with time zone");
-
-                    b.Property<int?>("ModifiedById")
-                        .HasColumnType("integer");
 
                     b.Property<string>("PricingStrategy")
                         .IsRequired()
@@ -366,10 +343,6 @@ namespace PointOfSale.DataAccess.Shared.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CreatedById");
-
-                    b.HasIndex("ModifiedById");
-
                     b.ToTable("Discounts", "Order");
                 });
 
@@ -384,14 +357,8 @@ namespace PointOfSale.DataAccess.Shared.Migrations
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<int?>("CreatedById")
-                        .HasColumnType("integer");
-
                     b.Property<DateTimeOffset>("ModifiedAt")
                         .HasColumnType("timestamp with time zone");
-
-                    b.Property<int?>("ModifiedById")
-                        .HasColumnType("integer");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -413,10 +380,6 @@ namespace PointOfSale.DataAccess.Shared.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CreatedById");
-
-                    b.HasIndex("ModifiedById");
-
                     b.ToTable("Modifiers", "Order");
                 });
 
@@ -431,14 +394,8 @@ namespace PointOfSale.DataAccess.Shared.Migrations
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<int?>("CreatedById")
-                        .HasColumnType("integer");
-
                     b.Property<DateTimeOffset>("ModifiedAt")
                         .HasColumnType("timestamp with time zone");
-
-                    b.Property<int?>("ModifiedById")
-                        .HasColumnType("integer");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -446,10 +403,6 @@ namespace PointOfSale.DataAccess.Shared.Migrations
                         .HasColumnType("character varying(50)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("CreatedById");
-
-                    b.HasIndex("ModifiedById");
 
                     b.ToTable("Orders", "Order");
                 });
@@ -511,14 +464,8 @@ namespace PointOfSale.DataAccess.Shared.Migrations
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<int?>("CreatedById")
-                        .HasColumnType("integer");
-
                     b.Property<DateTimeOffset>("ModifiedAt")
                         .HasColumnType("timestamp with time zone");
-
-                    b.Property<int?>("ModifiedById")
-                        .HasColumnType("integer");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -535,10 +482,6 @@ namespace PointOfSale.DataAccess.Shared.Migrations
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("CreatedById");
-
-                    b.HasIndex("ModifiedById");
 
                     b.HasIndex("OrderId");
 
@@ -565,14 +508,8 @@ namespace PointOfSale.DataAccess.Shared.Migrations
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<int?>("CreatedById")
-                        .HasColumnType("integer");
-
                     b.Property<DateTimeOffset>("ModifiedAt")
                         .HasColumnType("timestamp with time zone");
-
-                    b.Property<int?>("ModifiedById")
-                        .HasColumnType("integer");
 
                     b.Property<int>("OrderItemId")
                         .HasColumnType("integer");
@@ -581,16 +518,7 @@ namespace PointOfSale.DataAccess.Shared.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("integer");
 
-                    b.Property<string>("Type")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("CreatedById");
-
-                    b.HasIndex("ModifiedById");
 
                     b.HasIndex("OrderItemId");
 
@@ -608,18 +536,8 @@ namespace PointOfSale.DataAccess.Shared.Migrations
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<int?>("CreatedById")
-                        .HasColumnType("integer");
-
-                    b.Property<decimal>("GrossPrice")
-                        .HasPrecision(10, 2)
-                        .HasColumnType("numeric(10,2)");
-
                     b.Property<DateTimeOffset>("ModifiedAt")
                         .HasColumnType("timestamp with time zone");
-
-                    b.Property<int?>("ModifiedById")
-                        .HasColumnType("integer");
 
                     b.Property<int?>("ModifierId")
                         .HasColumnType("integer");
@@ -637,10 +555,6 @@ namespace PointOfSale.DataAccess.Shared.Migrations
                         .HasColumnType("numeric(10,2)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("CreatedById");
-
-                    b.HasIndex("ModifiedById");
 
                     b.HasIndex("OrderItemId");
 
@@ -662,14 +576,8 @@ namespace PointOfSale.DataAccess.Shared.Migrations
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<int?>("CreatedById")
-                        .HasColumnType("integer");
-
                     b.Property<DateTimeOffset>("ModifiedAt")
                         .HasColumnType("timestamp with time zone");
-
-                    b.Property<int?>("ModifiedById")
-                        .HasColumnType("integer");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -683,10 +591,6 @@ namespace PointOfSale.DataAccess.Shared.Migrations
                         .HasColumnType("numeric");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("CreatedById");
-
-                    b.HasIndex("ModifiedById");
 
                     b.HasIndex("OrderItemId");
 
@@ -712,14 +616,8 @@ namespace PointOfSale.DataAccess.Shared.Migrations
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<int?>("CreatedById")
-                        .HasColumnType("integer");
-
                     b.Property<DateTimeOffset>("ModifiedAt")
                         .HasColumnType("timestamp with time zone");
-
-                    b.Property<int?>("ModifiedById")
-                        .HasColumnType("integer");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -735,10 +633,6 @@ namespace PointOfSale.DataAccess.Shared.Migrations
                         .HasColumnType("character varying(50)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("CreatedById");
-
-                    b.HasIndex("ModifiedById");
 
                     b.HasIndex("OrderId");
 
@@ -756,14 +650,8 @@ namespace PointOfSale.DataAccess.Shared.Migrations
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<int?>("CreatedById")
-                        .HasColumnType("integer");
-
                     b.Property<DateTimeOffset>("ModifiedAt")
                         .HasColumnType("timestamp with time zone");
-
-                    b.Property<int?>("ModifiedById")
-                        .HasColumnType("integer");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -785,10 +673,6 @@ namespace PointOfSale.DataAccess.Shared.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CreatedById");
-
-                    b.HasIndex("ModifiedById");
-
                     b.ToTable("Products", "Order");
                 });
 
@@ -807,14 +691,8 @@ namespace PointOfSale.DataAccess.Shared.Migrations
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<int?>("CreatedById")
-                        .HasColumnType("integer");
-
                     b.Property<DateTimeOffset>("ModifiedAt")
                         .HasColumnType("timestamp with time zone");
-
-                    b.Property<int?>("ModifiedById")
-                        .HasColumnType("integer");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -827,10 +705,6 @@ namespace PointOfSale.DataAccess.Shared.Migrations
                         .HasColumnType("character varying(50)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("CreatedById");
-
-                    b.HasIndex("ModifiedById");
 
                     b.ToTable("ServiceCharges", "Order");
                 });
@@ -846,14 +720,8 @@ namespace PointOfSale.DataAccess.Shared.Migrations
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<int?>("CreatedById")
-                        .HasColumnType("integer");
-
                     b.Property<DateTimeOffset>("ModifiedAt")
                         .HasColumnType("timestamp with time zone");
-
-                    b.Property<int?>("ModifiedById")
-                        .HasColumnType("integer");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -864,10 +732,6 @@ namespace PointOfSale.DataAccess.Shared.Migrations
                         .HasColumnType("numeric");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("CreatedById");
-
-                    b.HasIndex("ModifiedById");
 
                     b.ToTable("Taxes", "Order");
                 });
@@ -892,17 +756,11 @@ namespace PointOfSale.DataAccess.Shared.Migrations
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<int?>("CreatedById")
-                        .HasColumnType("integer");
-
                     b.Property<DateTimeOffset>("ExpiresAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTimeOffset>("ModifiedAt")
                         .HasColumnType("timestamp with time zone");
-
-                    b.Property<int?>("ModifiedById")
-                        .HasColumnType("integer");
 
                     b.Property<DateTimeOffset?>("UsedAt")
                         .HasColumnType("timestamp with time zone");
@@ -911,10 +769,6 @@ namespace PointOfSale.DataAccess.Shared.Migrations
 
                     b.HasIndex("Code")
                         .IsUnique();
-
-                    b.HasIndex("CreatedById");
-
-                    b.HasIndex("ModifiedById");
 
                     b.ToTable("GiftCards", "Payment");
                 });
@@ -934,9 +788,6 @@ namespace PointOfSale.DataAccess.Shared.Migrations
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<int?>("CreatedById")
-                        .HasColumnType("integer");
-
                     b.Property<string>("Method")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -944,9 +795,6 @@ namespace PointOfSale.DataAccess.Shared.Migrations
 
                     b.Property<DateTimeOffset>("ModifiedAt")
                         .HasColumnType("timestamp with time zone");
-
-                    b.Property<int?>("ModifiedById")
-                        .HasColumnType("integer");
 
                     b.Property<int>("OrderId")
                         .HasColumnType("integer");
@@ -957,10 +805,6 @@ namespace PointOfSale.DataAccess.Shared.Migrations
                         .HasColumnType("character varying(50)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("CreatedById");
-
-                    b.HasIndex("ModifiedById");
 
                     b.HasIndex("OrderId");
 
@@ -986,23 +830,13 @@ namespace PointOfSale.DataAccess.Shared.Migrations
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<int?>("CreatedById")
-                        .HasColumnType("integer");
-
                     b.Property<DateTimeOffset>("ModifiedAt")
                         .HasColumnType("timestamp with time zone");
-
-                    b.Property<int?>("ModifiedById")
-                        .HasColumnType("integer");
 
                     b.Property<int>("OrderId")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("CreatedById");
-
-                    b.HasIndex("ModifiedById");
 
                     b.HasIndex("OrderId");
 
@@ -1093,19 +927,7 @@ namespace PointOfSale.DataAccess.Shared.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("PointOfSale.Models.ApplicationUserManagement.Entities.ApplicationUser", "CreatedBy")
-                        .WithMany()
-                        .HasForeignKey("CreatedById");
-
-                    b.HasOne("PointOfSale.Models.ApplicationUserManagement.Entities.ApplicationUser", "ModifiedBy")
-                        .WithMany()
-                        .HasForeignKey("ModifiedById");
-
                     b.Navigation("ApplicationUser");
-
-                    b.Navigation("CreatedBy");
-
-                    b.Navigation("ModifiedBy");
                 });
 
             modelBuilder.Entity("PointOfSale.Models.BusinessManagement.Entities.Business", b =>
@@ -1116,64 +938,7 @@ namespace PointOfSale.DataAccess.Shared.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("PointOfSale.Models.ApplicationUserManagement.Entities.ApplicationUser", "CreatedBy")
-                        .WithMany()
-                        .HasForeignKey("CreatedById");
-
-                    b.HasOne("PointOfSale.Models.ApplicationUserManagement.Entities.ApplicationUser", "ModifiedBy")
-                        .WithMany()
-                        .HasForeignKey("ModifiedById");
-
                     b.Navigation("BusinessOwner");
-
-                    b.Navigation("CreatedBy");
-
-                    b.Navigation("ModifiedBy");
-                });
-
-            modelBuilder.Entity("PointOfSale.Models.OrderManagement.Entities.Discount", b =>
-                {
-                    b.HasOne("PointOfSale.Models.ApplicationUserManagement.Entities.ApplicationUser", "CreatedBy")
-                        .WithMany()
-                        .HasForeignKey("CreatedById");
-
-                    b.HasOne("PointOfSale.Models.ApplicationUserManagement.Entities.ApplicationUser", "ModifiedBy")
-                        .WithMany()
-                        .HasForeignKey("ModifiedById");
-
-                    b.Navigation("CreatedBy");
-
-                    b.Navigation("ModifiedBy");
-                });
-
-            modelBuilder.Entity("PointOfSale.Models.OrderManagement.Entities.Modifier", b =>
-                {
-                    b.HasOne("PointOfSale.Models.ApplicationUserManagement.Entities.ApplicationUser", "CreatedBy")
-                        .WithMany()
-                        .HasForeignKey("CreatedById");
-
-                    b.HasOne("PointOfSale.Models.ApplicationUserManagement.Entities.ApplicationUser", "ModifiedBy")
-                        .WithMany()
-                        .HasForeignKey("ModifiedById");
-
-                    b.Navigation("CreatedBy");
-
-                    b.Navigation("ModifiedBy");
-                });
-
-            modelBuilder.Entity("PointOfSale.Models.OrderManagement.Entities.Order", b =>
-                {
-                    b.HasOne("PointOfSale.Models.ApplicationUserManagement.Entities.ApplicationUser", "CreatedBy")
-                        .WithMany()
-                        .HasForeignKey("CreatedById");
-
-                    b.HasOne("PointOfSale.Models.ApplicationUserManagement.Entities.ApplicationUser", "ModifiedBy")
-                        .WithMany()
-                        .HasForeignKey("ModifiedById");
-
-                    b.Navigation("CreatedBy");
-
-                    b.Navigation("ModifiedBy");
                 });
 
             modelBuilder.Entity("PointOfSale.Models.OrderManagement.Entities.OrderDiscount", b =>
@@ -1187,14 +952,6 @@ namespace PointOfSale.DataAccess.Shared.Migrations
 
             modelBuilder.Entity("PointOfSale.Models.OrderManagement.Entities.OrderItem", b =>
                 {
-                    b.HasOne("PointOfSale.Models.ApplicationUserManagement.Entities.ApplicationUser", "CreatedBy")
-                        .WithMany()
-                        .HasForeignKey("CreatedById");
-
-                    b.HasOne("PointOfSale.Models.ApplicationUserManagement.Entities.ApplicationUser", "ModifiedBy")
-                        .WithMany()
-                        .HasForeignKey("ModifiedById");
-
                     b.HasOne("PointOfSale.Models.OrderManagement.Entities.Order", "Order")
                         .WithMany("Items")
                         .HasForeignKey("OrderId")
@@ -1206,10 +963,6 @@ namespace PointOfSale.DataAccess.Shared.Migrations
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.SetNull);
 
-                    b.Navigation("CreatedBy");
-
-                    b.Navigation("ModifiedBy");
-
                     b.Navigation("Order");
 
                     b.Navigation("Product");
@@ -1217,192 +970,60 @@ namespace PointOfSale.DataAccess.Shared.Migrations
 
             modelBuilder.Entity("PointOfSale.Models.OrderManagement.Entities.OrderItemDiscount", b =>
                 {
-                    b.HasOne("PointOfSale.Models.ApplicationUserManagement.Entities.ApplicationUser", "CreatedBy")
-                        .WithMany()
-                        .HasForeignKey("CreatedById");
-
-                    b.HasOne("PointOfSale.Models.ApplicationUserManagement.Entities.ApplicationUser", "ModifiedBy")
-                        .WithMany()
-                        .HasForeignKey("ModifiedById");
-
                     b.HasOne("PointOfSale.Models.OrderManagement.Entities.OrderItem", null)
                         .WithMany("Discounts")
                         .HasForeignKey("OrderItemId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("CreatedBy");
-
-                    b.Navigation("ModifiedBy");
                 });
 
             modelBuilder.Entity("PointOfSale.Models.OrderManagement.Entities.OrderItemModifier", b =>
                 {
-                    b.HasOne("PointOfSale.Models.ApplicationUserManagement.Entities.ApplicationUser", "CreatedBy")
-                        .WithMany()
-                        .HasForeignKey("CreatedById");
-
-                    b.HasOne("PointOfSale.Models.ApplicationUserManagement.Entities.ApplicationUser", "ModifiedBy")
-                        .WithMany()
-                        .HasForeignKey("ModifiedById");
-
                     b.HasOne("PointOfSale.Models.OrderManagement.Entities.OrderItem", null)
                         .WithMany("Modifiers")
                         .HasForeignKey("OrderItemId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("CreatedBy");
-
-                    b.Navigation("ModifiedBy");
                 });
 
             modelBuilder.Entity("PointOfSale.Models.OrderManagement.Entities.OrderItemTax", b =>
                 {
-                    b.HasOne("PointOfSale.Models.ApplicationUserManagement.Entities.ApplicationUser", "CreatedBy")
-                        .WithMany()
-                        .HasForeignKey("CreatedById");
-
-                    b.HasOne("PointOfSale.Models.ApplicationUserManagement.Entities.ApplicationUser", "ModifiedBy")
-                        .WithMany()
-                        .HasForeignKey("ModifiedById");
-
                     b.HasOne("PointOfSale.Models.OrderManagement.Entities.OrderItem", "OrderItem")
                         .WithMany("Taxes")
                         .HasForeignKey("OrderItemId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("CreatedBy");
-
-                    b.Navigation("ModifiedBy");
-
                     b.Navigation("OrderItem");
                 });
 
             modelBuilder.Entity("PointOfSale.Models.OrderManagement.Entities.OrderServiceCharge", b =>
                 {
-                    b.HasOne("PointOfSale.Models.ApplicationUserManagement.Entities.ApplicationUser", "CreatedBy")
-                        .WithMany()
-                        .HasForeignKey("CreatedById");
-
-                    b.HasOne("PointOfSale.Models.ApplicationUserManagement.Entities.ApplicationUser", "ModifiedBy")
-                        .WithMany()
-                        .HasForeignKey("ModifiedById");
-
                     b.HasOne("PointOfSale.Models.OrderManagement.Entities.Order", null)
                         .WithMany("ServiceCharges")
                         .HasForeignKey("OrderId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("CreatedBy");
-
-                    b.Navigation("ModifiedBy");
-                });
-
-            modelBuilder.Entity("PointOfSale.Models.OrderManagement.Entities.Product", b =>
-                {
-                    b.HasOne("PointOfSale.Models.ApplicationUserManagement.Entities.ApplicationUser", "CreatedBy")
-                        .WithMany()
-                        .HasForeignKey("CreatedById");
-
-                    b.HasOne("PointOfSale.Models.ApplicationUserManagement.Entities.ApplicationUser", "ModifiedBy")
-                        .WithMany()
-                        .HasForeignKey("ModifiedById");
-
-                    b.Navigation("CreatedBy");
-
-                    b.Navigation("ModifiedBy");
-                });
-
-            modelBuilder.Entity("PointOfSale.Models.OrderManagement.Entities.ServiceCharge", b =>
-                {
-                    b.HasOne("PointOfSale.Models.ApplicationUserManagement.Entities.ApplicationUser", "CreatedBy")
-                        .WithMany()
-                        .HasForeignKey("CreatedById");
-
-                    b.HasOne("PointOfSale.Models.ApplicationUserManagement.Entities.ApplicationUser", "ModifiedBy")
-                        .WithMany()
-                        .HasForeignKey("ModifiedById");
-
-                    b.Navigation("CreatedBy");
-
-                    b.Navigation("ModifiedBy");
-                });
-
-            modelBuilder.Entity("PointOfSale.Models.OrderManagement.Entities.Tax", b =>
-                {
-                    b.HasOne("PointOfSale.Models.ApplicationUserManagement.Entities.ApplicationUser", "CreatedBy")
-                        .WithMany()
-                        .HasForeignKey("CreatedById");
-
-                    b.HasOne("PointOfSale.Models.ApplicationUserManagement.Entities.ApplicationUser", "ModifiedBy")
-                        .WithMany()
-                        .HasForeignKey("ModifiedById");
-
-                    b.Navigation("CreatedBy");
-
-                    b.Navigation("ModifiedBy");
-                });
-
-            modelBuilder.Entity("PointOfSale.Models.PaymentManagement.Entities.GiftCard", b =>
-                {
-                    b.HasOne("PointOfSale.Models.ApplicationUserManagement.Entities.ApplicationUser", "CreatedBy")
-                        .WithMany()
-                        .HasForeignKey("CreatedById");
-
-                    b.HasOne("PointOfSale.Models.ApplicationUserManagement.Entities.ApplicationUser", "ModifiedBy")
-                        .WithMany()
-                        .HasForeignKey("ModifiedById");
-
-                    b.Navigation("CreatedBy");
-
-                    b.Navigation("ModifiedBy");
                 });
 
             modelBuilder.Entity("PointOfSale.Models.PaymentManagement.Entities.Payment", b =>
                 {
-                    b.HasOne("PointOfSale.Models.ApplicationUserManagement.Entities.ApplicationUser", "CreatedBy")
-                        .WithMany()
-                        .HasForeignKey("CreatedById");
-
-                    b.HasOne("PointOfSale.Models.ApplicationUserManagement.Entities.ApplicationUser", "ModifiedBy")
-                        .WithMany()
-                        .HasForeignKey("ModifiedById");
-
                     b.HasOne("PointOfSale.Models.OrderManagement.Entities.Order", "Order")
                         .WithMany()
                         .HasForeignKey("OrderId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("CreatedBy");
-
-                    b.Navigation("ModifiedBy");
 
                     b.Navigation("Order");
                 });
 
             modelBuilder.Entity("PointOfSale.Models.PaymentManagement.Entities.Tip", b =>
                 {
-                    b.HasOne("PointOfSale.Models.ApplicationUserManagement.Entities.ApplicationUser", "CreatedBy")
-                        .WithMany()
-                        .HasForeignKey("CreatedById");
-
-                    b.HasOne("PointOfSale.Models.ApplicationUserManagement.Entities.ApplicationUser", "ModifiedBy")
-                        .WithMany()
-                        .HasForeignKey("ModifiedById");
-
                     b.HasOne("PointOfSale.Models.OrderManagement.Entities.Order", "Order")
                         .WithMany()
                         .HasForeignKey("OrderId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("CreatedBy");
-
-                    b.Navigation("ModifiedBy");
 
                     b.Navigation("Order");
                 });

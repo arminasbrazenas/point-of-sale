@@ -28,6 +28,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, IdentityR
     public DbSet<RefreshToken> RefreshTokens { get; set; }
     public DbSet<OrderItemDiscount> OrderItemDiscounts { get; set; }
     public DbSet<OrderServiceCharge> OrderServiceCharges { get; set; }
+    public DbSet<OrderDiscount> OrderDiscounts { get; set; }
     public DbSet<Payment> Payments { get; set; }
     public DbSet<GiftCard> GiftCards { get; set; }
     public DbSet<Tip> Tips { get; set; }

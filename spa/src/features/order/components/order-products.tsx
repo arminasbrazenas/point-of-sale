@@ -2,18 +2,20 @@ import { Center, Pagination, SimpleGrid, Stack } from '@mantine/core';
 import { useProducts } from '../../product/api/get-products';
 import { useMemo, useState } from 'react';
 import { EnhancedCreateOrderItemInput, OrderProduct } from './order-product';
-import { CreateOrUpdateOrderItemInput, useCreateOrder } from '../api/create-order';
+import { CreateOrUpdateDiscountInput, CreateOrUpdateOrderItemInput, useCreateOrder } from '../api/create-order';
 import { showNotification } from '@/lib/notifications';
 import { useNavigate } from 'react-router-dom';
 import { paths } from '@/config/paths';
 import { OrderItemList } from './order-item-list';
 import { useUpdateOrder } from '../api/update-order';
 import { useServiceCharges } from '@/features/service-charge/api/get-service-charges';
+import { DiscountType } from '@/types/api';
 
 type OrderProductsProps = {
   orderId?: number;
   orderItems?: EnhancedCreateOrderItemInput[];
   selectedServiceCharges?: string[];
+  discounts?: CreateOrUpdateDiscountInput[];
 };
 
 export const OrderProducts = (props: OrderProductsProps) => {
@@ -60,7 +62,6 @@ export const OrderProducts = (props: OrderProductsProps) => {
   };
 
   const updateOrderItem = (orderItem: EnhancedCreateOrderItemInput) => {
-    console.log(orderItem);
     setOrderItems((prev) => prev.map((x) => (x.cartItemId === orderItem.cartItemId ? orderItem : x)));
   };
 
@@ -68,19 +69,24 @@ export const OrderProducts = (props: OrderProductsProps) => {
     setOrderItems((prev) => prev.filter((x) => x.cartItemId !== orderItem.cartItemId));
   };
 
-  const createOrUpdateOrder = (serviceChargeIds: number[]) => {
+  const createOrUpdateOrder = (serviceChargeIds: number[], discounts: CreateOrUpdateDiscountInput[]) => {
     const mappedItems = orderItems.map(
       (x): CreateOrUpdateOrderItemInput => ({
         productId: x.productId,
         modifierIds: x.modifierIds,
         quantity: x.quantity,
+        discounts: x.discounts.filter((d) => d.type == DiscountType.Flexible),
       }),
     );
 
+    const flexibleDiscounts = discounts.filter((d) => d.type === DiscountType.Flexible);
     if (props.orderId) {
-      updateOrderMutation.mutate({ orderId: props.orderId, data: { orderItems: mappedItems, serviceChargeIds } });
+      updateOrderMutation.mutate({
+        orderId: props.orderId,
+        data: { orderItems: mappedItems, serviceChargeIds, discounts: flexibleDiscounts },
+      });
     } else {
-      createOrderMutation.mutate({ data: { orderItems: mappedItems, serviceChargeIds } });
+      createOrderMutation.mutate({ data: { orderItems: mappedItems, serviceChargeIds, discounts: flexibleDiscounts } });
     }
   };
 
@@ -105,6 +111,7 @@ export const OrderProducts = (props: OrderProductsProps) => {
         isLoading={props.orderId ? updateOrderMutation.isPending : createOrderMutation.isPending}
         serviceCharges={serviceCharges}
         selectedServiceCharges={props.selectedServiceCharges ?? []}
+        discounts={props.discounts ?? []}
       />
 
       <SimpleGrid cols={4}>

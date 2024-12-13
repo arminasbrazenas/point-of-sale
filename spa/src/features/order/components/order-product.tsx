@@ -6,7 +6,7 @@ import { useMemo } from 'react';
 import { OrderItemForm } from './order-item-form';
 
 export type EnhancedCreateOrderItemInput = CreateOrUpdateOrderItemInput & {
-  cartItemId: string;
+  cartItemId: number;
   orderedQuantity?: number;
   product: Product;
   modifiers: OrderItemModifier[];
@@ -47,6 +47,7 @@ export const OrderProduct = (props: OrderProductProps) => {
           onCancel={closeModal}
           onConfirm={handleAddToOrder}
           confirmText="Add to order"
+          cartItemId={props.orderItems.length + 1}
         />
       </Modal>
 
@@ -54,7 +55,7 @@ export const OrderProduct = (props: OrderProductProps) => {
         <Text fw={600}>{props.product.name}</Text>
 
         <Group gap="xs">
-          {props.product.priceDiscountExcluded && (
+          {props.product.discounts.length > 0 && (
             <Text opacity={0.5} td="line-through">
               {props.product.priceDiscountExcluded}€
             </Text>

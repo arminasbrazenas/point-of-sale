@@ -3,11 +3,12 @@ import { MutationConfig } from '@/lib/react-query';
 import { Order } from '@/types/api';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { z } from 'zod';
-import { createOrUpdateOrderItemInputSchema } from './create-order';
+import { createOrUpdateOrderDiscountInputSchema, createOrUpdateOrderItemInputSchema } from './create-order';
 
 export const updateOrderInputSchema = z.object({
   orderItems: z.array(createOrUpdateOrderItemInputSchema).optional(),
   serviceChargeIds: z.array(z.number()).optional(),
+  discounts: z.array(createOrUpdateOrderDiscountInputSchema).optional(),
 });
 
 export type UpdateOrderInput = z.infer<typeof updateOrderInputSchema>;
@@ -38,6 +39,9 @@ export const useUpdateOrder = ({ mutationConfig }: UseUpdateOrderOptions = {}) =
       });
       queryClient.invalidateQueries({
         queryKey: ['order'],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['payments'],
       });
       onSuccess?.(...args);
     },

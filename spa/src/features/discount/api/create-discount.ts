@@ -8,7 +8,8 @@ export const createDiscountInputSchema = z.object({
   amount: z.coerce.number(),
   pricingStrategy: z.string(),
   validUntil: z.date(),
-  appliesToProductIds: z.array(z.number()),
+  appliesToProductIds: z.array(z.number()).optional(),
+  target: z.string(),
 });
 
 export type CreateDiscountInput = z.infer<typeof createDiscountInputSchema>;

@@ -35,6 +35,13 @@ public class OrderConfiguration : EntityBaseConfiguration<Order, int>
             .OnDelete(DeleteBehavior.Cascade)
             .IsRequired();
 
+        builder
+            .HasMany(o => o.Discounts)
+            .WithOne()
+            .HasForeignKey(d => d.OrderId)
+            .OnDelete(DeleteBehavior.Cascade)
+            .IsRequired();
+
         builder.ToTable(TableName, Constants.SchemaName);
     }
 }

@@ -6,6 +6,7 @@ using PointOfSale.DataAccess.Shared.Filters;
 using PointOfSale.DataAccess.Shared.Interfaces;
 using PointOfSale.DataAccess.Shared.Repositories;
 using PointOfSale.Models.OrderManagement.Entities;
+using PointOfSale.Models.OrderManagement.Enums;
 
 namespace PointOfSale.DataAccess.OrderManagement.Repositories;
 
@@ -30,6 +31,11 @@ public class DiscountRepository : RepositoryBase<Discount, int>, IDiscountReposi
     {
         var query = DbSet.Include(d => d.AppliesTo).AsQueryable();
         return await GetPaged(query, paginationFilter);
+    }
+
+    public async Task<List<Discount>> GetOrderDiscounts()
+    {
+        return await DbSet.Where(d => d.Target == DiscountTarget.Order).ToListAsync();
     }
 
     protected override IPointOfSaleErrorMessage GetEntityNotFoundErrorMessage(int id)

@@ -1,5 +1,6 @@
 using PointOfSale.BusinessLogic.OrderManagement.DTOs;
 using PointOfSale.BusinessLogic.OrderManagement.Interfaces;
+using PointOfSale.BusinessLogic.OrderManagement.Utilities;
 using PointOfSale.BusinessLogic.Shared.DTOs;
 using PointOfSale.BusinessLogic.Shared.Factories;
 using PointOfSale.DataAccess.OrderManagement.Filters;
@@ -31,7 +32,7 @@ public class ModifierService : IModifierService
         var modifier = new Modifier
         {
             Name = createModifierDTO.Name,
-            Price = createModifierDTO.Price,
+            Price = createModifierDTO.Price.ToRoundedPrice(),
             Stock = createModifierDTO.Stock,
             Products = [],
         };
@@ -67,7 +68,7 @@ public class ModifierService : IModifierService
 
         if (updateModifierDTO.Price.HasValue)
         {
-            modifier.Price = updateModifierDTO.Price.Value;
+            modifier.Price = updateModifierDTO.Price.Value.ToRoundedPrice();
         }
 
         if (updateModifierDTO.Stock.HasValue)
