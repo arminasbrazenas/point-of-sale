@@ -33,6 +33,8 @@ public class ProductConfiguration : EntityBaseConfiguration<Product, int>
             .WithMany(v => v.Products)
             .UsingEntity(e => e.ToTable(ProductModifiersTableName));
 
+        builder.HasOne(o => o.Business).WithMany().HasForeignKey(o => o.BusinessId).IsRequired();
+
         builder.ToTable(TableName, Constants.SchemaName);
     }
 }

@@ -14,26 +14,36 @@ public class TaxService : ITaxService
     private readonly ITaxRepository _taxRepository;
     private readonly ITaxMappingService _taxMappingService;
     private readonly ITaxValidationService _taxValidationService;
+    private readonly IOrderManagementAuthorizationService _orderManagementAuthorizationService;
 
     public TaxService(
         IUnitOfWork unitOfWork,
         ITaxRepository taxRepository,
         ITaxMappingService taxMappingService,
-        ITaxValidationService taxValidationService
+        ITaxValidationService taxValidationService,
+        IOrderManagementAuthorizationService orderManagementAuthorizationService
     )
     {
         _unitOfWork = unitOfWork;
         _taxRepository = taxRepository;
         _taxMappingService = taxMappingService;
         _taxValidationService = taxValidationService;
+        _orderManagementAuthorizationService = orderManagementAuthorizationService;
     }
 
     public async Task<TaxDTO> CreateTax(CreateTaxDTO createTaxDTO)
     {
+        await _orderManagementAuthorizationService.AuthorizeApplicationUser(createTaxDTO.BusinessId);
+
         var name = await _taxValidationService.ValidateName(createTaxDTO.Name);
         var rate = _taxValidationService.ValidateRate(createTaxDTO.Rate);
 
-        var tax = new Tax { Name = name, Rate = rate };
+        var tax = new Tax
+        {
+            Name = name,
+            Rate = rate,
+            BusinessId = createTaxDTO.BusinessId,
+        };
 
         _taxRepository.Add(tax);
         await _unitOfWork.SaveChanges();
@@ -44,6 +54,8 @@ public class TaxService : ITaxService
     public async Task<TaxDTO> UpdateTax(int taxId, UpdateTaxDTO updateTaxDTO)
     {
         var tax = await _taxRepository.Get(taxId);
+
+        await _orderManagementAuthorizationService.AuthorizeApplicationUser(tax.BusinessId);
 
         if (updateTaxDTO.Name is not null)
         {
@@ -64,6 +76,9 @@ public class TaxService : ITaxService
     public async Task<TaxDTO> GetTax(int taxId)
     {
         var tax = await _taxRepository.Get(taxId);
+
+        await _orderManagementAuthorizationService.AuthorizeApplicationUser(tax.BusinessId);
+
         return _taxMappingService.MapToTaxDTO(tax);
     }
 
@@ -77,6 +92,10 @@ public class TaxService : ITaxService
 
     public async Task DeleteTax(int taxId)
     {
+        var tax = await _taxRepository.Get(taxId);
+
+        await _orderManagementAuthorizationService.AuthorizeApplicationUser(tax.BusinessId);
+
         await _taxRepository.Delete(taxId);
     }
 }

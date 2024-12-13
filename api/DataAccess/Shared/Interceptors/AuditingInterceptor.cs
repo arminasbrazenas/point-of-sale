@@ -40,10 +40,10 @@ public class AuditingInterceptor : SaveChangesInterceptor
             if (entityEntry.State == EntityState.Added)
             {
                 entityEntry.Entity.CreatedAt = DateTimeOffset.UtcNow;
-            if(_currentApplicationUserAccessor.GetApplicationUserIdOrDefault() is { } createdApplicationUserId)
-            {
-                entityEntry.Entity.CreatedById = createdApplicationUserId;
-            }
+                if (_currentApplicationUserAccessor.GetApplicationUserIdOrDefault() is { } createdApplicationUserId)
+                {
+                    entityEntry.Entity.CreatedById = createdApplicationUserId;
+                }
             }
 
             entityEntry.Entity.ModifiedAt = DateTimeOffset.UtcNow;

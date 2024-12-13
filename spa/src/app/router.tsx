@@ -1,19 +1,59 @@
 import { useMemo } from 'react';
-import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import { createBrowserRouter, Navigate, RouterProvider, useLocation } from 'react-router-dom';
 import { paths } from '../config/paths';
 import { ManagementRoot } from './routes/management/root';
 import { EmployeeRoot } from './routes/employee/root';
 import { HomeRoute } from './routes/home';
+import { LoginRoute } from './routes/login';
+import { useAppStore } from '@/lib/app-store';
+
+const ProtectedRoute: React.FC<{ children: JSX.Element }> = ({ children }) => {
+  const isLoggedIn = useAppStore((state) => state.applicationUser);
+  const location = useLocation();
+
+  if (!isLoggedIn) {
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  return children;
+};
+
+const RedirectToHomeIfLoggedIn: React.FC<{ children: JSX.Element }> = ({ children }) => {
+  const isLoggedIn = useAppStore((state) => state.applicationUser);
+  const location = useLocation();
+
+  if (isLoggedIn) {
+    return <Navigate to="/" state={{ from: location }} replace />;
+  }
+
+  return children;
+};
 
 const createAppRouter = () =>
   createBrowserRouter([
     {
       path: paths.home.path,
-      element: <HomeRoute />,
+      element: (
+        <ProtectedRoute>
+          <HomeRoute />
+        </ProtectedRoute>
+      ),
+    },
+    {
+      path: paths.login.path,
+      element: (
+        <RedirectToHomeIfLoggedIn>
+          <LoginRoute />
+        </RedirectToHomeIfLoggedIn>
+      ),
     },
     {
       path: paths.employee.root.path,
-      element: <EmployeeRoot />,
+      element: (
+        <ProtectedRoute>
+          <EmployeeRoot />
+        </ProtectedRoute>
+      ),
       children: [
         {
           path: paths.employee.orders.path,
@@ -40,7 +80,11 @@ const createAppRouter = () =>
     },
     {
       path: paths.management.root.path,
-      element: <ManagementRoot />,
+      element: (
+        <ProtectedRoute>
+          <ManagementRoot />
+        </ProtectedRoute>
+      ),
       children: [
         {
           path: paths.management.products.path,

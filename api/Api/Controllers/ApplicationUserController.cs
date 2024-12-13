@@ -44,6 +44,24 @@ public class ApplicationUserController : ControllerBase
         return Ok(users);
     }
 
+    [HttpGet]
+    [Authorize(Roles = "Admin,BusinessOwner")]
+    [Route("currentUser")]
+    public async Task<IActionResult> GetCurrentApplicationUser()
+    {
+        var user =await  _applicationUserService.GetCurrentApplicationUser();
+        return Ok(user);
+    }
+
+    [HttpGet]
+    [Authorize(Roles = "Admin,BusinessOwner")]
+    [Route("{userId:int}")]
+    public async Task<IActionResult> GetApplicationUsers(int userId)
+    {
+        var user = await _applicationUserService.GetApplicationUserById(userId);
+        return Ok(user);
+    }
+
     [HttpPost]
     [Route("login")]
     public async Task<IActionResult> LoginApplicationUser([FromBody] LoginApplicationUserDTO request)
@@ -53,7 +71,9 @@ public class ApplicationUserController : ControllerBase
         Response.Cookies.Append("AccessToken", tokens.AccessToken, _cookieOptions);
         Response.Cookies.Append("RefreshToken", tokens.RefreshToken, _cookieOptions);
 
-        return Ok();
+        var user = await _applicationUserService.GetApplicationUserByEmail(request.Email);
+
+        return Ok(user);
     }
 
     [HttpPost]

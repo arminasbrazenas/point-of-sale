@@ -13,25 +13,31 @@ public class ServiceChargeService : IServiceChargeService
     private readonly IUnitOfWork _unitOfWork;
     private readonly IServiceChargeRepository _serviceChargeRepository;
     private readonly IServiceChargeMappingService _serviceChargeMappingService;
+    private readonly IOrderManagementAuthorizationService _orderManagementAuthorizationService;
 
     public ServiceChargeService(
         IUnitOfWork unitOfWork,
         IServiceChargeRepository serviceChargeRepository,
-        IServiceChargeMappingService serviceChargeMappingService
+        IServiceChargeMappingService serviceChargeMappingService,
+        IOrderManagementAuthorizationService orderManagementAuthorizationService
     )
     {
         _unitOfWork = unitOfWork;
         _serviceChargeRepository = serviceChargeRepository;
         _serviceChargeMappingService = serviceChargeMappingService;
+        _orderManagementAuthorizationService = orderManagementAuthorizationService;
     }
 
     public async Task<ServiceChargeDTO> CreateServiceCharge(CreateServiceChargeDTO serviceChargeDTO)
     {
+        await _orderManagementAuthorizationService.AuthorizeApplicationUser(serviceChargeDTO.BusinessId);
+
         var serviceCharge = new ServiceCharge
         {
             Name = serviceChargeDTO.Name,
             PricingStrategy = serviceChargeDTO.PricingStrategy,
             Amount = serviceChargeDTO.Amount,
+            BusinessId = serviceChargeDTO.BusinessId,
         };
 
         _serviceChargeRepository.Add(serviceCharge);
@@ -43,6 +49,9 @@ public class ServiceChargeService : IServiceChargeService
     public async Task<ServiceChargeDTO> GetServiceCharge(int serviceChargeId)
     {
         var serviceCharge = await _serviceChargeRepository.Get(serviceChargeId);
+
+        await _orderManagementAuthorizationService.AuthorizeApplicationUser(serviceCharge.BusinessId);
+
         return _serviceChargeMappingService.MapToServiceChargeDTO(serviceCharge);
     }
 
@@ -60,6 +69,8 @@ public class ServiceChargeService : IServiceChargeService
     )
     {
         var serviceCharge = await _serviceChargeRepository.Get(serviceChargeId);
+
+        await _orderManagementAuthorizationService.AuthorizeApplicationUser(serviceCharge.BusinessId);
 
         if (updateServiceChargeDTO.Name is not null)
         {
@@ -82,6 +93,10 @@ public class ServiceChargeService : IServiceChargeService
 
     public async Task DeleteServiceCharge(int serviceChargeId)
     {
+        var serviceCharge = await _serviceChargeRepository.Get(serviceChargeId);
+
+        await _orderManagementAuthorizationService.AuthorizeApplicationUser(serviceCharge.BusinessId);
+
         await _serviceChargeRepository.Delete(serviceChargeId);
     }
 }

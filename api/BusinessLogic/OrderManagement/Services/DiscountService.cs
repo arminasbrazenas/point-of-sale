@@ -17,22 +17,27 @@ public class DiscountService : IDiscountService
     private readonly IDiscountRepository _discountRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IDiscountMappingService _discountMappingService;
+    private readonly IOrderManagementAuthorizationService _orderManagementAuthorizationService;
 
     public DiscountService(
         IProductRepository productRepository,
         IDiscountRepository discountRepository,
         IUnitOfWork unitOfWork,
-        IDiscountMappingService discountMappingService
+        IDiscountMappingService discountMappingService,
+        IOrderManagementAuthorizationService orderManagementAuthorizationService
     )
     {
         _productRepository = productRepository;
         _discountRepository = discountRepository;
         _unitOfWork = unitOfWork;
         _discountMappingService = discountMappingService;
+        _orderManagementAuthorizationService = orderManagementAuthorizationService;
     }
 
     public async Task<DiscountDTO> CreateDiscount(CreateDiscountDTO createDiscountDTO)
     {
+        await _orderManagementAuthorizationService.AuthorizeApplicationUser(createDiscountDTO.BusinessId);
+        var products = await _productRepository.GetMany(createDiscountDTO.AppliesToProductIds);
         switch (createDiscountDTO)
         {
             case { Target: DiscountTarget.Product, AppliesToProductIds: null }:
@@ -41,7 +46,6 @@ public class DiscountService : IDiscountService
                 throw new ValidationException(new EverythingDiscountCannotBeAppliedToProductsErrorMessage());
         }
 
-        List<Product> products = [];
         if (createDiscountDTO.AppliesToProductIds is not null)
         {
             products = await _productRepository.GetMany(createDiscountDTO.AppliesToProductIds);
@@ -53,6 +57,7 @@ public class DiscountService : IDiscountService
             PricingStrategy = createDiscountDTO.PricingStrategy,
             AppliesTo = products,
             ValidUntil = createDiscountDTO.ValidUntil,
+            BusinessId = createDiscountDTO.BusinessId,
             Target = createDiscountDTO.Target,
         };
 
@@ -65,6 +70,9 @@ public class DiscountService : IDiscountService
     public async Task<DiscountDTO> GetDiscount(int discountId)
     {
         var discount = await _discountRepository.GetWithProducts(discountId);
+
+        await _orderManagementAuthorizationService.AuthorizeApplicationUser(discount.BusinessId);
+
         return _discountMappingService.MapToDiscountDTO(discount);
     }
 
@@ -79,6 +87,8 @@ public class DiscountService : IDiscountService
     public async Task<DiscountDTO> UpdateDiscount(int discountId, UpdateDiscountDTO updateDiscountDTO)
     {
         var discount = await _discountRepository.GetWithProducts(discountId);
+
+        await _orderManagementAuthorizationService.AuthorizeApplicationUser(discount.BusinessId);
 
         if (updateDiscountDTO.Amount.HasValue)
         {
@@ -112,6 +122,10 @@ public class DiscountService : IDiscountService
 
     public async Task DeleteDiscount(int discountId)
     {
+        var discount = await _discountRepository.Get(discountId);
+
+        await _orderManagementAuthorizationService.AuthorizeApplicationUser(discount.BusinessId);
+
         await _discountRepository.Delete(discountId);
     }
 }

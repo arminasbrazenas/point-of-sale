@@ -14,7 +14,7 @@ public class OrderConfiguration : EntityBaseConfiguration<Order, int>
     public override void Configure(EntityTypeBuilder<Order> builder)
     {
         base.Configure(builder);
-        
+
         builder
             .Property(o => o.Status)
             .HasConversion(new EnumToStringConverter<OrderStatus>())
@@ -35,6 +35,7 @@ public class OrderConfiguration : EntityBaseConfiguration<Order, int>
             .OnDelete(DeleteBehavior.Cascade)
             .IsRequired();
 
+        builder.HasOne(o => o.Business).WithMany().HasForeignKey(o => o.BusinessId).IsRequired();
         builder
             .HasMany(o => o.Discounts)
             .WithOne()

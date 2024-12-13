@@ -12,7 +12,7 @@ public class ModifierConfiguration : EntityBaseConfiguration<Modifier, int>
     public override void Configure(EntityTypeBuilder<Modifier> builder)
     {
         base.Configure(builder);
-        
+
         builder.Property(p => p.RowVersion).IsRowVersion();
 
         builder.Property(v => v.Name).HasMaxLength(Constants.ModifierNameMaxLength).IsRequired();
@@ -21,6 +21,8 @@ public class ModifierConfiguration : EntityBaseConfiguration<Modifier, int>
             .Property(v => v.Price)
             .HasPrecision(SharedConstants.MoneyPrecision, SharedConstants.MoneyScale)
             .IsRequired();
+
+        builder.HasOne(o => o.Business).WithMany().HasForeignKey(o => o.BusinessId).IsRequired();
 
         builder.ToTable(TableName, Constants.SchemaName);
     }

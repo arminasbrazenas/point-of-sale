@@ -16,6 +16,8 @@ public class TaxConfiguration : EntityBaseConfiguration<Tax, int>
 
         builder.Property(t => t.Rate).IsRequired();
 
+        builder.HasOne(o => o.Business).WithMany().HasForeignKey(o => o.BusinessId).IsRequired();
+
         builder.ToTable(TableName, Constants.SchemaName);
     }
 }

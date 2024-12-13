@@ -1,10 +1,8 @@
 using PointOfSale.DataAccess.ApplicationUserManagement.Interfaces;
 using PointOfSale.DataAccess.BusinessManagement.ErrorMessages;
-using PointOfSale.DataAccess.BusinessManagement.Interfaces;
 using PointOfSale.DataAccess.Shared.Interfaces;
 using PointOfSale.DataAccess.Shared.Repositories;
 using PointOfSale.Models.ApplicationUserManagement.Entities;
-using PointOfSale.Models.BusinessManagement.Entities;
 
 namespace PointOfSale.DataAccess.BusinessManagement.Repositories;
 

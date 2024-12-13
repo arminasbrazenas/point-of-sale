@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PointOfSale.BusinessLogic.OrderManagement.DTOs;
 using PointOfSale.BusinessLogic.OrderManagement.Interfaces;
@@ -6,6 +7,7 @@ using PointOfSale.BusinessLogic.Shared.DTOs;
 namespace PointOfSale.Api.Controllers;
 
 [ApiController]
+[Authorize(Roles = "BusinessOwner,Employee")]
 [Route("v1/orders")]
 public class OrdersController : ControllerBase
 {

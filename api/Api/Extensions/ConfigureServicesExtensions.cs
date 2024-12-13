@@ -139,6 +139,7 @@ public static class ConfigureServicesExtensions
         IConfiguration configuration
     )
     {
+        services.AddScoped<IApplicationUserRepository, ApplicationUserRepository>();
         services.AddScoped<IApplicationUserService, ApplicationUserService>();
         services.AddScoped<IApplicationUserMappingService, ApplicationUserMappingService>();
         services.AddScoped<IApplicationUserValidationService, ApplicationUserValidationService>();
@@ -165,6 +166,7 @@ public static class ConfigureServicesExtensions
             .AddRoleManager<RoleManager<IdentityRole<int>>>();
 
         services.AddHttpContextAccessor();
+        services.AddScoped<IOrderManagementAuthorizationService, OrderManagementAuthorizationService>();
 
         services
             .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

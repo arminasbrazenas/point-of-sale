@@ -1,10 +1,8 @@
-using Microsoft.AspNetCore.Identity;
 using PointOfSale.BusinessLogic.ApplicationUserManagement.Exceptions;
 using PointOfSale.BusinessLogic.BusinessManagement.Interfaces;
 using PointOfSale.DataAccess.ApplicationUserManagement.Interfaces;
 using PointOfSale.DataAccess.BusinessManagement.ErrorMessages;
 using PointOfSale.DataAccess.BusinessManagement.Interfaces;
-using PointOfSale.Models.ApplicationUserManagement.Entities;
 
 namespace PointOfSale.BusinessLogic.BusinessManagement.Services;
 
@@ -12,17 +10,17 @@ public class BusinessAuthorizationService : IBusinessAuthorizationService
 {
     private readonly IBusinessRepository _businessRepository;
     private readonly ICurrentApplicationUserAccessor _currentApplicationUserAccessor;
-    private readonly UserManager<ApplicationUser> _userManager;
+    private readonly IApplicationUserRepository _applicationUserRepository;
 
     public BusinessAuthorizationService(
         IBusinessRepository businessRepository,
         ICurrentApplicationUserAccessor currentApplicationUserAccessor,
-        UserManager<ApplicationUser> userManager
+        IApplicationUserRepository applicationUserRepository
     )
     {
         _businessRepository = businessRepository;
         _currentApplicationUserAccessor = currentApplicationUserAccessor;
-        _userManager = userManager;
+        _applicationUserRepository = applicationUserRepository;
     }
 
     public async Task AuthorizeBusinessViewAction(int businessId)
@@ -34,11 +32,17 @@ public class BusinessAuthorizationService : IBusinessAuthorizationService
         {
             return;
         }
-        else if ((await _userManager.FindByIdAsync(currentUserId.ToString()))!.Business!.Id == businessId)
+
+        var user = await _applicationUserRepository.GetUserByIdWithBusinessAsync(currentUserId);
+
+        if (user?.Business == null)
+        {
+            throw new ApplicationUserAuthorizationException(new UnauthorizedAccessToBusinessErrorMessage(businessId));
+        }
+        else if (user.Business.Id == businessId)
         {
             return;
         }
-
         throw new ApplicationUserAuthorizationException(new UnauthorizedAccessToBusinessErrorMessage(businessId));
     }
 
