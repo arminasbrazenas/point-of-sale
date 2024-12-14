@@ -1,4 +1,6 @@
+using Microsoft.OpenApi.Extensions;
 using PointOfSale.Api.DTOs;
+using PointOfSale.BusinessLogic.ApplicationUserManagement.Exceptions;
 using PointOfSale.BusinessLogic.Shared.Exceptions;
 using PointOfSale.DataAccess.Shared.Exceptions;
 
@@ -47,6 +49,9 @@ public class ExceptionHandlingMiddleware
         {
             EntityNotFoundException => StatusCodes.Status404NotFound,
             ValidationException => StatusCodes.Status422UnprocessableEntity,
+            ApplicationUserAuthenticationException => StatusCodes.Status401Unauthorized,
+            ApplicationUserAuthorizationException => StatusCodes.Status403Forbidden,
+            UnauthorizedAccessException => StatusCodes.Status403Forbidden,
             _ => StatusCodes.Status500InternalServerError,
         };
 
@@ -54,6 +59,7 @@ public class ExceptionHandlingMiddleware
         ex switch
         {
             PointOfSaleException posEx => posEx.ErrorMessage.En,
-            _ => "An unexpected error has occurred.",
+            UnauthorizedAccessException e => e.Message,
+            Exception e => e.Message,
         };
 }

@@ -2,7 +2,8 @@ import Axios from 'axios';
 import { showNotification } from './notifications';
 
 export const api = Axios.create({
-  baseURL: 'http://localhost:5180',
+  baseURL: 'http://localhost:8080',
+  withCredentials:true,
 });
 
 api.interceptors.response.use(

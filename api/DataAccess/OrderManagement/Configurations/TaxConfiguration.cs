@@ -4,17 +4,19 @@ using PointOfSale.Models.OrderManagement.Entities;
 
 namespace PointOfSale.DataAccess.OrderManagement.Configurations;
 
-public class TaxConfiguration : IEntityTypeConfiguration<Tax>
+public class TaxConfiguration : EntityBaseConfiguration<Tax, int>
 {
     private const string TableName = "Taxes";
 
-    public void Configure(EntityTypeBuilder<Tax> builder)
+    public override void Configure(EntityTypeBuilder<Tax> builder)
     {
-        builder.HasKey(t => t.Id);
+        base.Configure(builder);
 
         builder.Property(t => t.Name).HasMaxLength(Constants.TaxNameMaxLength).IsRequired();
 
         builder.Property(t => t.Rate).IsRequired();
+
+        builder.HasOne(o => o.Business).WithMany().HasForeignKey(o => o.BusinessId).IsRequired();
 
         builder.ToTable(TableName, Constants.SchemaName);
     }

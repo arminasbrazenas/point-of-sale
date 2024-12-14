@@ -7,13 +7,13 @@ using PointOfSale.Models.Shared.Enums;
 
 namespace PointOfSale.DataAccess.OrderManagement.Configurations;
 
-public class ServiceChargeConfiguration : IEntityTypeConfiguration<ServiceCharge>
+public class ServiceChargeConfiguration : EntityBaseConfiguration<ServiceCharge, int>
 {
     private const string TableName = "ServiceCharges";
 
-    public void Configure(EntityTypeBuilder<ServiceCharge> builder)
+    public override void Configure(EntityTypeBuilder<ServiceCharge> builder)
     {
-        builder.HasKey(c => c.Id);
+        base.Configure(builder);
 
         builder.Property(c => c.Name).HasMaxLength(Constants.ServiceChargeNameMaxLength).IsRequired();
 
@@ -27,6 +27,8 @@ public class ServiceChargeConfiguration : IEntityTypeConfiguration<ServiceCharge
             .Property(c => c.Amount)
             .HasPrecision(SharedConstants.MoneyPrecision, SharedConstants.MoneyScale)
             .IsRequired();
+
+        builder.HasOne(o => o.Business).WithMany().HasForeignKey(o => o.BusinessId).IsRequired();
 
         builder.ToTable(TableName, Constants.SchemaName);
     }

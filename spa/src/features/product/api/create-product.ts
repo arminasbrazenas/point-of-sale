@@ -1,4 +1,5 @@
 import { api } from '@/lib/api-client';
+import { useAppStore } from '@/lib/app-store';
 import { MutationConfig } from '@/lib/react-query';
 import { Product } from '@/types/api';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -14,8 +15,8 @@ export const createProductInputSchema = z.object({
 
 export type CreateProductInput = z.infer<typeof createProductInputSchema>;
 
-export const createProduct = ({ data }: { data: CreateProductInput }): Promise<Product> => {
-  return api.post('/v1/products', data);
+export const createProduct = ({ data }: { data: CreateProductInput & { businessId: number }}): Promise<Product> => {
+  return api.post('/v1/products',  data);
 };
 
 type UseCreateProductOptions = {
@@ -27,6 +28,8 @@ export const useCreateProduct = ({ mutationConfig }: UseCreateProductOptions = {
 
   const { onSuccess, ...restConfig } = mutationConfig || {};
 
+  const businessId = useAppStore((state) => state.applicationUser?.businessId);
+  
   return useMutation({
     onSuccess: (...args) => {
       queryClient.invalidateQueries({
@@ -35,6 +38,14 @@ export const useCreateProduct = ({ mutationConfig }: UseCreateProductOptions = {
       onSuccess?.(...args);
     },
     ...restConfig,
-    mutationFn: createProduct,
+    mutationFn: async ({ data }: { data: CreateProductInput }) => {
+      if (!businessId) {
+        const error = new Error('Forbidden');
+        (error as any).statusCode = 403;
+        throw error;
+      }
+
+      return createProduct({ data: { ...data, businessId } });
+    },
   });
 };

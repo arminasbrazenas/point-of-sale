@@ -1,19 +1,59 @@
 import { useMemo } from 'react';
-import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import { createBrowserRouter, Navigate, RouterProvider, useLocation } from 'react-router-dom';
 import { paths } from '../config/paths';
 import { ManagementRoot } from './routes/management/root';
 import { EmployeeRoot } from './routes/employee/root';
 import { HomeRoute } from './routes/home';
+import { LoginRoute } from './routes/login';
+import { useAppStore } from '@/lib/app-store';
+
+const ProtectedRoute: React.FC<{ children: JSX.Element }> = ({ children }) => {
+  const isLoggedIn = useAppStore((state) => state.applicationUser);
+  const location = useLocation();
+
+  if (!isLoggedIn) {
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  return children;
+};
+
+const RedirectToHomeIfLoggedIn: React.FC<{ children: JSX.Element }> = ({ children }) => {
+  const isLoggedIn = useAppStore((state) => state.applicationUser);
+  const location = useLocation();
+
+  if (isLoggedIn) {
+    return <Navigate to="/" state={{ from: location }} replace />;
+  }
+
+  return children;
+};
 
 const createAppRouter = () =>
   createBrowserRouter([
     {
       path: paths.home.path,
-      element: <HomeRoute />,
+      element: (
+        <ProtectedRoute>
+          <HomeRoute />
+        </ProtectedRoute>
+      ),
+    },
+    {
+      path: paths.login.path,
+      element: (
+        <RedirectToHomeIfLoggedIn>
+          <LoginRoute />
+        </RedirectToHomeIfLoggedIn>
+      ),
     },
     {
       path: paths.employee.root.path,
-      element: <EmployeeRoot />,
+      element: (
+        <ProtectedRoute>
+          <EmployeeRoot />
+        </ProtectedRoute>
+      ),
       children: [
         {
           path: paths.employee.orders.path,
@@ -40,7 +80,11 @@ const createAppRouter = () =>
     },
     {
       path: paths.management.root.path,
-      element: <ManagementRoot />,
+      element: (
+        <ProtectedRoute>
+          <ManagementRoot />
+        </ProtectedRoute>
+      ),
       children: [
         {
           path: paths.management.products.path,
@@ -130,6 +174,48 @@ const createAppRouter = () =>
               './routes/management/service-charge/add-service-charge'
             );
             return { Component: AddServiceChargeManagementRoute };
+          },
+        },
+        {
+          path: paths.management.discounts.path,
+          lazy: async () => {
+            const { DiscountsManagementRoute } = await import('./routes/management/discount/discounts');
+            return { Component: DiscountsManagementRoute };
+          },
+        },
+        {
+          path: paths.management.updateDiscount.path,
+          lazy: async () => {
+            const { UpdateDiscountManagementRoute } = await import('./routes/management/discount/update-discount');
+            return { Component: UpdateDiscountManagementRoute };
+          },
+        },
+        {
+          path: paths.management.addDiscount.path,
+          lazy: async () => {
+            const { AddDiscountManagementRoute } = await import('./routes/management/discount/add-discount');
+            return { Component: AddDiscountManagementRoute };
+          },
+        },
+        {
+          path: paths.management.giftCards.path,
+          lazy: async () => {
+            const { GiftCardsManagementRoute } = await import('./routes/management/gift-card/gift-cards');
+            return { Component: GiftCardsManagementRoute };
+          },
+        },
+        {
+          path: paths.management.updateGiftCard.path,
+          lazy: async () => {
+            const { UpdateGiftCardManagementRoute } = await import('./routes/management/gift-card/update-gift-card');
+            return { Component: UpdateGiftCardManagementRoute };
+          },
+        },
+        {
+          path: paths.management.addGiftCard.path,
+          lazy: async () => {
+            const { AddGiftCardManagementRoute } = await import('./routes/management/gift-card/add-gift-card');
+            return { Component: AddGiftCardManagementRoute };
           },
         },
       ],

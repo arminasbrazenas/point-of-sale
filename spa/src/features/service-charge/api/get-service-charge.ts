@@ -1,6 +1,6 @@
 import { api } from '@/lib/api-client';
 import { QueryConfig } from '@/lib/react-query';
-import { ServiceCharge, Tax } from '@/types/api';
+import { ServiceCharge } from '@/types/api';
 import { queryOptions, useQuery } from '@tanstack/react-query';
 
 export const getServiceCharge = ({ serviceChargeId }: { serviceChargeId: number }): Promise<ServiceCharge> => {

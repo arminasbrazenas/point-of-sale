@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PointOfSale.BusinessLogic.OrderManagement.DTOs;
 using PointOfSale.BusinessLogic.OrderManagement.Interfaces;
@@ -6,6 +7,7 @@ using PointOfSale.BusinessLogic.Shared.DTOs;
 namespace PointOfSale.Api.Controllers;
 
 [ApiController]
+[Authorize(Roles = "BusinessOwner,Employee")]
 [Route("v1/orders")]
 public class OrdersController : ControllerBase
 {
@@ -65,5 +67,13 @@ public class OrdersController : ControllerBase
     {
         var receipt = await _orderService.GetOrderReceipt(orderId);
         return Ok(receipt);
+    }
+
+    [HttpPost]
+    [Route("{orderId:int}/complete")]
+    public async Task<IActionResult> CompleteOrder([FromRoute] int orderId)
+    {
+        await _orderService.CompleteOrder(orderId);
+        return NoContent();
     }
 }

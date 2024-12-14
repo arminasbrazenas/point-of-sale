@@ -1,4 +1,5 @@
 import { api } from '@/lib/api-client';
+import { useAppStore } from '@/lib/app-store';
 import { MutationConfig } from '@/lib/react-query';
 import { Modifier } from '@/types/api';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -12,7 +13,7 @@ export const createModifierInputSchema = z.object({
 
 export type CreateModifierInput = z.infer<typeof createModifierInputSchema>;
 
-export const createModifier = ({ data }: { data: CreateModifierInput }): Promise<Modifier> => {
+export const createModifier = ({ data }: { data: CreateModifierInput & { businessId: number }}): Promise<Modifier> => {
   return api.post('/v1/modifiers', data);
 };
 
@@ -25,6 +26,8 @@ export const useCreateModifier = ({ mutationConfig }: UseCreateModifierOptions =
 
   const { onSuccess, ...restConfig } = mutationConfig || {};
 
+  const businessId = useAppStore((state) => state.applicationUser?.businessId);
+  
   return useMutation({
     onSuccess: (...args) => {
       queryClient.invalidateQueries({
@@ -33,6 +36,14 @@ export const useCreateModifier = ({ mutationConfig }: UseCreateModifierOptions =
       onSuccess?.(...args);
     },
     ...restConfig,
-    mutationFn: createModifier,
+    mutationFn: async ({ data }: { data: CreateModifierInput }) => {
+      if (!businessId) {
+        const error = new Error('Forbidden');
+        (error as any).statusCode = 403;
+        throw error;
+      }
+
+      return createModifier({ data: { ...data, businessId } });
+    },
   });
 };

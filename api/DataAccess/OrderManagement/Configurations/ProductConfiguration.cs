@@ -5,15 +5,15 @@ using PointOfSale.Models.OrderManagement.Entities;
 
 namespace PointOfSale.DataAccess.OrderManagement.Configurations;
 
-public class ProductConfiguration : IEntityTypeConfiguration<Product>
+public class ProductConfiguration : EntityBaseConfiguration<Product, int>
 {
     private const string TableName = "Products";
     private const string ProductTaxesTableName = "ProductTaxes";
     private const string ProductModifiersTableName = "ProductModifiers";
 
-    public void Configure(EntityTypeBuilder<Product> builder)
+    public override void Configure(EntityTypeBuilder<Product> builder)
     {
-        builder.HasKey(p => p.Id);
+        base.Configure(builder);
 
         builder.Property(p => p.RowVersion).IsRowVersion();
 
@@ -32,6 +32,8 @@ public class ProductConfiguration : IEntityTypeConfiguration<Product>
             .HasMany(p => p.Modifiers)
             .WithMany(v => v.Products)
             .UsingEntity(e => e.ToTable(ProductModifiersTableName));
+
+        builder.HasOne(o => o.Business).WithMany().HasForeignKey(o => o.BusinessId).IsRequired();
 
         builder.ToTable(TableName, Constants.SchemaName);
     }

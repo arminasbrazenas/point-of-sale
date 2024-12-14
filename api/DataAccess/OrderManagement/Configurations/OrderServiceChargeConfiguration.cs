@@ -7,13 +7,13 @@ using PointOfSale.Models.Shared.Enums;
 
 namespace PointOfSale.DataAccess.OrderManagement.Configurations;
 
-public class OrderServiceChargeConfiguration : IEntityTypeConfiguration<OrderServiceCharge>
+public class OrderServiceChargeConfiguration : EntityBaseConfiguration<OrderServiceCharge, int>
 {
     private const string TableName = "OrderServiceCharges";
 
-    public void Configure(EntityTypeBuilder<OrderServiceCharge> builder)
+    public override void Configure(EntityTypeBuilder<OrderServiceCharge> builder)
     {
-        builder.HasKey(c => c.Id);
+        base.Configure(builder);
 
         builder.Property(c => c.Name).HasMaxLength(Constants.ServiceChargeNameMaxLength).IsRequired();
 
@@ -25,6 +25,11 @@ public class OrderServiceChargeConfiguration : IEntityTypeConfiguration<OrderSer
 
         builder
             .Property(c => c.Amount)
+            .HasPrecision(SharedConstants.MoneyPrecision, SharedConstants.MoneyScale)
+            .IsRequired();
+
+        builder
+            .Property(m => m.AppliedAmount)
             .HasPrecision(SharedConstants.MoneyPrecision, SharedConstants.MoneyScale)
             .IsRequired();
 

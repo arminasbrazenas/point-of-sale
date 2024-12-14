@@ -24,11 +24,14 @@ public class OrderRepository : RepositoryBase<Order, int>, IOrderRepository
     {
         var order = await DbSet
             .Where(o => o.Id == orderId)
+            .Include(o => o.ServiceCharges)
+            .Include(o => o.Discounts)
             .Include(o => o.Items)
             .ThenInclude(i => i.Modifiers)
             .Include(o => o.Items)
             .ThenInclude(i => i.Taxes)
-            .Include(o => o.ServiceCharges)
+            .Include(o => o.Items)
+            .ThenInclude(i => i.Discounts)
             .FirstOrDefaultAsync();
 
         return order ?? throw new EntityNotFoundException(GetEntityNotFoundErrorMessage(orderId));

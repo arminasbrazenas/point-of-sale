@@ -3,6 +3,10 @@ export const paths = {
     path: '/',
     getHref: () => '/',
   },
+  login :{
+    path: '/login',
+    getHref: () => '/login',
+  },
   employee: {
     root: {
       path: '/employee',
@@ -77,6 +81,30 @@ export const paths = {
     addServiceCharge: {
       path: 'service-charges/add',
       getHref: () => '/management/service-charges/add',
+    },
+    discounts: {
+      path: 'discounts',
+      getHref: () => '/management/discounts',
+    },
+    updateDiscount: {
+      path: 'discounts/:discountId',
+      getHref: (discountId: number) => `/management/discounts/${discountId}`,
+    },
+    addDiscount: {
+      path: 'discounts/add',
+      getHref: () => '/management/discounts/add',
+    },
+    giftCards: {
+      path: 'gift-cards',
+      getHref: () => '/management/gift-cards',
+    },
+    updateGiftCard: {
+      path: 'gift-cards/:giftCardId',
+      getHref: (giftCardId: number) => `/management/gift-cards/${giftCardId}`,
+    },
+    addGiftCard: {
+      path: 'gift-cards/add',
+      getHref: () => '/management/gift-cards/add',
     },
   },
 } as const;

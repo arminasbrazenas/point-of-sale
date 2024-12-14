@@ -7,13 +7,13 @@ using PointOfSale.Models.OrderManagement.Enums;
 
 namespace PointOfSale.DataAccess.OrderManagement.Configurations;
 
-public class OrderConfiguration : IEntityTypeConfiguration<Order>
+public class OrderConfiguration : EntityBaseConfiguration<Order, int>
 {
     private const string TableName = "Orders";
 
-    public void Configure(EntityTypeBuilder<Order> builder)
+    public override void Configure(EntityTypeBuilder<Order> builder)
     {
-        builder.HasKey(o => o.Id);
+        base.Configure(builder);
 
         builder
             .Property(o => o.Status)
@@ -32,6 +32,14 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
             .HasMany(o => o.ServiceCharges)
             .WithOne()
             .HasForeignKey(c => c.OrderId)
+            .OnDelete(DeleteBehavior.Cascade)
+            .IsRequired();
+
+        builder.HasOne(o => o.Business).WithMany().HasForeignKey(o => o.BusinessId).IsRequired();
+        builder
+            .HasMany(o => o.Discounts)
+            .WithOne()
+            .HasForeignKey(d => d.OrderId)
             .OnDelete(DeleteBehavior.Cascade)
             .IsRequired();
 

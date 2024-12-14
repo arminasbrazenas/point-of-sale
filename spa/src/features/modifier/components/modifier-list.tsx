@@ -45,7 +45,7 @@ export const ModifierList = () => {
               >
                 <Table.Td>{modifier.name}</Table.Td>
                 <Table.Td>{modifier.stock}</Table.Td>
-                <Table.Td>{modifier.price}€</Table.Td>
+                <Table.Td>{modifier.priceTaxExcluded}€</Table.Td>
               </Table.Tr>
             ))}
           </Table.Tbody>

@@ -8,6 +8,7 @@ namespace PointOfSale.BusinessLogic.OrderManagement.Interfaces;
 public interface IModifierMappingService
 {
     ModifierDTO MapToModifierDTO(Modifier modifier);
+    ModifierDTO MapToModifierDTO(Modifier modifier, IEnumerable<Tax> taxes);
     PagedResponseDTO<ModifierDTO> MapToPagedModifierDTO(
         List<Modifier> modifiers,
         PaginationFilter paginationFilter,

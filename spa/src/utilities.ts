@@ -1,16 +1,17 @@
 import { formatDate as formatDateFn } from 'date-fns';
-import { PricingStrategy } from './types/api';
+import { PaymentMethod, PricingStrategy } from './types/api';
 
-export const convertToMoney = (val: number): string => {
-  return (Number(Math.floor(val * 100).toFixed(0)) / 100).toFixed(2);
+export const toRoundedPrice = (price: number): number => {
+  const factor = Math.pow(10, 2); // 2 decimal places
+  return Math.round(price * factor + Math.sign(price) * 1e-10) / factor;
 };
 
 export const formatDate = (date: string): string => {
   return formatDateFn(new Date(date), 'yyyy-MM-dd HH:mm');
 };
 
-export const isSameNumberSet = (a: number[], b: number[]): boolean => {
-  if (a.length != b.length) {
+export const isSameNumberSet = (a?: number[], b?: number[]): boolean => {
+  if (!a || !b || a?.length != b?.length) {
     return false;
   }
 
@@ -44,5 +45,18 @@ export const toReadablePricingStrategyAmount = (value: number, s: PricingStrateg
       return `${value}%`;
     default:
       return value;
+  }
+};
+
+export const toReadablePaymentMethod = (method: PaymentMethod) => {
+  switch (method) {
+    case PaymentMethod.Cash:
+      return 'Cash';
+    case PaymentMethod.GiftCard:
+      return 'Gift card';
+    case PaymentMethod.Card:
+      return 'Card';
+    default:
+      return method;
   }
 };

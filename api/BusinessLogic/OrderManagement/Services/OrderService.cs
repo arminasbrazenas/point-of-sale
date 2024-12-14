@@ -1,4 +1,5 @@
 using PointOfSale.BusinessLogic.OrderManagement.DTOs;
+using PointOfSale.BusinessLogic.OrderManagement.Extensions;
 using PointOfSale.BusinessLogic.OrderManagement.Interfaces;
 using PointOfSale.BusinessLogic.Shared.DTOs;
 using PointOfSale.BusinessLogic.Shared.Exceptions;
@@ -19,6 +20,8 @@ public class OrderService : IOrderService
     private readonly IOrderRepository _orderRepository;
     private readonly IOrderMappingService _orderMappingService;
     private readonly IServiceChargeRepository _serviceChargeRepository;
+    private readonly IOrderManagementAuthorizationService _orderAuthorizationService;
+    private readonly IDiscountRepository _discountRepository;
 
     public OrderService(
         IUnitOfWork unitOfWork,
@@ -26,7 +29,9 @@ public class OrderService : IOrderService
         IModifierRepository modifierRepository,
         IOrderRepository orderRepository,
         IOrderMappingService orderMappingService,
-        IServiceChargeRepository serviceChargeRepository
+        IServiceChargeRepository serviceChargeRepository,
+        IOrderManagementAuthorizationService orderAuthorizationService,
+        IDiscountRepository discountRepository
     )
     {
         _unitOfWork = unitOfWork;
@@ -35,17 +40,25 @@ public class OrderService : IOrderService
         _orderRepository = orderRepository;
         _orderMappingService = orderMappingService;
         _serviceChargeRepository = serviceChargeRepository;
+        _orderAuthorizationService = orderAuthorizationService;
+        _discountRepository = discountRepository;
     }
 
     public async Task<OrderDTO> CreateOrder(CreateOrderDTO createOrderDTO)
     {
+        await _orderAuthorizationService.AuthorizeApplicationUser(createOrderDTO.BusinessId);
+
         var orderItems = await ReserveOrderItems(createOrderDTO.OrderItems);
-        var serviceCharges = await CreateOrderServiceCharges(createOrderDTO.ServiceChargeIds);
+        var orderDiscounts = await GetOrderDiscounts(orderItems, createOrderDTO.Discounts);
+        var serviceCharges = await GetOrderServiceCharges(createOrderDTO.ServiceChargeIds, orderItems, orderDiscounts);
+
         var order = new Order
         {
             Items = orderItems,
             Status = OrderStatus.Open,
+            BusinessId = createOrderDTO.BusinessId,
             ServiceCharges = serviceCharges,
+            Discounts = orderDiscounts,
         };
 
         _orderRepository.Add(order);
@@ -65,12 +78,24 @@ public class OrderService : IOrderService
     public async Task<OrderDTO> GetOrder(int orderId)
     {
         var order = await _orderRepository.GetWithOrderItems(orderId);
+
+        await _orderAuthorizationService.AuthorizeApplicationUser(order.BusinessId);
+
         return _orderMappingService.MapToOrderDTO(order);
+    }
+
+    public async Task<OrderMinimalDTO> GetOrderMinimal(int orderId)
+    {
+        var order = await _orderRepository.Get(orderId);
+        return _orderMappingService.MapToOrderMinimalDTO(order);
     }
 
     public async Task<OrderDTO> UpdateOrder(int orderId, UpdateOrderDTO updateOrderDTO)
     {
         var order = await _orderRepository.GetWithOrderItems(orderId);
+
+        await _orderAuthorizationService.AuthorizeApplicationUser(order.BusinessId);
+
         if (order.Status != OrderStatus.Open)
         {
             throw new ValidationException(new CannotModifyNonOpenOrderErrorMessage());
@@ -80,12 +105,34 @@ public class OrderService : IOrderService
         {
             await ReturnOrderItems(order.Items);
             order.Items = await ReserveOrderItems(updateOrderDTO.OrderItems);
+
+            // Recalculate order discounts
+            var orderDiscounts = order
+                .Discounts.Select(d => new CreateOrderDiscountDTO
+                {
+                    Amount = d.Amount,
+                    PricingStrategy = d.PricingStrategy,
+                })
+                .ToList();
+            order.Discounts = await GetOrderDiscounts(order.Items, orderDiscounts);
+
+            // Recalculate order service charges
+            var serviceChargesIds = order.ServiceCharges.Select(c => c.Id).ToList();
+            order.ServiceCharges = await GetOrderServiceCharges(serviceChargesIds, order.Items, order.Discounts);
+        }
+
+        if (updateOrderDTO.Discounts is not null)
+        {
+            order.Discounts = await GetOrderDiscounts(order.Items, updateOrderDTO.Discounts);
         }
 
         if (updateOrderDTO.ServiceChargeIds is not null)
         {
-            var serviceCharges = await CreateOrderServiceCharges(updateOrderDTO.ServiceChargeIds);
-            order.ServiceCharges = serviceCharges;
+            order.ServiceCharges = await GetOrderServiceCharges(
+                updateOrderDTO.ServiceChargeIds,
+                order.Items,
+                order.Discounts
+            );
         }
 
         await _unitOfWork.SaveChanges();
@@ -96,9 +143,14 @@ public class OrderService : IOrderService
     public async Task CancelOrder(int orderId)
     {
         var order = await _orderRepository.GetWithOrderItems(orderId);
+
+        await _orderAuthorizationService.AuthorizeApplicationUser(order.BusinessId);
+
+        await _orderAuthorizationService.AuthorizeApplicationUser(order.BusinessId);
+
         if (order.Status != OrderStatus.Open)
         {
-            throw new ValidationException(new CannotModifyNonOpenOrderErrorMessage());
+            throw new ValidationException(new CannotCancelNonOpenOrderErrorMessage());
         }
 
         await ReturnOrderItems(order.Items);
@@ -110,13 +162,37 @@ public class OrderService : IOrderService
     public async Task<OrderReceiptDTO> GetOrderReceipt(int orderId)
     {
         var order = await _orderRepository.GetWithOrderItems(orderId);
-        if (order.Status != OrderStatus.Closed)
-        {
-            // TODO: reenable this
-            // throw new ValidationException(new CannotGetReceiptForNonClosedOrderErrorMessage());
-        }
+
+        await _orderAuthorizationService.AuthorizeApplicationUser(order.BusinessId);
 
         return _orderMappingService.MapToOrderReceiptDTO(order);
+    }
+
+    public async Task CompleteOrder(int orderId)
+    {
+        var order = await _orderRepository.Get(orderId);
+
+        await _orderAuthorizationService.AuthorizeApplicationUser(order.BusinessId);
+
+        if (order.Status != OrderStatus.Open)
+        {
+            throw new ValidationException(new CannotCompleteNonOpenOrderErrorMessage());
+        }
+
+        order.Status = OrderStatus.Completed;
+        await _unitOfWork.SaveChanges();
+    }
+
+    public async Task CloseOrder(int orderId)
+    {
+        var order = await _orderRepository.Get(orderId);
+        if (order.Status != OrderStatus.Completed)
+        {
+            throw new ValidationException(new CannotCloseNonCompletedOrderErrorMessage());
+        }
+
+        order.Status = OrderStatus.Closed;
+        await _unitOfWork.SaveChanges();
     }
 
     private async Task<List<OrderItem>> ReserveOrderItems(List<CreateOrUpdateOrderItemDTO> createOrderItemDTOs)
@@ -127,59 +203,219 @@ public class OrderService : IOrderService
         List<OrderItem> orderItems = [];
         foreach (var createOrderItemDTO in createOrderItemDTOs)
         {
-            var product = products.FirstOrDefault(x => x.Id == createOrderItemDTO.ProductId);
-            if (product is null)
-            {
-                throw new ValidationException(new ProductNotFoundErrorMessage(createOrderItemDTO.ProductId));
-            }
-
-            if (product.Stock < createOrderItemDTO.Quantity)
-            {
-                throw new ValidationException(new ProductOutOfStockErrorMessage(product.Name));
-            }
-
-            product.Stock -= createOrderItemDTO.Quantity;
-
-            List<OrderItemModifier> orderItemModifiers = [];
-            foreach (var modifierId in createOrderItemDTO.ModifierIds)
-            {
-                var modifier = product.Modifiers.FirstOrDefault(x => x.Id == modifierId);
-                if (modifier is null)
-                {
-                    throw new ValidationException(new IncompatibleProductModifierErrorMessage(product.Id, modifierId));
-                }
-
-                if (modifier.Stock < createOrderItemDTO.Quantity)
-                {
-                    throw new ValidationException(new ModifierOutOfStockErrorMessage(modifier.Name));
-                }
-
-                modifier.Stock -= createOrderItemDTO.Quantity;
-
-                var orderItemModifier = new OrderItemModifier
-                {
-                    ModifierId = modifier.Id,
-                    Name = modifier.Name,
-                    Price = modifier.Price,
-                };
-                orderItemModifiers.Add(orderItemModifier);
-            }
-
-            var orderItemTaxes = product.Taxes.Select(t => new OrderItemTax { Name = t.Name, Rate = t.Rate }).ToList();
-            var orderItem = new OrderItem
-            {
-                Name = product.Name,
-                Quantity = createOrderItemDTO.Quantity,
-                Product = product,
-                BaseUnitPrice = product.Price,
-                Taxes = orderItemTaxes,
-                Modifiers = orderItemModifiers,
-            };
-
+            var orderItem = ReserveOrderProduct(createOrderItemDTO, products);
+            orderItem.Discounts = GetOrderItemDiscounts(orderItem, createOrderItemDTO.Discounts);
+            orderItem.Taxes = GetOrderItemTaxes(orderItem);
             orderItems.Add(orderItem);
         }
 
         return orderItems;
+    }
+
+    private static OrderItem ReserveOrderProduct(CreateOrUpdateOrderItemDTO createOrderItemDTO, List<Product> products)
+    {
+        var product = products.FirstOrDefault(x => x.Id == createOrderItemDTO.ProductId);
+        if (product is null)
+        {
+            throw new ValidationException(new ProductNotFoundErrorMessage(createOrderItemDTO.ProductId));
+        }
+
+        if (product.Stock < createOrderItemDTO.Quantity)
+        {
+            throw new ValidationException(new ProductOutOfStockErrorMessage(product.Name));
+        }
+
+        product.Stock -= createOrderItemDTO.Quantity;
+        var modifiers = ReserveOrderProductModifiers(createOrderItemDTO, product);
+
+        return new OrderItem
+        {
+            Name = product.Name,
+            Quantity = createOrderItemDTO.Quantity,
+            Product = product,
+            BaseUnitPrice = product.Price,
+            Taxes = [],
+            Modifiers = modifiers,
+            Discounts = [],
+        };
+    }
+
+    private static List<OrderItemModifier> ReserveOrderProductModifiers(
+        CreateOrUpdateOrderItemDTO createOrderItemDTO,
+        Product product
+    )
+    {
+        List<OrderItemModifier> orderItemModifiers = [];
+        foreach (var modifierId in createOrderItemDTO.ModifierIds)
+        {
+            var modifier = product.Modifiers.FirstOrDefault(x => x.Id == modifierId);
+            if (modifier is null)
+            {
+                throw new ValidationException(new IncompatibleProductModifierErrorMessage(product.Id, modifierId));
+            }
+
+            if (modifier.Stock < createOrderItemDTO.Quantity)
+            {
+                throw new ValidationException(new ModifierOutOfStockErrorMessage(modifier.Name));
+            }
+
+            var orderItemModifier = new OrderItemModifier
+            {
+                ModifierId = modifier.Id,
+                Name = modifier.Name,
+                Price = modifier.Price,
+            };
+
+            modifier.Stock -= createOrderItemDTO.Quantity;
+            orderItemModifiers.Add(orderItemModifier);
+        }
+
+        return orderItemModifiers;
+    }
+
+    private static List<OrderItemTax> GetOrderItemTaxes(OrderItem orderItem)
+    {
+        var modifiersPrice = orderItem.Modifiers.Sum(x => x.Price);
+        var discounts = orderItem.Discounts.Sum(d => d.AppliedAmount);
+        var price = (orderItem.BaseUnitPrice + modifiersPrice) * orderItem.Quantity - discounts;
+
+        return orderItem
+            .Product!.Taxes.Select(t =>
+            {
+                var appliedAmount = t.GetAmountToApply(price);
+                price += appliedAmount;
+                return new OrderItemTax
+                {
+                    AppliedAmount = appliedAmount,
+                    Rate = t.Rate,
+                    Name = t.Name,
+                };
+            })
+            .ToList();
+    }
+
+    private static List<OrderItemDiscount> GetOrderItemDiscounts(
+        OrderItem orderItem,
+        List<CreateOrderDiscountDTO> createOrderDiscountDTOs
+    )
+    {
+        var modifiersPrice = orderItem.Modifiers.Sum(x => x.Price);
+        var price = (orderItem.BaseUnitPrice + modifiersPrice) * orderItem.Quantity;
+
+        var predefinedDiscounts = orderItem
+            .Product!.Discounts.OrderBy(d => d.CreatedAt)
+            .Select(d =>
+            {
+                var appliedAmount = d.GetAmountToApply(price);
+                price -= appliedAmount;
+                return new OrderItemDiscount
+                {
+                    Amount = d.Amount,
+                    PricingStrategy = d.PricingStrategy,
+                    AppliedAmount = appliedAmount,
+                    Type = OrderDiscountType.Predefined,
+                };
+            })
+            .ToList();
+
+        var flexibleDiscounts = createOrderDiscountDTOs
+            .Select(d =>
+            {
+                var appliedAmount = d.GetAmountToApply(price);
+                price -= appliedAmount;
+                return new OrderItemDiscount
+                {
+                    Amount = d.Amount,
+                    PricingStrategy = d.PricingStrategy,
+                    AppliedAmount = appliedAmount,
+                    Type = OrderDiscountType.Flexible,
+                };
+            })
+            .ToList();
+
+        return predefinedDiscounts.Concat(flexibleDiscounts).ToList();
+    }
+
+    private async Task<List<OrderDiscount>> GetOrderDiscounts(
+        List<OrderItem> orderItems,
+        List<CreateOrderDiscountDTO> createOrderDiscountDTOs
+    )
+    {
+        var orderDiscounts = await _discountRepository.GetOrderDiscounts();
+        var price = orderItems.Sum(i =>
+        {
+            var productPrice = (i.BaseUnitPrice + i.Modifiers.Sum(m => m.Price)) * i.Quantity;
+            var discounts = i.Discounts.Sum(d => d.AppliedAmount);
+            var taxes = i.Taxes.Sum(t => t.AppliedAmount);
+            return productPrice - discounts + taxes;
+        });
+
+        var predefinedDiscounts = orderDiscounts
+            .OrderBy(d => d.CreatedAt)
+            .Select(d =>
+            {
+                var appliedAmount = d.GetAmountToApply(price);
+                price -= appliedAmount;
+                return new OrderDiscount
+                {
+                    Type = OrderDiscountType.Predefined,
+                    Amount = d.Amount,
+                    PricingStrategy = d.PricingStrategy,
+                    AppliedAmount = appliedAmount,
+                };
+            })
+            .ToList();
+
+        var flexibleDiscounts = createOrderDiscountDTOs
+            .Select(d =>
+            {
+                var appliedAmount = d.GetAmountToApply(price);
+                price -= appliedAmount;
+                return new OrderDiscount
+                {
+                    Type = OrderDiscountType.Flexible,
+                    Amount = d.Amount,
+                    PricingStrategy = d.PricingStrategy,
+                    AppliedAmount = appliedAmount,
+                };
+            })
+            .ToList();
+
+        return predefinedDiscounts.Concat(flexibleDiscounts).ToList();
+    }
+
+    private async Task<List<OrderServiceCharge>> GetOrderServiceCharges(
+        List<int> serviceChargeIds,
+        List<OrderItem> orderItems,
+        List<OrderDiscount> orderDiscounts
+    )
+    {
+        var price =
+            orderItems.Sum(i =>
+            {
+                var productPrice = (i.BaseUnitPrice + i.Modifiers.Sum(m => m.Price)) * i.Quantity;
+                var discounts = i.Discounts.Sum(d => d.AppliedAmount);
+                var taxes = i.Taxes.Sum(t => t.AppliedAmount);
+                return productPrice - discounts + taxes;
+            }) - orderDiscounts.Sum(d => d.AppliedAmount);
+
+        var serviceCharges = await _serviceChargeRepository.GetMany(serviceChargeIds);
+        return serviceCharges
+            .OrderBy(c => c.PricingStrategy)
+            .Select(c =>
+            {
+                var appliedAmount = c.GetAmountToApply(price);
+                price += appliedAmount;
+
+                return new OrderServiceCharge
+                {
+                    Name = c.Name,
+                    PricingStrategy = c.PricingStrategy,
+                    Amount = c.Amount,
+                    AppliedAmount = appliedAmount,
+                };
+            })
+            .ToList();
     }
 
     private async Task ReturnOrderItems(List<OrderItem> orderItems)
@@ -210,18 +446,5 @@ public class OrderService : IOrderService
                 }
             }
         }
-    }
-
-    private async Task<List<OrderServiceCharge>> CreateOrderServiceCharges(List<int> serviceChargeIds)
-    {
-        var serviceCharges = await _serviceChargeRepository.GetMany(serviceChargeIds);
-        return serviceCharges
-            .Select(c => new OrderServiceCharge
-            {
-                Name = c.Name,
-                PricingStrategy = c.PricingStrategy,
-                Amount = c.Amount,
-            })
-            .ToList();
     }
 }

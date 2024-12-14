@@ -1,4 +1,5 @@
 import { api } from '@/lib/api-client';
+import { useAppStore } from '@/lib/app-store';
 import { MutationConfig } from '@/lib/react-query';
 import { ServiceCharge } from '@/types/api';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -12,7 +13,7 @@ export const createServiceChargeInputSchema = z.object({
 
 export type CreateServiceChargeInput = z.infer<typeof createServiceChargeInputSchema>;
 
-export const createServiceCharge = ({ data }: { data: CreateServiceChargeInput }): Promise<ServiceCharge> => {
+export const createServiceCharge = ({ data }: { data: CreateServiceChargeInput & { businessId: number } }): Promise<ServiceCharge> => {
   return api.post('/v1/service-charges', data);
 };
 
@@ -25,6 +26,8 @@ export const useCreateServiceCharge = ({ mutationConfig }: UseCreateServiceCharg
 
   const { onSuccess, ...restConfig } = mutationConfig || {};
 
+  const businessId = useAppStore((state) => state.applicationUser?.businessId);
+  
   return useMutation({
     onSuccess: (...args) => {
       queryClient.invalidateQueries({
@@ -33,6 +36,14 @@ export const useCreateServiceCharge = ({ mutationConfig }: UseCreateServiceCharg
       onSuccess?.(...args);
     },
     ...restConfig,
-    mutationFn: createServiceCharge,
+    mutationFn: async ({ data }: { data: CreateServiceChargeInput }) => {
+      if (!businessId) {
+        const error = new Error('Forbidden');
+        (error as any).statusCode = 403;
+        throw error;
+      }
+
+      return createServiceCharge({ data: { ...data, businessId } });
+    },
   });
 };

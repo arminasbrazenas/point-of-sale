@@ -5,13 +5,13 @@ using PointOfSale.Models.OrderManagement.Entities;
 
 namespace PointOfSale.DataAccess.OrderManagement.Configurations;
 
-public class OrderItemConfiguration : IEntityTypeConfiguration<OrderItem>
+public class OrderItemConfiguration : EntityBaseConfiguration<OrderItem, int>
 {
     private const string TableName = "OrderItems";
 
-    public void Configure(EntityTypeBuilder<OrderItem> builder)
+    public override void Configure(EntityTypeBuilder<OrderItem> builder)
     {
-        builder.HasKey(i => i.Id);
+        base.Configure(builder);
 
         builder.Property(i => i.Name).HasMaxLength(Constants.ProductNameMaxLength).IsRequired();
 
@@ -33,6 +33,13 @@ public class OrderItemConfiguration : IEntityTypeConfiguration<OrderItem>
             .HasMany(i => i.Taxes)
             .WithOne(t => t.OrderItem)
             .HasForeignKey(t => t.OrderItemId)
+            .OnDelete(DeleteBehavior.Cascade)
+            .IsRequired();
+
+        builder
+            .HasMany(i => i.Discounts)
+            .WithOne()
+            .HasForeignKey(i => i.OrderItemId)
             .OnDelete(DeleteBehavior.Cascade)
             .IsRequired();
 

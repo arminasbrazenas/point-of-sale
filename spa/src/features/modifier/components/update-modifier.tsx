@@ -60,7 +60,7 @@ export const UpdateModifier = ({ modifierId }: { modifierId: number }) => {
 
       setUpdatedModifierProperties({
         name: modifier.name === updatedModifier.name.trim() ? undefined : updatedModifier.name,
-        price: modifier.price === updatedModifier.price ? undefined : updatedModifier.price,
+        price: modifier.priceTaxExcluded === updatedModifier.price ? undefined : updatedModifier.price,
         stock: modifier.stock === updatedModifier.stock ? undefined : updatedModifier.stock,
       });
     },
@@ -72,7 +72,7 @@ export const UpdateModifier = ({ modifierId }: { modifierId: number }) => {
     }
 
     form.setFieldValue('name', modifierQuery.data.name);
-    form.setFieldValue('price', modifierQuery.data.price);
+    form.setFieldValue('price', modifierQuery.data.priceTaxExcluded);
     form.setFieldValue('stock', modifierQuery.data.stock);
   }, [modifierQuery.data]);
 

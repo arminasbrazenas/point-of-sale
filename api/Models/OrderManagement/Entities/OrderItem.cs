@@ -13,4 +13,5 @@ public class OrderItem : EntityBase<int>
     public required Product? Product { get; set; }
     public required List<OrderItemTax> Taxes { get; set; }
     public required List<OrderItemModifier> Modifiers { get; set; }
+    public required List<OrderItemDiscount> Discounts { get; set; }
 }

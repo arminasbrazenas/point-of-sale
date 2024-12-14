@@ -1,6 +1,5 @@
 using PointOfSale.BusinessLogic.OrderManagement.DTOs;
 using PointOfSale.BusinessLogic.OrderManagement.Interfaces;
-using PointOfSale.BusinessLogic.OrderManagement.Utilities;
 using PointOfSale.BusinessLogic.Shared.DTOs;
 using PointOfSale.DataAccess.Shared.Filters;
 using PointOfSale.Models.OrderManagement.Entities;
@@ -37,7 +36,12 @@ public class OrderMappingService : IOrderMappingService
     public OrderDTO MapToOrderDTO(Order order)
     {
         var orderItems = order.Items.Select(MapToOrderItemDTO).ToList();
-        var totalPrice = orderItems.Sum(i => i.TotalPrice);
+        var serviceCharges = order.ServiceCharges.Select(MapToOrderServiceChargeDTO).ToList();
+        var orderDiscounts = order.Discounts.Select(MapToOrderDiscountDTO).ToList();
+        var totalPrice =
+            orderItems.Sum(i => i.TotalPrice)
+            - orderDiscounts.Sum(d => d.AppliedAmount)
+            + serviceCharges.Sum(c => c.AppliedAmount);
 
         return new OrderDTO
         {
@@ -46,33 +50,32 @@ public class OrderMappingService : IOrderMappingService
             CreatedAt = order.CreatedAt,
             OrderItems = orderItems,
             TotalPrice = totalPrice,
-            ServiceCharges = order.ServiceCharges.Select(MapToOrderServiceChargeDTO).ToList(),
+            ServiceCharges = serviceCharges,
+            Discounts = orderDiscounts,
         };
     }
 
     public OrderReceiptDTO MapToOrderReceiptDTO(Order order)
     {
         var orderDTO = MapToOrderDTO(order);
-        var taxTotal = orderDTO.OrderItems.Sum(i => i.TaxTotal);
 
         return new OrderReceiptDTO
         {
             TotalPrice = orderDTO.TotalPrice,
             OrderItems = orderDTO.OrderItems,
-            TaxTotal = taxTotal,
+            Discounts = order.Discounts.Select(MapToOrderDiscountDTO).ToList(),
+            ServiceCharges = orderDTO.ServiceCharges,
         };
     }
 
     private static OrderItemDTO MapToOrderItemDTO(OrderItem orderItem)
     {
-        var baseUnitPrice = orderItem.BaseUnitPrice.ToRoundedPrice();
-        var taxRates = orderItem.Taxes.Select(t => t.Rate).ToList();
-        var unitTaxTotal = PriceUtility.CalculateTotalTax(baseUnitPrice, taxRates).ToRoundedPrice();
-        var taxTotal = unitTaxTotal * orderItem.Quantity;
-
-        var modifiersPrice = orderItem.Modifiers.Sum(i => i.Price).ToRoundedPrice();
-        var unitPrice = baseUnitPrice + unitTaxTotal + modifiersPrice;
-        var totalPrice = unitPrice * orderItem.Quantity;
+        var baseUnitPrice = orderItem.BaseUnitPrice;
+        var modifiersPrice = orderItem.Modifiers.Sum(m => m.Price);
+        var unitPrice = baseUnitPrice + modifiersPrice;
+        var discountsTotal = orderItem.Discounts.Sum(d => d.AppliedAmount);
+        var taxTotal = orderItem.Taxes.Sum(t => t.AppliedAmount);
+        var totalPrice = unitPrice * orderItem.Quantity - discountsTotal + taxTotal;
 
         return new OrderItemDTO
         {
@@ -81,9 +84,11 @@ public class OrderMappingService : IOrderMappingService
             Name = orderItem.Name,
             Quantity = orderItem.Quantity,
             UnitPrice = unitPrice,
-            TotalPrice = totalPrice,
             TaxTotal = taxTotal,
+            DiscountsTotal = discountsTotal,
+            TotalPrice = totalPrice,
             Modifiers = orderItem.Modifiers.Select(MapToOrderItemModifierDTO).ToList(),
+            Discounts = orderItem.Discounts.Select(MapToOrderDiscountDTO).ToList(),
         };
     }
 
@@ -104,6 +109,31 @@ public class OrderMappingService : IOrderMappingService
             Name = serviceCharge.Name,
             Amount = serviceCharge.Amount,
             PricingStrategy = serviceCharge.PricingStrategy,
+            AppliedAmount = serviceCharge.AppliedAmount,
+        };
+    }
+
+    private static OrderDiscountDTO MapToOrderDiscountDTO(OrderDiscount orderDiscount)
+    {
+        return new OrderDiscountDTO
+        {
+            Id = orderDiscount.OrderId,
+            Amount = orderDiscount.Amount,
+            PricingStrategy = orderDiscount.PricingStrategy,
+            AppliedAmount = orderDiscount.AppliedAmount,
+            Type = orderDiscount.Type,
+        };
+    }
+
+    private static OrderDiscountDTO MapToOrderDiscountDTO(OrderItemDiscount orderItemDiscount)
+    {
+        return new OrderDiscountDTO
+        {
+            Id = orderItemDiscount.Id,
+            Amount = orderItemDiscount.Amount,
+            PricingStrategy = orderItemDiscount.PricingStrategy,
+            AppliedAmount = orderItemDiscount.AppliedAmount,
+            Type = orderItemDiscount.Type,
         };
     }
 }

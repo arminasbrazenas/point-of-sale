@@ -1,5 +1,7 @@
 using PointOfSale.BusinessLogic.OrderManagement.DTOs;
+using PointOfSale.BusinessLogic.OrderManagement.Extensions;
 using PointOfSale.BusinessLogic.OrderManagement.Interfaces;
+using PointOfSale.BusinessLogic.OrderManagement.Utilities;
 using PointOfSale.BusinessLogic.Shared.DTOs;
 using PointOfSale.DataAccess.Shared.Filters;
 using PointOfSale.Models.OrderManagement.Entities;
@@ -14,7 +16,27 @@ public class ModifierMappingService : IModifierMappingService
         {
             Id = modifier.Id,
             Name = modifier.Name,
-            Price = modifier.Price,
+            PriceTaxExcluded = modifier.Price.ToRoundedPrice(),
+            Price = modifier.Price.ToRoundedPrice(),
+            Stock = modifier.Stock,
+        };
+    }
+
+    public ModifierDTO MapToModifierDTO(Modifier modifier, IEnumerable<Tax> taxes)
+    {
+        var grossPrice = modifier.Price.ToRoundedPrice();
+        var netPrice = grossPrice;
+        foreach (var tax in taxes)
+        {
+            netPrice += tax.GetAmountToApply(netPrice);
+        }
+
+        return new ModifierDTO
+        {
+            Id = modifier.Id,
+            Name = modifier.Name,
+            PriceTaxExcluded = grossPrice,
+            Price = netPrice,
             Stock = modifier.Stock,
         };
     }

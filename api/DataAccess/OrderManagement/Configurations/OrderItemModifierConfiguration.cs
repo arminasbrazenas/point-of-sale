@@ -5,13 +5,13 @@ using PointOfSale.Models.OrderManagement.Entities;
 
 namespace PointOfSale.DataAccess.OrderManagement.Configurations;
 
-public class OrderItemModifierConfiguration : IEntityTypeConfiguration<OrderItemModifier>
+public class OrderItemModifierConfiguration : EntityBaseConfiguration<OrderItemModifier, int>
 {
     private const string TableName = "OrderItemModifiers";
 
-    public void Configure(EntityTypeBuilder<OrderItemModifier> builder)
+    public override void Configure(EntityTypeBuilder<OrderItemModifier> builder)
     {
-        builder.HasKey(m => m.Id);
+        base.Configure(builder);
 
         builder.Property(m => m.Name).HasMaxLength(Constants.ModifierNameMaxLength).IsRequired();
 

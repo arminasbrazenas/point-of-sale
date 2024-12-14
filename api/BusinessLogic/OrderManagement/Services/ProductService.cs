@@ -1,5 +1,6 @@
 using PointOfSale.BusinessLogic.OrderManagement.DTOs;
 using PointOfSale.BusinessLogic.OrderManagement.Interfaces;
+using PointOfSale.BusinessLogic.OrderManagement.Utilities;
 using PointOfSale.BusinessLogic.Shared.DTOs;
 using PointOfSale.BusinessLogic.Shared.Factories;
 using PointOfSale.DataAccess.OrderManagement.Interfaces;
@@ -14,24 +15,29 @@ public class ProductService : IProductService
     private readonly IProductRepository _productRepository;
     private readonly IProductValidationService _productValidationService;
     private readonly IProductMappingService _productMappingService;
+    private readonly IOrderManagementAuthorizationService _orderManagementAuthorizationService;
 
     public ProductService(
         IUnitOfWork unitOfWork,
         IProductRepository productRepository,
         IProductValidationService productValidationService,
-        IProductMappingService productMappingService
+        IProductMappingService productMappingService,
+        IOrderManagementAuthorizationService orderManagementAuthorizationService
     )
     {
         _unitOfWork = unitOfWork;
         _productRepository = productRepository;
         _productValidationService = productValidationService;
         _productMappingService = productMappingService;
+        _orderManagementAuthorizationService = orderManagementAuthorizationService;
     }
 
     public async Task<ProductDTO> CreateProduct(CreateProductDTO createProductDTO)
     {
+        await _orderManagementAuthorizationService.AuthorizeApplicationUser(createProductDTO.BusinessId);
+
         var name = await _productValidationService.ValidateName(createProductDTO.Name);
-        var price = _productValidationService.ValidatePrice(createProductDTO.Price);
+        var price = _productValidationService.ValidatePrice(createProductDTO.Price).ToRoundedPrice();
         var stock = _productValidationService.ValidateStock(createProductDTO.Stock);
         var taxes = await _productValidationService.ValidateTaxes(createProductDTO.TaxIds);
         var modifiers = await _productValidationService.ValidateModifiers(createProductDTO.ModifierIds);
@@ -43,6 +49,8 @@ public class ProductService : IProductService
             Stock = stock,
             Taxes = taxes,
             Modifiers = modifiers,
+            Discounts = [],
+            BusinessId = createProductDTO.BusinessId,
         };
 
         _productRepository.Add(product);
@@ -55,6 +63,8 @@ public class ProductService : IProductService
     {
         var product = await _productRepository.GetWithRelatedData(productId);
 
+        await _orderManagementAuthorizationService.AuthorizeApplicationUser(product.BusinessId);
+
         if (updateProductDTO.Name is not null)
         {
             product.Name = await _productValidationService.ValidateName(updateProductDTO.Name);
@@ -62,7 +72,7 @@ public class ProductService : IProductService
 
         if (updateProductDTO.Price.HasValue)
         {
-            product.Price = _productValidationService.ValidatePrice(updateProductDTO.Price.Value);
+            product.Price = _productValidationService.ValidatePrice(updateProductDTO.Price.Value).ToRoundedPrice();
         }
 
         if (updateProductDTO.Stock.HasValue)
@@ -89,6 +99,9 @@ public class ProductService : IProductService
     public async Task<ProductDTO> GetProduct(int productId)
     {
         var product = await _productRepository.GetWithRelatedData(productId);
+
+        await _orderManagementAuthorizationService.AuthorizeApplicationUser(product.BusinessId);
+
         return _productMappingService.MapToProductDTO(product);
     }
 
@@ -102,6 +115,10 @@ public class ProductService : IProductService
 
     public async Task DeleteProduct(int productId)
     {
+        var product = await _productRepository.Get(productId);
+
+        await _orderManagementAuthorizationService.AuthorizeApplicationUser(product.BusinessId);
+
         await _productRepository.Delete(productId);
     }
 }

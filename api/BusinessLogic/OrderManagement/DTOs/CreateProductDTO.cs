@@ -7,4 +7,5 @@ public record CreateProductDTO
     public required int Stock { get; init; }
     public required List<int> TaxIds { get; init; }
     public required List<int> ModifierIds { get; init; }
+    public required int BusinessId { get; init; }
 }

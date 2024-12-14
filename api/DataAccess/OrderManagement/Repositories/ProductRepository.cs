@@ -19,6 +19,7 @@ public class ProductRepository : RepositoryBase<Product, int>, IProductRepositor
         var product = await DbSet
             .Include(p => p.Taxes)
             .Include(p => p.Modifiers)
+            .Include(p => p.Discounts.Where(d => d.ValidUntil >= DateTimeOffset.UtcNow))
             .Where(p => p.Id == productId)
             .FirstOrDefaultAsync();
 
@@ -36,6 +37,7 @@ public class ProductRepository : RepositoryBase<Product, int>, IProductRepositor
         var products = await DbSet
             .Include(p => p.Taxes)
             .Include(p => p.Modifiers)
+            .Include(p => p.Discounts.Where(d => d.ValidUntil >= DateTimeOffset.UtcNow))
             .Join(distinctIds, e => e.Id, id => id, (e, _) => e)
             .ToListAsync();
 
@@ -56,7 +58,12 @@ public class ProductRepository : RepositoryBase<Product, int>, IProductRepositor
 
     public async Task<List<Product>> GetPaged(PaginationFilter paginationFilter)
     {
-        var query = DbSet.Include(p => p.Taxes).Include(p => p.Modifiers).OrderBy(p => p.CreatedAt).AsQueryable();
+        var query = DbSet
+            .Include(p => p.Taxes)
+            .Include(p => p.Modifiers)
+            .Include(p => p.Discounts.Where(d => d.ValidUntil >= DateTimeOffset.UtcNow))
+            .OrderBy(p => p.CreatedAt)
+            .AsQueryable();
 
         return await GetPaged(query, paginationFilter);
     }
