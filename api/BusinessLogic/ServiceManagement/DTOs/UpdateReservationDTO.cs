@@ -4,12 +4,8 @@ namespace PointOfSale.BusinessLogic.ServiceManagement.DTOs;
 
 public record UpdateReservationDTO
 {
-    public required DateTime DateStart { get; init; }
-    public required DateTime DateEnd { get; init; }
-    public required TimeSpan Duration { get; init; }
-    public required ReservationStatus Status { get; init; }
-    public required int ContactInfoId { get; init; }
-    public required int ServiceId { get; init; }
-    public required int EmployeeId { get; init; }
-    public required DateTime LastUpdated { get; init; }
+    public DateTime? DateStart { get; init; }
+    public int? ContactInfoId { get; init; }
+    public int? ServiceId { get; init; }
+    public int? EmployeeId { get; init; }
 }

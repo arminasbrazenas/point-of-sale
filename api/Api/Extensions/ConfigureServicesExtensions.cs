@@ -3,9 +3,13 @@ using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 using PointOfSale.BusinessLogic.OrderManagement.Interfaces;
 using PointOfSale.BusinessLogic.OrderManagement.Services;
+using PointOfSale.BusinessLogic.ServiceManagement.Interfaces;
+using PointOfSale.BusinessLogic.ServiceManagement.Services;
 using PointOfSale.DataAccess;
 using PointOfSale.DataAccess.OrderManagement.Interfaces;
 using PointOfSale.DataAccess.OrderManagement.Repositories;
+using PointOfSale.DataAccess.ServiceManagement.Interfaces;
+using PointOfSale.DataAccess.ServiceManagement.Repositories;
 using PointOfSale.DataAccess.Shared.Interfaces;
 using PointOfSale.DataAccess.Shared.Repositories;
 
@@ -74,6 +78,35 @@ public static class ConfigureServicesExtensions
         services.AddScoped<IModifierService, ModifierService>();
         services.AddScoped<IServiceChargeService, ServiceChargeService>();
 
+        return services;
+    }
+    
+    public static IServiceCollection AddServiceManagement(this IServiceCollection services)
+    {
+        services.AddScoped<IContactInfoRepository, ContactInfoRepository>();
+        services.AddScoped<IReservationRepository, ReservationRepository>();
+        services.AddScoped<IServiceRepository, ServiceRepository>();
+        services.AddScoped<IServiceAvailabilityRepository, ServiceAvailabilityRepository>();
+        services.AddScoped<IServiceResourceRepository, ServiceResourceRepository>();
+        
+        services.AddScoped<IContactInfoMappingService, ContactInfoMappingService>();
+        services.AddScoped<IReservationMappingService, ReservationMappingService>();
+        services.AddScoped<IServiceMappingService, ServiceMappingService>();
+        services.AddScoped<IServiceAvailabilityMappingService, ServiceAvailabilityMappingService>();
+        services.AddScoped<IServiceResourcesMappingService, ServiceResourceMappingService>();
+        
+        services.AddScoped<IContactInfoValidationService, ContactInfoValidationService>();
+        services.AddScoped<IReservationValidationService, ReservationValidationService>();
+        services.AddScoped<IServiceValidatorService, ServiceValidatorService>();
+        services.AddScoped<IServiceAvailabilityValidationService, ServiceAvailabilityValidationService>();
+        services.AddScoped<IServiceResourceValidatorService, ServiceResourceValidatorService>();
+        
+        services.AddScoped<IContactInfoService, ContactInfoService>();
+        services.AddScoped<IReservationService, ReservationService>();
+        services.AddScoped<IServiceService, ServiceService>();
+        services.AddScoped<IServiceAvailabilityService, ServiceAvailabilityService>();
+        services.AddScoped<IServiceResourceService, ServiceResourceService>();
+        
         return services;
     }
 }

@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using PointOfSale.DataAccess.ServiceManagement.Interfaces;
 using PointOfSale.DataAccess.Shared.Interfaces;
 using PointOfSale.DataAccess.Shared.Repositories;
@@ -10,6 +11,11 @@ public class ServiceRepository  : RepositoryBase<Service, int>, IServiceReposito
     public ServiceRepository(ApplicationDbContext dbContext) 
         : base(dbContext) { }
 
+    public async Task<Service?> GetServiceByName(string name)
+    {
+        return await DbSet.FirstOrDefaultAsync(s => s.Name == name);
+    }
+    
     protected override IPointOfSaleErrorMessage GetEntityNotFoundErrorMessage(int id)
     {
         throw new NotImplementedException();

@@ -26,6 +26,12 @@ public class ReservationConfiguration : IEntityTypeConfiguration<Reservation>
             .HasMaxLength(SharedConstants.EnumMaxLength)
             .IsRequired();
         
+        builder.HasOne(r => r.ServiceResource)
+            .WithMany(sr => sr.Reservations)
+            .HasForeignKey(r => r.ServiceResourceId)
+            .OnDelete(DeleteBehavior.Restrict)
+            .IsRequired();
+        
         builder.HasOne(r => r.Service)
             .WithMany(s => s.Reservations)
             .HasForeignKey(r => r.ServiceId)

@@ -9,7 +9,13 @@ public class ReservationRepository : RepositoryBase<Reservation, int>, IReservat
 {
     public ReservationRepository(ApplicationDbContext dbContext) 
         : base(dbContext) { }
-
+   
+   public List<int> GetServiceResourceIdsByTime(DateTime start, DateTime end)
+   {
+       return DbSet.Where(r => r.DateStart < end && r.DateEnd > start)
+           .Select(r => r.ServiceResourceId)
+           .ToList();
+   }
     protected override IPointOfSaleErrorMessage GetEntityNotFoundErrorMessage(int id)
     {
         throw new NotImplementedException();

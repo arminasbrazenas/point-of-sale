@@ -12,8 +12,8 @@ using PointOfSale.DataAccess;
 namespace PointOfSale.DataAccess.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20241210114118_AddService")]
-    partial class AddService
+    [Migration("20241214131242_AddServiceManagement")]
+    partial class AddServiceManagement
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -345,7 +345,7 @@ namespace PointOfSale.DataAccess.Migrations
                     b.ToTable("Taxes", "Order");
                 });
 
-            modelBuilder.Entity("PointOfSale.Models.ReservationManagement.Entities.ContactInfo", b =>
+            modelBuilder.Entity("PointOfSale.Models.ServiceManagement.Entities.ContactInfo", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -375,10 +375,10 @@ namespace PointOfSale.DataAccess.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ContactInfo", "Reservation");
+                    b.ToTable("ContactInfo", "Service");
                 });
 
-            modelBuilder.Entity("PointOfSale.Models.ReservationManagement.Entities.Reservation", b =>
+            modelBuilder.Entity("PointOfSale.Models.ServiceManagement.Entities.Reservation", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -398,9 +398,6 @@ namespace PointOfSale.DataAccess.Migrations
                     b.Property<DateTime>("DateStart")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<TimeSpan>("Duration")
-                        .HasColumnType("interval");
-
                     b.Property<int>("EmployeeId")
                         .HasColumnType("integer");
 
@@ -411,6 +408,9 @@ namespace PointOfSale.DataAccess.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("ServiceId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ServiceResourceId")
                         .HasColumnType("integer");
 
                     b.Property<string>("Status")
@@ -424,10 +424,12 @@ namespace PointOfSale.DataAccess.Migrations
 
                     b.HasIndex("ServiceId");
 
-                    b.ToTable("Reservations", "Reservation");
+                    b.HasIndex("ServiceResourceId");
+
+                    b.ToTable("Reservations", "Service");
                 });
 
-            modelBuilder.Entity("PointOfSale.Models.ReservationManagement.Entities.Service", b =>
+            modelBuilder.Entity("PointOfSale.Models.ServiceManagement.Entities.Service", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -455,15 +457,15 @@ namespace PointOfSale.DataAccess.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
-                    b.Property<float>("Price")
-                        .HasColumnType("real");
+                    b.Property<decimal>("Price")
+                        .HasColumnType("numeric");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Services", "Reservation");
+                    b.ToTable("Services", "Service");
                 });
 
-            modelBuilder.Entity("PointOfSale.Models.ReservationManagement.Entities.ServiceAvailability", b =>
+            modelBuilder.Entity("PointOfSale.Models.ServiceManagement.Entities.ServiceAvailability", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -493,10 +495,10 @@ namespace PointOfSale.DataAccess.Migrations
 
                     b.HasIndex("ServiceResourceId");
 
-                    b.ToTable("ServiceAvailability", "Reservation");
+                    b.ToTable("ServiceAvailability", "Service");
                 });
 
-            modelBuilder.Entity("PointOfSale.Models.ReservationManagement.Entities.ServiceResource", b =>
+            modelBuilder.Entity("PointOfSale.Models.ServiceManagement.Entities.ServiceResource", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -517,7 +519,7 @@ namespace PointOfSale.DataAccess.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ServiceResources", "Reservation");
+                    b.ToTable("ServiceResources", "Service");
                 });
 
             modelBuilder.Entity("ProductTax", b =>
@@ -597,34 +599,42 @@ namespace PointOfSale.DataAccess.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("PointOfSale.Models.ReservationManagement.Entities.Reservation", b =>
+            modelBuilder.Entity("PointOfSale.Models.ServiceManagement.Entities.Reservation", b =>
                 {
-                    b.HasOne("PointOfSale.Models.ReservationManagement.Entities.ContactInfo", "ContactInfo")
+                    b.HasOne("PointOfSale.Models.ServiceManagement.Entities.ContactInfo", "ContactInfo")
                         .WithMany("Reservations")
                         .HasForeignKey("ContactInfoId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("PointOfSale.Models.ReservationManagement.Entities.Service", "Service")
+                    b.HasOne("PointOfSale.Models.ServiceManagement.Entities.Service", "Service")
                         .WithMany("Reservations")
                         .HasForeignKey("ServiceId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("PointOfSale.Models.ServiceManagement.Entities.ServiceResource", "ServiceResource")
+                        .WithMany("Reservations")
+                        .HasForeignKey("ServiceResourceId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("ContactInfo");
 
                     b.Navigation("Service");
+
+                    b.Navigation("ServiceResource");
                 });
 
-            modelBuilder.Entity("PointOfSale.Models.ReservationManagement.Entities.ServiceAvailability", b =>
+            modelBuilder.Entity("PointOfSale.Models.ServiceManagement.Entities.ServiceAvailability", b =>
                 {
-                    b.HasOne("PointOfSale.Models.ReservationManagement.Entities.Service", "Service")
+                    b.HasOne("PointOfSale.Models.ServiceManagement.Entities.Service", "Service")
                         .WithMany("ServiceAvailability")
                         .HasForeignKey("ServiceId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("PointOfSale.Models.ReservationManagement.Entities.ServiceResource", "ServiceResource")
+                    b.HasOne("PointOfSale.Models.ServiceManagement.Entities.ServiceResource", "ServiceResource")
                         .WithMany("ServiceAvailability")
                         .HasForeignKey("ServiceResourceId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -664,20 +674,22 @@ namespace PointOfSale.DataAccess.Migrations
                     b.Navigation("Taxes");
                 });
 
-            modelBuilder.Entity("PointOfSale.Models.ReservationManagement.Entities.ContactInfo", b =>
+            modelBuilder.Entity("PointOfSale.Models.ServiceManagement.Entities.ContactInfo", b =>
                 {
                     b.Navigation("Reservations");
                 });
 
-            modelBuilder.Entity("PointOfSale.Models.ReservationManagement.Entities.Service", b =>
+            modelBuilder.Entity("PointOfSale.Models.ServiceManagement.Entities.Service", b =>
                 {
                     b.Navigation("Reservations");
 
                     b.Navigation("ServiceAvailability");
                 });
 
-            modelBuilder.Entity("PointOfSale.Models.ReservationManagement.Entities.ServiceResource", b =>
+            modelBuilder.Entity("PointOfSale.Models.ServiceManagement.Entities.ServiceResource", b =>
                 {
+                    b.Navigation("Reservations");
+
                     b.Navigation("ServiceAvailability");
                 });
 #pragma warning restore 612, 618

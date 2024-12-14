@@ -2,7 +2,7 @@ namespace PointOfSale.BusinessLogic.ServiceManagement.DTOs;
 
 public record UpdateServiceAvailabilityDTO
 {
-    public required int ServiceId { get; init; }
-    public required int ServiceResourceId { get; init; }
-    public required int Priority { get; init; }
+    public int? ServiceId { get; init; }
+    public int? ServiceResourceId { get; init; }
+    public int? Priority { get; init; }
 }

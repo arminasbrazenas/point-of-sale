@@ -7,8 +7,8 @@ public class Reservation : EntityBase<int>
 {
     public required DateTime DateStart { get; set; }
     public required DateTime DateEnd { get; set; }
-    public required TimeSpan Duration { get; set; }
     public required ReservationStatus Status { get; set; }
+    public required int ServiceResourceId { get; set; }
     public required int ContactInfoId { get; set; }
     public required int ServiceId { get; set; }
     public required int EmployeeId { get; set; }
@@ -17,4 +17,6 @@ public class Reservation : EntityBase<int>
     
     public ContactInfo ContactInfo { get; set; }
     public Service Service { get; set; }
+    
+    public ServiceResource ServiceResource { get; set; }
 }
