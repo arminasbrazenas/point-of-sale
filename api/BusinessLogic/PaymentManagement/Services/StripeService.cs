@@ -20,9 +20,10 @@ public class StripeService : IStripeService
     {
         var paymentIntentOptions = new PaymentIntentCreateOptions
         {
-            Amount = (long)(paymentIntentDTO.PaymentAmount * 100m),
+            Amount = (long)((paymentIntentDTO.PaymentAmount + paymentIntentDTO.TipAmount) * 100m),
             Currency = "eur",
             PaymentMethodTypes = ["card"],
+            Description = $"Payment for order #{paymentIntentDTO.OrderId}",
         };
 
         try

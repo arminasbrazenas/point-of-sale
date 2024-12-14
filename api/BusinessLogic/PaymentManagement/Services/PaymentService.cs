@@ -104,7 +104,10 @@ public class PaymentService : IPaymentService
             ExternalId = paymentIntent.PaymentIntentId,
         };
 
+        var tip = new Tip { OrderId = order.Id, Amount = createPaymentIntentDTO.TipAmount };
+
         _paymentRepository.Add(payment);
+        _tipRepository.Add(tip);
         await _unitOfWork.SaveChanges();
 
         return paymentIntent;
