@@ -20,6 +20,9 @@ export const useConfirmPaymentIntent = ({ mutationConfig }: UseConfirmPaymentInt
       queryClient.invalidateQueries({
         queryKey: ['payments'],
       });
+      queryClient.invalidateQueries({
+        queryKey: ['order-tips'],
+      });
       onSuccess?.(...args);
     },
     ...restConfig,

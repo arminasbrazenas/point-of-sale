@@ -7,6 +7,7 @@ import z from 'zod';
 export const createOnlinePaymentIntentSchema = z.object({
   orderId: z.coerce.number(),
   paymentAmount: z.coerce.number(),
+  tipAmount: z.coerce.number(),
 });
 
 export type CreateOnlinePaymentIntentInput = z.infer<typeof createOnlinePaymentIntentSchema>;

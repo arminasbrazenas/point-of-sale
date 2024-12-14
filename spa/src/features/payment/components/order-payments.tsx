@@ -126,6 +126,7 @@ export const OrderPayments = (props: OrderPaymentsProps) => {
     initialValues: {
       orderId: props.orderId,
       paymentAmount: 0,
+      tipAmount: 0,
     },
     validate: zodResolver(createOnlinePaymentIntentSchema),
   });
@@ -231,6 +232,13 @@ export const OrderPayments = (props: OrderPaymentsProps) => {
                     withAsterisk
                     key={createCardPaymentIntentForm.key('paymentAmount')}
                     {...createCardPaymentIntentForm.getInputProps('paymentAmount')}
+                  />
+                  <CurrencyInput
+                    label="Tip amount"
+                    placeholder="Tip amount"
+                    withAsterisk
+                    key={createCardPaymentIntentForm.key('tipAmount')}
+                    {...createCardPaymentIntentForm.getInputProps('tipAmount')}
                   />
                   <Button type="submit" loading={createCardPaymentIntentMutation.isPending}>
                     Begin payment

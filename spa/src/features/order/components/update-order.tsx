@@ -1,4 +1,4 @@
-import { Button, Card, Group, List, Paper, SimpleGrid, Stack, Table, Text } from '@mantine/core';
+import { Button, List, Paper, SimpleGrid, Stack, Table, Text } from '@mantine/core';
 import { useOrder } from '../api/get-order';
 import { useCancelOrder } from '../api/cancel-order';
 import { showNotification } from '@/lib/notifications';
