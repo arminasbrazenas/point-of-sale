@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PointOfSale.BusinessLogic.ApplicationUserManagement.DTOs;
 using PointOfSale.BusinessLogic.ApplicationUserManagement.Interfaces;
+using PointOfSale.BusinessLogic.Shared.DTOs;
 
 namespace PointOfSale.Api.Controllers;
 
@@ -38,10 +39,13 @@ public class ApplicationUserController : ControllerBase
     [HttpGet]
     [Authorize(Roles = "Admin,BusinessOwner")]
     [Route("")]
-    public async Task<IActionResult> GetApplicationUsers()
+    public async Task<IActionResult> GetApplicationUsers(
+        [FromQuery] int? businessId,
+        [FromQuery] PaginationFilterDTO paginationFilterDTO
+    )
     {
-        var users = await _applicationUserService.GetApplicationUsers();
-        return Ok(users);
+        var pagedUsers = await _applicationUserService.GetApplicationUsers(businessId, paginationFilterDTO);
+        return Ok(pagedUsers);
     }
 
     [HttpGet]
@@ -49,7 +53,7 @@ public class ApplicationUserController : ControllerBase
     [Route("currentUser")]
     public async Task<IActionResult> GetCurrentApplicationUser()
     {
-        var user =await  _applicationUserService.GetCurrentApplicationUser();
+        var user = await _applicationUserService.GetCurrentApplicationUser();
         return Ok(user);
     }
 

@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Identity;
 using PointOfSale.BusinessLogic.ApplicationUserManagement.DTOs;
 using PointOfSale.BusinessLogic.ApplicationUserManagement.Exceptions;
 using PointOfSale.BusinessLogic.ApplicationUserManagement.Interfaces;
+using PointOfSale.BusinessLogic.Shared.DTOs;
+using PointOfSale.BusinessLogic.Shared.Factories;
 using PointOfSale.DataAccess.ApplicationUserManagement.ErrorMessages;
 using PointOfSale.DataAccess.ApplicationUserManagement.Interfaces;
 using PointOfSale.DataAccess.BusinessManagement.Interfaces;
@@ -17,7 +19,6 @@ public class ApplicationUserService : IApplicationUserService
     private readonly IApplicationUserMappingService _applicationUserMappingService;
     private readonly IApplicationUserAuthorizationService _applicationUserAuthorizationService;
     private readonly ICurrentApplicationUserAccessor _currentApplicationUserAccessor;
-
 
     public ApplicationUserService(
         UserManager<ApplicationUser> userManager,
@@ -112,22 +113,24 @@ public class ApplicationUserService : IApplicationUserService
         return _applicationUserMappingService.MapApplicationUserDTO(applicationUser, dto.Role);
     }
 
-    public async Task<List<ApplicationUserDTO>> GetApplicationUsers()
+    public async Task<PagedResponseDTO<ApplicationUserDTO>> GetApplicationUsers(
+        int? businessId,
+        PaginationFilterDTO paginationFilterDTO
+    )
     {
-        var users = await _applicationUserRepository.GetAllUsersWithBusinessAsync();
+        var paginationFilter = PaginationFilterFactory.Create(paginationFilterDTO);
 
-        var userDtos = await Task.WhenAll(
-            users.Select(async user =>
-            {
-                var roles = await _userManager.GetRolesAsync(user);
-                var role = roles.FirstOrDefault();
-                return _applicationUserMappingService.MapApplicationUserDTO(user, role!);
-            })
-        );
+        var users = await _applicationUserRepository.GetAllUsersWithBusinessAsync(businessId, paginationFilter);
 
-        return userDtos.ToList();
+        var totalCount = await _applicationUserRepository.GetTotalCountAsync();
+
+        var userDtos = _applicationUserMappingService.MapPagedApplicationUserDTOs(users, paginationFilter, totalCount);
+
+        return userDtos;
     }
-    public async Task<ApplicationUserDTO> GetCurrentApplicationUser(){
+
+    public async Task<ApplicationUserDTO> GetCurrentApplicationUser()
+    {
         var applicationUserId = _currentApplicationUserAccessor.GetApplicationUserId();
         var role = _currentApplicationUserAccessor.GetApplicationUserRole();
         var applicationUser = await _applicationUserRepository.GetUserByIdWithBusinessAsync(applicationUserId);
