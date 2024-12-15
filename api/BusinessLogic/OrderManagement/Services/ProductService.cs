@@ -105,10 +105,10 @@ public class ProductService : IProductService
         return _productMappingService.MapToProductDTO(product);
     }
 
-    public async Task<PagedResponseDTO<ProductDTO>> GetProducts(PaginationFilterDTO paginationFilterDTO)
+    public async Task<PagedResponseDTO<ProductDTO>> GetProducts(PaginationFilterDTO paginationFilterDTO, int businessId)
     {
         var paginationFilter = PaginationFilterFactory.Create(paginationFilterDTO);
-        var products = await _productRepository.GetPaged(paginationFilter);
+        var products = await _productRepository.GetPaged(paginationFilter, businessId);
         var totalCount = await _productRepository.GetTotalCount();
         return _productMappingService.MapToPagedProductDTO(products, paginationFilter, totalCount);
     }

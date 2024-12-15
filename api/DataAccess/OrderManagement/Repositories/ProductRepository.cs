@@ -56,9 +56,10 @@ public class ProductRepository : RepositoryBase<Product, int>, IProductRepositor
         return DbSet.FirstOrDefaultAsync(p => p.Name == name);
     }
 
-    public async Task<List<Product>> GetPaged(PaginationFilter paginationFilter)
+    public async Task<List<Product>> GetPaged(PaginationFilter paginationFilter, int businessId)
     {
         var query = DbSet
+            .Where(p => p.BusinessId == businessId)
             .Include(p => p.Taxes)
             .Include(p => p.Modifiers)
             .Include(p => p.Discounts.Where(d => d.ValidUntil >= DateTimeOffset.UtcNow))
