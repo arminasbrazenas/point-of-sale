@@ -57,3 +57,15 @@ public class ApplicationUserNotFoundErrorMessage : IPointOfSaleErrorMessage
 
     public string En => $"No application user with id {_id} exists.";
 }
+
+public class FailedActionOnApplicationUserErrorMessage : IPointOfSaleErrorMessage
+{
+    private readonly string _errors;
+
+    public FailedActionOnApplicationUserErrorMessage(string errors)
+    {
+        _errors = errors;
+    }
+
+    public string En => $"Action on ApplicationUser failed with errors: {_errors}";
+}

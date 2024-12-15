@@ -4,9 +4,14 @@ import { showNotification } from '@/lib/notifications';
 import { useNavigate } from 'react-router-dom';
 import { paths } from '@/config/paths';
 import { CreateTaxInput, createTaxInputSchema, useCreateTax } from '../api/create-tax';
+import { useAppStore } from '@/lib/app-store';
 
 export const AddTax = () => {
   const navigate = useNavigate();
+  const businessId = useAppStore((state) => state.applicationUser?.businessId);
+          if (!businessId) {
+            throw new Error("Business ID is required to create a product.");
+          }
 
   const form = useForm<CreateTaxInput>({
     mode: 'uncontrolled',
@@ -31,7 +36,7 @@ export const AddTax = () => {
   });
 
   const createTax = (values: CreateTaxInput) => {
-    createTaxMutation.mutate({ data: values });
+    createTaxMutation.mutate({  data :{ ...values, businessId}});
   };
 
   return (

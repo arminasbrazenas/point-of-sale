@@ -1,4 +1,5 @@
 using PointOfSale.BusinessLogic.ApplicationUserManagement.DTOs;
+using PointOfSale.BusinessLogic.Shared.DTOs;
 
 namespace PointOfSale.BusinessLogic.ApplicationUserManagement.Interfaces;
 
@@ -6,8 +7,16 @@ public interface IApplicationUserService
 {
     Task<ApplicationUserDTO> CreateApplicationUser(RegisterApplicationUserDTO dto);
     Task<ApplicationUserDTO> GetApplicationUserByEmail(string email);
-    Task<List<ApplicationUserDTO>> GetApplicationUsers();
+    Task<PagedResponseDTO<ApplicationUserDTO>> GetApplicationUsers(
+        int? businessId,
+        PaginationFilterDTO paginationFilterDTO
+    );
     Task<TokensDTO> AuthenticateApplicationUser(LoginApplicationUserDTO dto);
     Task<ApplicationUserDTO> GetApplicationUserById(int id);
     Task<ApplicationUserDTO> GetCurrentApplicationUser();
+    Task<ApplicationUserDTO> UpdateApplicationUser(
+        int applicationUserId,
+        UpdateApplicationUserDTO updateApplicationUserDTO
+    );
+    Task DeleteApplicationUser(int applicationUserId);
 }

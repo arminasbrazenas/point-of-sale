@@ -5,9 +5,16 @@ import { showNotification } from '@/lib/notifications';
 import { useNavigate } from 'react-router-dom';
 import { paths } from '@/config/paths';
 import { CreateModifierInput, createModifierInputSchema, useCreateModifier } from '../api/create-modifier';
+import { useAppStore } from '@/lib/app-store';
 
 export const AddModifier = () => {
   const navigate = useNavigate();
+
+  const businessId = useAppStore((state) => state.applicationUser?.businessId);
+        if (!businessId) {
+          throw new Error("Business ID is required to create a product.");
+        }
+      
 
   const form = useForm<CreateModifierInput>({
     mode: 'uncontrolled',
@@ -33,7 +40,9 @@ export const AddModifier = () => {
   });
 
   const handleSubmit = (values: CreateModifierInput) => {
-    createModifierMutation.mutate({ data: values });
+        createModifierMutation.mutate({ 
+          data: { ...values, businessId } 
+        });
   };
 
   return (

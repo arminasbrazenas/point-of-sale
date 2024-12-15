@@ -7,6 +7,24 @@ export const paths = {
     path: '/login',
     getHref: () => '/login',
   },
+  businessManagement : {
+    root: {
+      path: '/business-management',
+      getHref: () => '/business-management'
+    },
+    employees: {
+      path: 'employees',
+      getHref: () => '/business-management/employees'
+    },
+    updateEmployee: {
+      path: 'employees/:employeeId',
+      getHref: (employeeId: number) => `/business-management/employees/${employeeId}`,
+    },
+    newEmployee: {
+      path: 'employees/new',
+      getHref: () => '/business-management/employees/new'
+    }
+  },
   employee: {
     root: {
       path: '/employee',

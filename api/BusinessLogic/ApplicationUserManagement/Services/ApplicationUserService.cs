@@ -2,9 +2,12 @@ using Microsoft.AspNetCore.Identity;
 using PointOfSale.BusinessLogic.ApplicationUserManagement.DTOs;
 using PointOfSale.BusinessLogic.ApplicationUserManagement.Exceptions;
 using PointOfSale.BusinessLogic.ApplicationUserManagement.Interfaces;
+using PointOfSale.BusinessLogic.Shared.DTOs;
+using PointOfSale.BusinessLogic.Shared.Factories;
 using PointOfSale.DataAccess.ApplicationUserManagement.ErrorMessages;
 using PointOfSale.DataAccess.ApplicationUserManagement.Interfaces;
 using PointOfSale.DataAccess.BusinessManagement.Interfaces;
+using PointOfSale.DataAccess.Shared.Exceptions;
 using PointOfSale.Models.ApplicationUserManagement.Entities;
 
 namespace PointOfSale.BusinessLogic.ApplicationUserManagement.Services;
@@ -17,7 +20,6 @@ public class ApplicationUserService : IApplicationUserService
     private readonly IApplicationUserMappingService _applicationUserMappingService;
     private readonly IApplicationUserAuthorizationService _applicationUserAuthorizationService;
     private readonly ICurrentApplicationUserAccessor _currentApplicationUserAccessor;
-
 
     public ApplicationUserService(
         UserManager<ApplicationUser> userManager,
@@ -93,6 +95,7 @@ public class ApplicationUserService : IApplicationUserService
             Email = dto.Email,
             FirstName = dto.FirstName,
             LastName = dto.LastName,
+            PhoneNumber = dto.PhoneNumber,
         };
 
         var result = await _userManager.CreateAsync(applicationUser, dto.Password);
@@ -103,34 +106,98 @@ public class ApplicationUserService : IApplicationUserService
         }
         else
         {
-            foreach (var error in result.Errors)
-            {
-                Console.WriteLine($"User creation failed: {error.Code} - {error.Description}");
-            }
+            var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+            throw new PointOfSaleException(new FailedActionOnApplicationUserErrorMessage(errors));
         }
 
         return _applicationUserMappingService.MapApplicationUserDTO(applicationUser, dto.Role);
     }
 
-    public async Task<List<ApplicationUserDTO>> GetApplicationUsers()
+    public async Task<PagedResponseDTO<ApplicationUserDTO>> GetApplicationUsers(
+        int? businessId,
+        PaginationFilterDTO paginationFilterDTO
+    )
     {
-        var users = await _applicationUserRepository.GetAllUsersWithBusinessAsync();
+        var paginationFilter = PaginationFilterFactory.Create(paginationFilterDTO);
 
-        var userDtos = await Task.WhenAll(
-            users.Select(async user =>
-            {
-                var roles = await _userManager.GetRolesAsync(user);
-                var role = roles.FirstOrDefault();
-                return _applicationUserMappingService.MapApplicationUserDTO(user, role!);
-            })
-        );
+        var users = await _applicationUserRepository.GetAllUsersWithBusinessAsync(businessId, paginationFilter);
 
-        return userDtos.ToList();
+        var totalCount = await _applicationUserRepository.GetTotalCountAsync();
+
+        var userDtos = _applicationUserMappingService.MapPagedApplicationUserDTOs(users, paginationFilter, totalCount);
+
+        return userDtos;
     }
-    public async Task<ApplicationUserDTO> GetCurrentApplicationUser(){
+
+    public async Task<ApplicationUserDTO> GetCurrentApplicationUser()
+    {
         var applicationUserId = _currentApplicationUserAccessor.GetApplicationUserId();
         var role = _currentApplicationUserAccessor.GetApplicationUserRole();
         var applicationUser = await _applicationUserRepository.GetUserByIdWithBusinessAsync(applicationUserId);
         return _applicationUserMappingService.MapApplicationUserDTO(applicationUser!, role);
+    }
+
+    public async Task<ApplicationUserDTO> UpdateApplicationUser(
+        int applicationUserId,
+        UpdateApplicationUserDTO updateApplicationUserDTO
+    )
+    {
+        var user = await _userManager.FindByIdAsync(applicationUserId.ToString());
+
+        if (user is null)
+        {
+            throw new PointOfSaleException(new ApplicationUserNotFoundErrorMessage(applicationUserId));
+        }
+
+        if (updateApplicationUserDTO.FirstName is not null)
+        {
+            user.FirstName = updateApplicationUserDTO.FirstName;
+        }
+
+        if (updateApplicationUserDTO.LastName is not null)
+        {
+            user.LastName = updateApplicationUserDTO.LastName;
+        }
+
+        if (updateApplicationUserDTO.Email is not null)
+        {
+            user.Email = updateApplicationUserDTO.Email;
+        }
+
+        if (updateApplicationUserDTO.PhoneNumber is not null)
+        {
+            user.PhoneNumber = updateApplicationUserDTO.PhoneNumber;
+        }
+
+        if (updateApplicationUserDTO.Password is not null)
+        {
+            await _userManager.RemovePasswordAsync(user);
+            await _userManager.AddPasswordAsync(user, updateApplicationUserDTO.Password);
+        }
+
+        await _userManager.UpdateAsync(user);
+        var role = (await _userManager.GetRolesAsync(user)).FirstOrDefault();
+
+        return _applicationUserMappingService.MapApplicationUserDTO(user, role!);
+    }
+
+    public async Task DeleteApplicationUser(int applicationUserId)
+    {
+        var user = await _userManager.FindByIdAsync(applicationUserId.ToString());
+
+        if (user is null)
+        {
+            throw new PointOfSaleException(new ApplicationUserNotFoundErrorMessage(applicationUserId));
+        }
+        else
+        {
+            var result = await _userManager.DeleteAsync(user);
+
+            if (!result.Succeeded)
+            {
+                var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+                throw new PointOfSaleException(new FailedActionOnApplicationUserErrorMessage(errors));
+            }
+        }
     }
 }

@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PointOfSale.BusinessLogic.ApplicationUserManagement.DTOs;
 using PointOfSale.BusinessLogic.ApplicationUserManagement.Interfaces;
+using PointOfSale.BusinessLogic.Shared.DTOs;
 
 namespace PointOfSale.Api.Controllers;
 
@@ -38,10 +39,13 @@ public class ApplicationUserController : ControllerBase
     [HttpGet]
     [Authorize(Roles = "Admin,BusinessOwner")]
     [Route("")]
-    public async Task<IActionResult> GetApplicationUsers()
+    public async Task<IActionResult> GetApplicationUsers(
+        [FromQuery] int? businessId,
+        [FromQuery] PaginationFilterDTO paginationFilterDTO
+    )
     {
-        var users = await _applicationUserService.GetApplicationUsers();
-        return Ok(users);
+        var pagedUsers = await _applicationUserService.GetApplicationUsers(businessId, paginationFilterDTO);
+        return Ok(pagedUsers);
     }
 
     [HttpGet]
@@ -49,17 +53,38 @@ public class ApplicationUserController : ControllerBase
     [Route("currentUser")]
     public async Task<IActionResult> GetCurrentApplicationUser()
     {
-        var user =await  _applicationUserService.GetCurrentApplicationUser();
+        var user = await _applicationUserService.GetCurrentApplicationUser();
         return Ok(user);
     }
 
     [HttpGet]
-    [Authorize(Roles = "Admin,BusinessOwner")]
+    [Authorize(Roles = "Admin,BusinessOwner,Employee")]
     [Route("{userId:int}")]
-    public async Task<IActionResult> GetApplicationUsers(int userId)
+    public async Task<IActionResult> GetApplicationUser(int userId)
     {
         var user = await _applicationUserService.GetApplicationUserById(userId);
         return Ok(user);
+    }
+
+    [HttpPatch]
+    [Authorize(Roles = "Admin,BusinessOwner,Employee")]
+    [Route("{userId:int}")]
+    public async Task<IActionResult> UpdateApplicationUser(
+        int userId,
+        [FromBody] UpdateApplicationUserDTO updateApplicationUserDTO
+    )
+    {
+        var user = await _applicationUserService.UpdateApplicationUser(userId, updateApplicationUserDTO);
+        return Ok(user);
+    }
+
+    [HttpDelete]
+    [Authorize(Roles = "Admin,BusinessOwner,Employee")]
+    [Route("{userId:int}")]
+    public async Task<IActionResult> DeleteApplicationUser(int userId)
+    {
+        await _applicationUserService.DeleteApplicationUser(userId);
+        return NoContent();
     }
 
     [HttpPost]

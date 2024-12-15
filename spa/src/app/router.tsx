@@ -6,6 +6,7 @@ import { EmployeeRoot } from './routes/employee/root';
 import { HomeRoute } from './routes/home';
 import { LoginRoute } from './routes/login';
 import { useAppStore } from '@/lib/app-store';
+import { BusinessManagementRoot } from './routes/business-management/root';
 
 const ProtectedRoute: React.FC<{ children: JSX.Element }> = ({ children }) => {
   const isLoggedIn = useAppStore((state) => state.applicationUser);
@@ -46,6 +47,36 @@ const createAppRouter = () =>
           <LoginRoute />
         </RedirectToHomeIfLoggedIn>
       ),
+    },
+    {
+      path: paths.businessManagement.root.path,
+      element: (
+        <ProtectedRoute>
+          <BusinessManagementRoot />
+        </ProtectedRoute>
+      ),
+      children: [{
+        path: paths.businessManagement.employees.path,
+        lazy: async () => {
+          const { EmployeesBusinessManagementRoute } = await import('./routes/business-management/employees/employees');
+          return { Component: EmployeesBusinessManagementRoute };
+        },
+      },
+      {
+        path: paths.businessManagement.newEmployee.path,
+        lazy: async () => {
+          const { AddEmployeeBusinessManagementRoute } = await import('./routes/business-management/employees/add-employee');
+          return { Component: AddEmployeeBusinessManagementRoute };
+        },
+      },
+      {
+        path: paths.businessManagement.updateEmployee.path,
+        lazy: async () => {
+          const { UpdateEmployeeBusinessManagementRoute } = await import('./routes/business-management/employees/update-employee');
+          return { Component: UpdateEmployeeBusinessManagementRoute };
+        },
+      },
+    ]
     },
     {
       path: paths.employee.root.path,

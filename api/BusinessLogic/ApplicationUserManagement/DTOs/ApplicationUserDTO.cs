@@ -5,6 +5,7 @@ public sealed record ApplicationUserDTO(
     string FirstName,
     string LastName,
     string Email,
+    string phoneNumber,
     int? BusinessId,
     string? BusinessName,
     string Role

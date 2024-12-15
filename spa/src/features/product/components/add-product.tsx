@@ -8,6 +8,7 @@ import { paths } from '@/config/paths';
 import { useEffect, useState } from 'react';
 import { useTaxes } from '@/features/taxes/api/get-taxes';
 import { useModifiers } from '@/features/modifier/api/get-modifiers';
+import { useAppStore } from '@/lib/app-store';
 
 export const AddProduct = () => {
   const [selectedTaxNames, setSelectedTaxNames] = useState<string[]>([]);
@@ -15,6 +16,11 @@ export const AddProduct = () => {
   const taxesQuery = useTaxes({ paginationFilter: { page: 1, itemsPerPage: 50 } });
   const modifiersQuery = useModifiers({ paginationFilter: { page: 1, itemsPerPage: 50 } });
   const navigate = useNavigate();
+  const businessId = useAppStore((state) => state.applicationUser?.businessId);
+        if (!businessId) {
+          throw new Error("Business ID is required to create a product.");
+        }
+      
 
   const form = useForm<CreateProductInput>({
     mode: 'uncontrolled',
@@ -61,8 +67,10 @@ export const AddProduct = () => {
     form.setFieldValue('modifierIds', selectedModifierIds);
   }, [modifiersQuery.data, selectedModifierNames]);
 
-  const handleSubmit = (values: CreateProductInput) => {
-    createProductMutation.mutate({ data: values });
+  const handleSubmit = (values: CreateProductInput) => { 
+    createProductMutation.mutate({ 
+      data: { ...values, businessId } 
+    });
   };
 
   if (taxesQuery.isLoading || modifiersQuery.isLoading) {
