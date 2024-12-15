@@ -27,9 +27,9 @@ public class DiscountRepository : RepositoryBase<Discount, int>, IDiscountReposi
         return discount;
     }
 
-    public async Task<List<Discount>> GetPagedWithProducts(PaginationFilter paginationFilter)
+    public async Task<List<Discount>> GetPagedWithProducts(PaginationFilter paginationFilter, int businessId)
     {
-        var query = DbSet.Include(d => d.AppliesTo).AsQueryable();
+        var query = DbSet.Where(d => d.BusinessId == businessId).Include(d => d.AppliesTo).AsQueryable();
         return await GetPaged(query, paginationFilter);
     }
 
