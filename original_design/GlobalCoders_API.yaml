@@ -1,0 +1,2138 @@
+openapi: 3.0.3
+info:
+  title: Lab1 contracts
+  description: "These contracts describe how the user can interact with the system"
+  version: 1.0.0
+servers:
+  - url: https://localhost:5005
+tags:
+  - name: account
+    description: Authentication functionality
+  - name: order
+    description: Orders functionality
+  - name: reservation
+    description: Reservation functionality
+  - name: inventory
+    description: Inventory managment, here we can add or remove items
+  - name: tax
+    description: CRUD for taxes
+  - name: serviceCharges
+    description: charge/Tip/Gratuity Management
+  - name: product
+    description: CRUD for products
+  - name: discount
+    description: CRUD for discounts
+  - name: usersManagment
+    description: CRUD for users
+  - name: business
+    description: CRUD for businesses
+paths:
+  /account/login:
+    post:
+      tags:
+        - account
+      summary: Authenticate user in system
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginModel'
+        required: true
+      responses:
+        '200':
+          description: Logs user in system
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponseModel'
+        '422':
+          description: Invalid username/password supplied
+  /account/logout:
+    get:
+      tags:
+        - account
+      summary: Logs out current logged-in user session
+      responses:
+        default:
+          description: Successful operation
+      security:
+        - JWT: [ ]
+  /account/refreshtoken:
+    post:
+      tags:
+        - account
+      summary: Refresh token
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshTokenModel'
+        required: true
+      responses:
+        '200':
+          description: Refreshes tokens for user in system
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponseModel'
+        '400':
+          description: Invalid refresh token
+      security:
+        - JWT: [ ]
+
+  /order/getList:
+    post:
+      tags:
+        - order
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ListRequestModel'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/OrderListItem'
+        '400':
+          description: Invalid data
+        '401':
+          description: Not authenticated
+        '403':
+          description: User does not have permissions for this action
+      security:
+        - JWT: [ ] 
+  /order/{id}:
+    get:
+      tags:
+        - order
+      parameters:
+        - name: id
+          in: path
+          description: ID of order to return
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderItem'
+        '400':
+          description: Invalid data
+        '401':
+          description: Not authenticated
+        '403':
+          description: User does not have permissions for this action
+      security:
+        - JWT: [ ]
+  /order/create:
+    post:
+      tags:
+        - order
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderCreateModel'
+        required: true
+      responses:
+        '200':
+          description: Order created successfully
+        '400':
+          description: Invalid data
+        '401':
+          description: Not authenticated
+        '403':
+          description: User does not have permissions for this action
+      security:
+        - JWT: [ ]
+      x-roles-allowed:
+        - admin
+        - employee
+        - owner
+  /order/modify:
+    post:
+      tags:
+        - order
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderModifyModel'
+        required: true
+      responses:
+        '200':
+          description: Modification successful
+        '400':
+          description: Invalid data
+        '401':
+          description: Not authenticated
+        '403':
+          description: User does not have permissions for this action
+      security:
+        - JWT: [ ]
+      x-roles-allowed:
+        - admin
+        - employee
+        - owner
+  /order/cancel:
+    post:
+      tags:
+        - order
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: integer
+              description: order id
+        required: true
+      responses:
+        '200':
+          description: Order cancelled successfully
+        '400':
+          description: Invalid data
+        '401':
+          description: Not authenticated
+        '403':
+          description: User does not have permissions for this action
+      security:
+        - JWT: [ ]
+      x-roles-allowed:
+        - admin
+        - employee
+        - owner
+  /order/applyDiscount:
+    post:
+      tags:
+        - order
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApplyDiscountModel'
+        required: true
+      responses:
+        '200':
+          description: Discount was applied to order
+        '400':
+          description: Invalid data
+        '401':
+          description: Not authenticated
+        '403':
+          description: User does not have permissions for this action
+        '422':
+          description: Discount cannot be applied
+      security:
+        - JWT: [ ]
+      x-roles-allowed:
+        - admin
+        - employee
+        - owner
+  /order/refund:
+    post:
+      tags:
+        - order
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: integer
+              description: order id
+        required: true
+      responses:
+        '200':
+          description: Refund was applied
+        '400':
+          description: Invalid data
+        '401':
+          description: Not authenticated
+        '403':
+          description: User does not have permissions for this action
+        '422':
+          description: Refund cannot be applied
+      security:
+        - JWT: [ ]
+      x-roles-allowed:
+        - admin
+        - employee
+        - owner
+  /order/pay:
+    post:
+      tags:
+        - order
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderPayModel'
+        required: true
+      responses:
+        '200':
+          description: Url to external payment system
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentResponseModel'
+        '400':
+          description: Order id not found
+        '401':
+          description: Not authenticated
+        '403':
+          description: User does not have permissions for this action
+        '422':
+          description: Payment cannot be instantiated for order
+      security:
+        - JWT: [ ]
+      x-roles-allowed:
+        - customer
+  /order/addTip:
+    post:
+      tags:
+        - order
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddTipModel'
+        required: true
+      responses:
+        '200':
+          description: Tip was added
+        '400':
+          description: Invalid data
+        '401':
+          description: Not authenticated
+        '403':
+          description: User does not have permissions for this action
+        '422':
+          description: Tip cannot be added
+      security:
+        - JWT: [ ]
+      x-roles-allowed:
+        - admin
+        - employee
+        - customer
+        - owner
+  /order/getReceipt:
+    post:
+      tags:
+        - order
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: integer
+              description: order id
+        required: true
+      responses:
+        '200':
+          description: Receipt for order
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReceiptModel'
+        '400':
+          description: Invalid data
+        '401':
+          description: Not authenticated
+        '403':
+          description: User does not have permissions for this action
+        '422':
+          description: Receipt can't be generated
+      security:
+        - JWT: []
+  /order/getReceiptPdf:
+    post:
+      tags:
+        - order
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: integer
+              description: order id
+        required: true
+      responses:
+        '200':
+          description: Receipt for order
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+        '400':
+          description: Invalid data
+        '401':
+          description: Not authenticated
+        '403':
+          description: User does not have permissions for this action
+        '422':
+          description: Receipt can't be generated
+      security:
+        - JWT: []
+
+  /reservation/getList:
+    post:
+      tags:
+        - reservation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ListRequestModel'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ReservationListItem'
+        '400':
+          description: Invalid data
+        '401':
+          description: Not authenticated
+        '403':
+          description: User does not have permissions for this action
+      security:
+        - JWT: []
+      
+  /reservation/{id}:
+    get:
+      tags:
+        - reservation
+      parameters:
+        - name: id
+          in: path
+          description: ID of reservation to return
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReservationItem'
+        '400':
+          description: Invalid data
+        '401':
+          description: Not authenticated
+        '403':
+          description: User does not have permissions for this action
+      security:
+        - JWT: []
+  /reservation/create:
+    post:
+      tags:
+        - reservation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReservationCreateModel'
+        required: true
+      responses:
+        '200':
+          description: Reservation was created
+          content:
+            application/json:
+              schema:
+                type: integer
+                description: created reservation Id
+        '400':
+          description: Invalid data
+        '401':
+          description: Not authenticated
+        '403':
+          description: User does not have permissions for this action
+        '422':
+          description: Can't create reservation
+      security:
+        - JWT: []
+      x-roles-allowed:
+        - admin
+        - employee
+        - owner
+  /reservation/update:
+    post:
+      tags:
+        - reservation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReservationModifyModel'
+        required: true
+      responses:
+        '200':
+          description: Reservation was updated
+        '400':
+          description: Invalid data
+        '401':
+          description: Not authenticated
+        '403':
+          description: User does not have permissions for this action
+        '422':
+          description: Can't update reservation
+      security:
+        - JWT: []
+      x-roles-allowed:
+        - admin
+        - employee
+        - owner
+  /reservation/cancel:
+    post:
+      tags:
+        - reservation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: integer
+              description: reservation Id
+        required: true
+      responses:
+        '200':
+          description: Reservation was canceled
+        '400':
+          description: Invalid data
+        '401':
+          description: Not authenticated
+        '403':
+          description: User does not have permissions for this action
+        '422':
+          description: Can't cancel reservation
+      security:
+        - JWT: []
+      x-roles-allowed:
+        - admin
+        - employee
+        - owner
+  /inventory/getList:
+    post:
+      tags:
+        - inventory
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ListRequestModel'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/InventoryListItem'
+        '400':
+          description: Invalid data
+        '401':
+          description: Not authenticated
+        '403':
+          description: User does not have permissions for this action
+      security:
+        - JWT: []
+      x-roles-allowed:
+        - admin
+        - employee
+        - owner
+  /inventory/addItem:
+    post:
+      tags:
+        - inventory
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InventoryAddItemModel'
+        required: true
+      responses:
+        '200':
+          description: Item added to inventory
+          content:
+            application/json:
+              schema:
+                type: integer
+                description: added item Id
+        '400':
+          description: Invalid data
+        '401':
+          description: Not authenticated
+        '403':
+          description: User does not have permissions for this action
+      security:
+        - JWT: []
+      x-roles-allowed:
+        - admin
+        - employee
+        - owner
+  /inventory/removeItem/{id}:
+    delete:
+      tags:
+        - inventory
+      parameters:
+        - name: id
+          in: path
+          description: ID of item to remove
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Removed
+        '400':
+          description: Invalid data
+        '401':
+          description: Not authenticated
+        '403':
+          description: User does not have permissions for this action
+        '422':
+          description: Can't remove
+      security:
+        - JWT: []
+      x-roles-allowed:
+        - admin
+        - employee
+        - owner
+  /tax/getList:
+    post:
+      tags:
+        - tax
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ListRequestModel'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TaxListItem'
+        '400':
+          description: Invalid data
+        '401':
+          description: Not authenticated
+        '403':
+          description: User does not have permissions for this action
+      security:
+        - JWT: []
+      x-roles-allowed:
+        - admin
+        - owner
+  /tax/{id}:
+    get:
+      tags:
+        - tax
+      parameters:
+        - name: id
+          in: path
+          description: ID of tax to return
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaxItem'
+        '400':
+          description: Invalid data
+        '401':
+          description: Not authenticated
+        '403':
+          description: User does not have permissions for this action
+      security:
+        - JWT: []
+      x-roles-allowed:
+        - admin
+        - owner
+  /tax/create:
+    post:
+      tags:
+        - tax
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaxCreateModel'
+        required: true
+      responses:
+        '200':
+          description: Tax created
+          content:
+            application/json:
+              schema:
+                type: integer
+                description: created tax id
+        '400':
+          description: Invalid data
+        '401':
+          description: Not authenticated
+        '403':
+          description: User does not have permissions for this action
+      security:
+        - JWT: []
+      x-roles-allowed:
+        - admin
+        - owner
+  /tax/update:
+    post:
+      tags:
+        - tax
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaxModifyModel'
+        required: true
+      responses:
+        '200':
+          description: Updated
+        '400':
+          description: Invalid data
+        '401':
+          description: Not authenticated
+        '403':
+          description: User does not have permissions for this action
+        '422':
+          description: Can't update
+      security:
+        - JWT: []
+      x-roles-allowed:
+        - admin
+        - owner
+  /tax/delete/{id}:
+    delete:
+      tags:
+        - tax
+      parameters:
+        - name: id
+          in: path
+          description: ID of item to remove
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Removed
+        '400':
+          description: Invalid data
+        '401':
+          description: Not authenticated
+        '403':
+          description: User does not have permissions for this action
+        '422':
+          description: Can't remove
+      security:
+        - JWT: []
+      x-roles-allowed:
+        - admin
+        - owner
+  /serviceCharges/getList:
+    post:
+      tags:
+        - serviceCharges
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ListRequestModel'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ServiceChargeListItem'
+        '400':
+          description: Invalid data
+        '401':
+          description: Not authenticated
+        '403':
+          description: User does not have permissions for this action
+      security:
+        - JWT: []
+      x-roles-allowed:
+        - admin
+        - owner
+  /serviceCharges/{id}:
+    get:
+      tags:
+        - serviceCharges
+      parameters:
+        - name: id
+          in: path
+          description: ID of serviceCharges to return
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceChargesItem'
+        '400':
+          description: Invalid data
+        '401':
+          description: Not authenticated
+        '403':
+          description: User does not have permissions for this action
+      security:
+        - JWT: []
+      x-roles-allowed:
+        - admin
+        - owner
+  /serviceCharges/create:
+    post:
+      tags:
+        - serviceCharges
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ServiceChargesCreateModel'
+        required: true
+      responses:
+        '200':
+          description: Created success
+          content:
+            application/json:
+              schema:
+                type: integer
+                description: created item Id
+        '400':
+          description: Invalid data
+        '401':
+          description: Not authenticated
+        '403':
+          description: User does not have permissions for this action
+        '422':
+          description: Can't create
+      security:
+        - JWT: []
+      x-roles-allowed:
+        - admin
+        - owner
+  /serviceCharges/update:
+    post:
+      tags:
+        - serviceCharges
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ServiceChargeModifyModel'
+        required: true
+      responses:
+        '200':
+          description: Updated
+        '400':
+          description: Invalid data
+        '401':
+          description: Not authenticated
+        '403':
+          description: User does not have permissions for this action
+        '422':
+          description: Can't update
+      security:
+        - JWT: []
+      x-roles-allowed:
+        - admin
+        - owner
+  /serviceCharges/delete/{id}:
+    delete:
+      tags:
+        - serviceCharges
+      parameters:
+        - name: id
+          in: path
+          description: ID of item to remove
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Removed
+        '400':
+          description: Invalid data
+        '401':
+          description: Not authenticated
+        '403':
+          description: User does not have permissions for this action
+        '422':
+          description: Can't remove
+      security:
+        - JWT: []
+      x-roles-allowed:
+        - admin
+        - owner
+  /product/getList:
+    post:
+      tags:
+        - product
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ListRequestModel'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProductListItem'
+        '400':
+          description: Invalid data
+        '401':
+          description: Not authenticated
+        '403':
+          description: User does not have permissions for this action
+      security:
+        - JWT: []
+      x-roles-allowed:
+        - admin
+        - owner
+        - employee
+  /product/{id}:
+    get:
+      tags:
+        - product
+      parameters:
+        - name: id
+          in: path
+          description: ID of product to return
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductItem'
+        '400':
+          description: Invalid data
+        '401':
+          description: Not authenticated
+        '403':
+          description: User does not have permissions for this action
+      security:
+        - JWT: []
+  /product/create:
+    post:
+      tags:
+        - product
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductCreateModel'
+        required: true
+      responses:
+        '200':
+          description: Created success
+          content:
+            application/json:
+              schema:
+                type: integer
+                description: created item Id
+        '400':
+          description: Invalid data
+        '401':
+          description: Not authenticated
+        '403':
+          description: User does not have permissions for this action
+        '422':
+          description: Can't create
+      security:
+        - JWT: []
+      x-roles-allowed:
+        - admin
+        - owner
+        - employee
+  /product/update:
+    post:
+      tags:
+        - product
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductModifyModel'
+        required: true
+      responses:
+        '200':
+          description: Updated
+        '400':
+          description: Invalid data
+        '401':
+          description: Not authenticated
+        '403':
+          description: User does not have permissions for this action
+        '422':
+          description: Can't update
+      security:
+        - JWT: []
+      x-roles-allowed:
+        - admin
+        - owner
+        - employee
+  /product/delete/{id}:
+    delete:
+      tags:
+        - product
+      parameters:
+        - name: id
+          in: path
+          description: ID of item to remove
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Removed
+        '400':
+          description: Invalid data
+        '401':
+          description: Not authenticated
+        '403':
+          description: User does not have permissions for this action
+        '422':
+          description: Can't remove
+      security:
+        - JWT: []
+      x-roles-allowed:
+        - admin
+        - owner
+        - employee
+  #Each Service has an employee associated with it??
+  
+  /discount/getList:
+    post:
+      tags:
+        - discount
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ListRequestModel'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DiscountListItem'
+        '400':
+          description: Invalid data
+        '401':
+          description: Not authenticated
+        '403':
+          description: User does not have permissions for this action
+      security:
+        - JWT: []
+      x-roles-allowed:
+        - admin
+        - owner
+        - employee
+  /discount/{id}:
+    get:
+      tags:
+        - discount
+      parameters:
+        - name: id
+          in: path
+          description: ID of discount to return
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DiscountItem'
+        '400':
+          description: Invalid data
+        '401':
+          description: Not authenticated
+        '403':
+          description: User does not have permissions for this action
+      security:
+        - JWT: []
+      x-roles-allowed:
+        - admin
+        - owner
+        - employee
+  /discount/create:
+    post:
+      tags:
+        - discount
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DiscountCreateModel'
+        required: true
+      responses:
+        '200':
+          description: Created success
+          content:
+            application/json:
+              schema:
+                type: integer
+                description: created item Id
+        '400':
+          description: Invalid data
+        '401':
+          description: Not authenticated
+        '403':
+          description: User does not have permissions for this action
+        '422':
+          description: Can't create
+      security:
+        - JWT: []
+      x-roles-allowed:
+        - admin
+        - owner
+        - employee
+  /discount/update:
+    post:
+      tags:
+        - discount
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DiscountModifyModel'
+        required: true
+      responses:
+        '200':
+          description: Updated
+        '400':
+          description: Invalid data
+        '401':
+          description: Not authenticated
+        '403':
+          description: User does not have permissions for this action
+        '422':
+          description: Can't update
+      security:
+        - JWT: []
+      x-roles-allowed:
+        - admin
+        - owner
+        - employee
+  /discount/delete/{id}:
+    delete:
+      tags:
+        - discount
+      parameters:
+        - name: id
+          in: path
+          description: ID of item to remove
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Removed
+        '400':
+          description: Invalid data
+        '401':
+          description: Not authenticated
+        '403':
+          description: User does not have permissions for this action
+        '422':
+          description: Can't remove
+      security:
+        - JWT: []
+      x-roles-allowed:
+        - admin
+        - owner
+        - employee
+  /usersManagment/getList:
+    post:
+      tags:
+        - usersManagment
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ListRequestModel'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserListItem'
+        '400':
+          description: Invalid data
+        '401':
+          description: Not authenticated
+        '403':
+          description: User does not have permissions for this action
+      security:
+        - JWT: []
+      x-roles-allowed:
+        - admin
+        - owner
+  /usersManagment/{id}:
+    get:
+      tags:
+        - usersManagment
+      parameters:
+        - name: id
+          in: path
+          description: ID of usersManagment to return
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserItem'
+        '400':
+          description: Invalid data
+        '401':
+          description: Not authenticated
+        '403':
+          description: User does not have permissions for this action
+      security:
+        - JWT: []
+      x-roles-allowed:
+        - admin
+        - owner
+  /usersManagment/create:
+    post:
+      tags:
+        - usersManagment
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserCreateModel'
+        required: true
+      responses:
+        '200':
+          description: Created success
+          content:
+            application/json:
+              schema:
+                type: integer
+                description: created item Id
+        '400':
+          description: Invalid data
+        '401':
+          description: Not authenticated
+        '403':
+          description: User does not have permissions for this action
+        '422':
+          description: Can't create
+      security:
+        - JWT: []
+      x-roles-allowed:
+        - admin
+        - owner
+  /usersManagment/update:
+    post:
+      tags:
+        - usersManagment
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserModifyModel'
+        required: true
+      responses:
+        '200':
+          description: Updated
+        '400':
+          description: Invalid data
+        '401':
+          description: Not authenticated
+        '403':
+          description: User does not have permissions for this action
+        '422':
+          description: Can't update
+      security:
+        - JWT: []
+      x-roles-allowed:
+        - admin
+        - owner
+  /usersManagment/delete/{id}:
+    delete:
+      tags:
+        - usersManagment
+      parameters:
+        - name: id
+          in: path
+          description: ID of item to remove
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Removed
+        '400':
+          description: Invalid data
+        '401':
+          description: Not authenticated
+        '403':
+          description: User does not have permissions for this action
+        '422':
+          description: Can't remove
+      security:
+        - JWT: []
+      x-roles-allowed:
+        - admin
+        - owner
+  /business/getList:
+    post:
+      tags:
+        - business
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ListRequestModel'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BusinessListItem'
+        '400':
+          description: Invalid data
+        '401':
+          description: Not authenticated
+        '403':
+          description: User does not have permissions for this action
+      security:
+        - JWT: []
+      x-roles-allowed:
+        - admin
+        - owner
+  /business/{id}:
+    get:
+      tags:
+        - business
+      parameters:
+        - name: id
+          in: path
+          description: ID of business to return
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BusinessItem'
+        '400':
+          description: Invalid data
+        '401':
+          description: Not authenticated
+        '403':
+          description: User does not have permissions for this action
+      security:
+        - JWT: []
+      x-roles-allowed:
+        - admin
+        - owner
+  /business/create:
+    post:
+      tags:
+        - business
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BusinessCreateModel'
+        required: true
+      responses:
+        '200':
+          description: Created success
+          content:
+            application/json:
+              schema:
+                type: integer
+                description: created item Id
+        '400':
+          description: Invalid data
+        '401':
+          description: Not authenticated
+        '403':
+          description: User does not have permissions for this action
+        '422':
+          description: Can't create
+      security:
+        - JWT: []
+      x-roles-allowed:
+        - admin
+        - owner
+  /business/update:
+    post:
+      tags:
+        - business
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BusinessModifyModel'
+        required: true
+      responses:
+        '200':
+          description: Updated
+        '400':
+          description: Invalid data
+        '401':
+          description: Not authenticated
+        '403':
+          description: User does not have permissions for this action
+        '422':
+          description: Can't update
+      security:
+        - JWT: []
+      x-roles-allowed:
+        - admin
+        - owner
+  /business/delete/{id}:
+    delete:
+      tags:
+        - business
+      parameters:
+        - name: id
+          in: path
+          description: ID of item to remove
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Removed
+        '400':
+          description: Invalid data
+        '401':
+          description: Not authenticated
+        '403':
+          description: User does not have permissions for this action
+        '422':
+          description: Can't remove
+      security:
+        - JWT: []
+      x-roles-allowed:
+        - admin
+        - owner
+  
+  
+
+
+
+components:
+  schemas:
+    LoginModel:
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+        redirectUrl: 
+          type: string
+          description: this is url to redirect after login, it is used when we need to redirect to a specific page after login
+    LoginResponseModel:
+      type: object
+      properties:
+        token:
+          type: string
+        refreshToken:
+          type: string
+        expirationTime:
+          type: number
+    RefreshTokenModel:
+      type: string
+      
+    OrderCreateModel:
+      type: object
+      properties:
+        customer:
+          type: integer
+          format: int32
+          description: customer id
+        items:
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/OrderProducts'
+    OrderModifyModel:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        customer:
+          type: integer
+          format: int32
+          description: customer id
+        items:
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/OrderProducts'
+
+    OrderProducts:
+      type: object
+      properties:
+        id: 
+          type: integer
+          format: int32
+        quantity:
+          type: integer
+          format: int32
+    ApplyDiscountModel:
+      type: object
+      properties:
+        orderId: 
+          type: integer
+          format: int32
+        discountId:
+          type: integer
+          format: int32
+    OrderPayModel:
+      type: object
+      properties:
+        orderId: 
+          type: integer
+          format: int32
+        paymentMethod:
+          type: string
+        paymentValue:
+          type: number
+    PaymentResponseModel:
+      type: object
+      properties:
+        paymentUrl: 
+          type: string
+    AddTipModel:
+      type: object
+      properties:
+        orderId: 
+          type: integer
+          format: int32
+        amount:
+          type: number
+    ReceiptModel:
+      type: object
+      properties:
+        orderId: 
+          type: integer
+          format: int32
+        totalAmont:
+          type: number    
+        totalTax:
+          type: number  
+        orderItems:
+          type: array
+          items: 
+            type: object
+            properties:
+              itemName: 
+                type: string
+              itemPrice:
+                type: number
+              itemTax:
+                type: number
+              itemDiscount:
+                type: number
+              itemServiceCharge:
+                type: number
+    ReservationCreateModel:
+      type: object
+      properties:
+        serviceId:
+          type: integer
+        appointmentTime:
+          type: number
+          description: unix time stamp seconds
+        customerId:
+          type: integer
+    ReservationModifyModel:
+      type: object
+      properties:
+        reservationId:
+          type: integer
+        serviceId:
+          type: integer
+        appointmentTime:
+          type: number
+          description: unix time stamp seconds
+        customerId:
+          type: integer
+        reservationStatus:
+          enum:
+            - Pending
+            - Confirmed
+            - Canceled
+#check next
+    OrderListItem:
+      type: object
+      properties:
+        id:
+          type: integer
+        orderStatus:
+          enum:
+            - Open
+            - Closed
+            - Cancelled
+            - Refunded
+    OrderItem:
+      type: object
+      properties:
+        id:
+          type: integer
+        date:
+          type: integer
+          description: unix time stamp seconds
+        orderStatus:
+          enum:
+            - Open
+            - Closed
+            - Cancelled
+            - Refunded
+        totalAmount:
+          type: integer
+        discount:
+          type: object
+          properties:
+            discountName:
+              type: string
+            discountValue:
+              type: number
+            discountDescription:
+              type: string
+        tips:
+          type: number
+        payments:
+          type: array
+          items:
+            type: object
+            properties:
+              value: 
+                type: number
+              date:
+                type: integer
+        orderItems:
+          type: array
+          items: 
+            type: object
+            properties:
+              itemName: 
+                type: string
+              itemPrice:
+                type: number
+              itemTax:
+                type: number
+              itemDiscount:
+                type: number
+              itemServiceCharge:
+                type: number
+    ReservationListItem:
+      type: object
+      properties:
+        id:
+          type: integer
+        dateStart:
+          type: integer
+        dateEnd:
+          type: integer
+        duration:
+          type: integer
+        customer:
+          type: string
+        service:
+          type: string
+        status:
+          enum:
+            - Pending
+            - Confirmed
+            - Canceled
+    ReservationItem:
+      type: object
+      properties:
+        id:
+          type: integer
+        dateStart:
+          type: integer
+        dateEnd:
+          type: integer
+        duration:
+          type: integer
+        customer:
+          type: string
+        service:
+          type: object
+          properties:
+            name:
+              type: string
+            price:
+              type: number
+            duration:
+              type: integer
+        status:
+          enum:
+            - Pending
+            - Confirmed
+            - Canceled
+        employee:
+          type: string
+        
+    InventoryListItem:
+      type: object
+      properties:
+        id:
+          type: integer  
+        name:
+          type: string
+        quantity:
+          type: number
+    InventoryAddItemModel:
+      type: object
+      properties:
+        itemId:
+          type: integer
+        quantity:
+          type: number
+    TaxListItem:
+      type: object
+      properties:
+        id:
+          type: integer 
+        name:
+          type: string
+        rate:
+          type: number
+    TaxItem:
+      type: object
+      properties:
+        id:
+          type: integer 
+        name:
+          type: string
+        rate:
+          type: number
+    TaxCreateModel:
+      type: object
+      properties:
+        name:
+          type: string
+        rate:
+          type: number
+    TaxModifyModel:
+      type: object
+      properties:
+        id:
+          type: integer 
+        name:
+          type: string
+        rate:
+          type: number
+    ServiceChargesItem:
+      type: object
+      properties:
+        id:
+          type: integer 
+        name:
+          type: string
+        price:
+          type: number
+        duration:
+          type: integer
+    ServiceChargeListItem:
+      type: object
+      properties:
+        id:
+          type: integer 
+        name:
+          type: string
+        price:
+          type: number
+        duration:
+          type: integer
+    ServiceChargesCreateModel:
+      type: object
+      properties:
+        name:
+          type: string
+        price:
+          type: number
+        duration:
+          type: integer
+    ServiceChargeModifyModel:
+      type: object
+      properties:
+        id:
+          type: integer 
+        name:
+          type: string
+        price:
+          type: number
+        duration:
+          type: integer
+    ProductListItem:
+      type: object
+      properties:
+        id:
+          type: integer
+        name: 
+          type: string
+        price:
+          type: number
+        category:
+          type: string
+    ProductItem:
+      type: object
+      properties:
+        id:
+          type: integer
+        name: 
+          type: string
+        price:
+          type: number
+        category:
+          type: string
+        variations:
+          type: array
+          items: 
+            type: string
+    ProductCreateModel:
+      type: object
+      properties:
+        name: 
+          type: string
+        price:
+          type: number
+        category:
+          type: string
+        variations:
+          type: array
+          items: 
+            type: string
+    ProductModifyModel:
+      type: object
+      properties:
+        id:
+          type: integer
+        name: 
+          type: string
+        price:
+          type: number
+        category:
+          type: string
+        variations:
+          type: array
+          items: 
+            type: string
+    DiscountListItem:
+      type: object
+      properties:
+        id:
+          type: integer 
+        amount:
+          type: number
+        isPercentage:
+          type: boolean
+        validUntil:
+          type: integer
+          description: unix time stamp seconds
+      
+    DiscountItem:
+      type: object
+      properties:
+        id:
+          type: integer 
+        amount:
+          type: number
+        isPercentage:
+          type: boolean
+        validUntil:
+          type: integer
+          description: unix time stamp seconds
+        appliesTo:
+          type: array
+          items:  
+            type: string
+    DiscountCreateModel:
+      type: object
+      properties:
+        amount:
+          type: number
+        isPercentage:
+          type: boolean
+        validUntil:
+          type: integer
+          description: unix time stamp seconds
+        appliesTo:
+          type: array
+          items:  
+            type: string 
+    DiscountModifyModel:
+      type: object
+      properties:
+        id:
+          type: integer 
+        amount:
+          type: number
+        isPercentage:
+          type: boolean
+        validUntil:
+          type: integer
+          description: unix time stamp seconds
+        appliesTo:
+          type: array
+          items:  
+            type: string
+    UserListItem:     
+      type: object
+      properties:
+        id:
+          type: integer 
+        name:
+          type: string
+        email:
+          type: string
+        role:
+          enum:
+            - SuperAdmin
+            - Owner
+            - Customer
+            - employee
+    UserItem:     
+      type: object
+      properties:
+        id:
+          type: integer 
+        name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        address:
+          type: string
+        role:
+          enum:
+            - SuperAdmin
+            - Owner
+            - Customer
+            - employee
+    UserCreateModel:     
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        address:
+          type: string
+        role:
+          enum:
+            - SuperAdmin
+            - Owner
+            - Customer
+            - employee
+    UserModifyModel:     
+      type: object
+      properties:
+        id:
+          type: integer 
+        name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        address:
+          type: string
+        role:
+          enum:
+            - SuperAdmin
+            - Owner
+            - Customer
+            - employee
+    BusinessListItem:    
+      type: object
+      properties:
+        id:
+          type: integer 
+        name:
+          type: string
+        owner:
+          type: string
+        
+    BusinessItem:    
+      type: object
+      properties:
+        id:
+          type: integer 
+        name:
+          type: string
+        owner:
+          type: string
+        address:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        employees:
+          type: array
+          items:
+            type: string
+        customers:
+          type: array
+          items:
+            type: string   
+        
+            
+    BusinessCreateModel:    
+      type: object
+      properties:
+        name:
+          type: string
+        owner:
+          type: string
+        address:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        employees:
+          type: array
+          items:
+            type: string
+        customers:
+          type: array
+          items:
+            type: string    
+    BusinessModifyModel:    
+      type: object
+      properties:
+        id:
+          type: integer 
+        name:
+          type: string
+        owner:
+          type: string
+        address:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        employees:
+          type: array
+          items:
+            type: string
+        customers:
+          type: array
+          items:
+            type: string             
+#end check
+          
+    ListRequestModel:
+      type: object
+      properties:
+        filter:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+                description: field name
+              value:
+                type: string
+        orderBy:
+          type: string
+          description: fieldName
+        isAsc:
+          type: boolean
+          description: true to filter ascending or false to filter descending
+        page:
+          type: integer
+        itemsPerPage:
+          type: integer
+              
+  securitySchemes:
+    JWT:  
+      type: apiKey  
+      in: header  
+      name: access_token
