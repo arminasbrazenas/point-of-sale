@@ -48,7 +48,7 @@ public class BusinessService : IBusinessService
             Name = createBusinessDTO.Name,
             Address = createBusinessDTO.Address,
             Email = createBusinessDTO.Email,
-            PhoneNumber = createBusinessDTO.PhoneNumber,
+            TelephoneNumber = createBusinessDTO.PhoneNumber,
         };
 
         _businessRepository.Add(business);
@@ -106,7 +106,7 @@ public class BusinessService : IBusinessService
 
         if (updateBusinessDTO.PhoneNumber is not null)
         {
-            business.PhoneNumber = updateBusinessDTO.PhoneNumber;
+            business.TelephoneNumber = updateBusinessDTO.PhoneNumber;
         }
 
         await _unitOfWork.SaveChanges();

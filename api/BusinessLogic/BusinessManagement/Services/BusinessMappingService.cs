@@ -17,7 +17,7 @@ public class BusinessMappingService : IBusinessMappingService
             Name = business.Name,
             Address = business.Address,
             Email = business.Email,
-            PhoneNumber = business.PhoneNumber,
+            PhoneNumber = business.TelephoneNumber,
         };
     }
 
