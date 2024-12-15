@@ -74,7 +74,8 @@ public class ProductRepository : RepositoryBase<Product, int>, IProductRepositor
         return new ProductNotFoundErrorMessage(id);
     }
 
-    public override async Task<int> GetTotalCount(int? businessId = null){
+    public override async Task<int> GetTotalCount(int? businessId = null)
+    {
         if (businessId.HasValue)
         {
             return await DbSet.Where(p => p.BusinessId == businessId).CountAsync();

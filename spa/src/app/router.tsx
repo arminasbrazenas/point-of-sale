@@ -55,7 +55,22 @@ const createAppRouter = () =>
           <BusinessManagementRoot />
         </ProtectedRoute>
       ),
-      children: [{
+      children: [
+        {
+          path: paths.businessManagement.businesses.path,
+          lazy: async () => {
+            const { BusinessesBusinessManagementRoute } = await import('./routes/business-management/businesses/businesses');
+            return { Component: BusinessesBusinessManagementRoute };
+          },
+        },
+        {
+          path: paths.businessManagement.updateBusiness.path,
+          lazy: async () => {
+            const { UpdateBusinessBusinessManagementRoute } = await import('./routes/business-management/businesses/update-business');
+            return { Component: UpdateBusinessBusinessManagementRoute };
+          },
+        },
+        {
         path: paths.businessManagement.employees.path,
         lazy: async () => {
           const { EmployeesBusinessManagementRoute } = await import('./routes/business-management/employees/employees');

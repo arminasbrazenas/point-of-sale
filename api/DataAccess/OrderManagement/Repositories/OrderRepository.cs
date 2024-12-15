@@ -42,7 +42,8 @@ public class OrderRepository : RepositoryBase<Order, int>, IOrderRepository
         return new OrderNotFoundErrorMessage(id);
     }
 
-    public override async Task<int> GetTotalCount(int? businessId = null){
+    public override async Task<int> GetTotalCount(int? businessId = null)
+    {
         if (businessId.HasValue)
         {
             return await DbSet.Where(o => o.BusinessId == businessId).CountAsync();
