@@ -6,7 +6,7 @@ namespace PointOfSale.BusinessLogic.OrderManagement.Interfaces;
 public interface IOrderService
 {
     Task<OrderDTO> CreateOrder(CreateOrderDTO createOrderDTO);
-    Task<PagedResponseDTO<OrderMinimalDTO>> GetOrders(PaginationFilterDTO paginationFilterDTO);
+    Task<PagedResponseDTO<OrderMinimalDTO>> GetOrders(PaginationFilterDTO paginationFilterDTO, int businessId);
     Task<OrderDTO> GetOrder(int orderId);
     Task<OrderMinimalDTO> GetOrderMinimal(int orderId);
     Task<OrderDTO> UpdateOrder(int orderId, UpdateOrderDTO updateOrderDTO);
