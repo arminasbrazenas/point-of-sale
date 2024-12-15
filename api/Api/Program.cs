@@ -5,6 +5,8 @@ using PointOfSale.Models.ApplicationUserManagement.Enums;
 
 var builder = WebApplication.CreateBuilder(args);
 
+DotNetEnv.Env.Load();
+
 builder
     .Services.AddSharedServices(builder.Configuration, builder.Environment)
     .AddApplicationUserManagement(builder.Configuration)

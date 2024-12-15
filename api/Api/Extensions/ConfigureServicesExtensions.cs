@@ -116,7 +116,7 @@ public static class ConfigureServicesExtensions
         services.AddScoped<IPaymentService, PaymentService>();
         services.AddScoped<IGiftCardService, GiftCardService>();
 
-        StripeConfiguration.ApiKey = configuration["Stripe:SecretKey"];
+        StripeConfiguration.ApiKey = Environment.GetEnvironmentVariable("STRIPE_SECRET_KEY");
         services.AddScoped<IStripeService, StripeService>();
         services.AddHostedService<PaymentBackgroundService>();
 
