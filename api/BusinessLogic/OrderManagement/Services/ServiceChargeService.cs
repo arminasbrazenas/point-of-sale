@@ -62,7 +62,7 @@ public class ServiceChargeService : IServiceChargeService
     {
         var paginationFilter = PaginationFilterFactory.Create(paginationFilterDTO);
         var serviceCharges = await _serviceChargeRepository.GetPagedWithTaxes(paginationFilter, businessId);
-        var totalCount = await _serviceChargeRepository.GetTotalCount();
+        var totalCount = await _serviceChargeRepository.GetTotalCount(businessId);
         return _serviceChargeMappingService.MapToPagedServiceChargeDTO(serviceCharges, paginationFilter, totalCount);
     }
 

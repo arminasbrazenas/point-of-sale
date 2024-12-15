@@ -83,7 +83,7 @@ public class DiscountService : IDiscountService
     {
         var paginationFilter = PaginationFilterFactory.Create(paginationFilterDTO);
         var discounts = await _discountRepository.GetPagedWithProducts(paginationFilter, businessId);
-        var totalCount = await _discountRepository.GetTotalCount();
+        var totalCount = await _discountRepository.GetTotalCount(businessId);
         return _discountMappingService.MapToPagedDiscountDTO(discounts, paginationFilter, totalCount);
     }
 

@@ -55,7 +55,7 @@ public class ModifierService : IModifierService
     {
         var paginationFilter = PaginationFilterFactory.Create(paginationFilterDTO);
         var modifiers = await _modifierRepository.GetWithFilter(paginationFilter, businessId);
-        var totalCount = await _modifierRepository.GetTotalCount();
+        var totalCount = await _modifierRepository.GetTotalCount(businessId);
         return _modifierMappingService.MapToPagedModifierDTO(modifiers, paginationFilter, totalCount);
     }
 

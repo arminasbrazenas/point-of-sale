@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using PointOfSale.DataAccess.OrderManagement.ErrorMessages;
 using PointOfSale.DataAccess.OrderManagement.Interfaces;
 using PointOfSale.DataAccess.Shared.Filters;
@@ -21,5 +22,14 @@ public class ServiceChargeRepository : RepositoryBase<ServiceCharge, int>, IServ
     protected override IPointOfSaleErrorMessage GetEntityNotFoundErrorMessage(int id)
     {
         return new ServiceChargeNotFoundErrorMessage(id);
+    }
+
+    public override async Task<int> GetTotalCount(int? businessId = null){
+        if (businessId.HasValue)
+        {
+            return await DbSet.Where(s => s.BusinessId == businessId).CountAsync();
+        }
+
+        return await base.GetTotalCount(businessId);
     }
 }

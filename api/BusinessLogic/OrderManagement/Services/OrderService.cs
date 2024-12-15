@@ -74,7 +74,7 @@ public class OrderService : IOrderService
     {
         var paginationFilter = PaginationFilterFactory.Create(paginationFilterDTO);
         var orders = await _orderRepository.GetWithFilter(paginationFilter, businessId);
-        var totalCount = await _orderRepository.GetTotalCount();
+        var totalCount = await _orderRepository.GetTotalCount(businessId);
         return _orderMappingService.MapToPagedOrderMinimalDTO(orders, paginationFilter, totalCount);
     }
 

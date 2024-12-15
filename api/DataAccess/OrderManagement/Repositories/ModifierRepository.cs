@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using PointOfSale.DataAccess.OrderManagement.ErrorMessages;
 using PointOfSale.DataAccess.OrderManagement.Filters;
 using PointOfSale.DataAccess.OrderManagement.Interfaces;
@@ -32,5 +33,14 @@ public class ModifierRepository : RepositoryBase<Modifier, int>, IModifierReposi
     protected override IPointOfSaleErrorMessage GetEntityNotFoundErrorMessage(int id)
     {
         return new ModifierNotFoundErrorMessage(id);
+    }
+
+    public override async Task<int> GetTotalCount(int? businessId = null){
+        if (businessId.HasValue)
+        {
+            return await DbSet.Where(m => m.BusinessId == businessId).CountAsync();
+        }
+
+        return await base.GetTotalCount(businessId);
     }
 }

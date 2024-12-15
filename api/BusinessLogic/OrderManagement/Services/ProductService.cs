@@ -109,7 +109,7 @@ public class ProductService : IProductService
     {
         var paginationFilter = PaginationFilterFactory.Create(paginationFilterDTO);
         var products = await _productRepository.GetPaged(paginationFilter, businessId);
-        var totalCount = await _productRepository.GetTotalCount();
+        var totalCount = await _productRepository.GetTotalCount(businessId);
         return _productMappingService.MapToPagedProductDTO(products, paginationFilter, totalCount);
     }
 

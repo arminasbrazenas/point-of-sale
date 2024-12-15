@@ -42,4 +42,13 @@ public class DiscountRepository : RepositoryBase<Discount, int>, IDiscountReposi
     {
         return new DiscountNotFoundErrorMessage(id);
     }
+
+    public override async Task<int> GetTotalCount(int? businessId = null){
+        if (businessId.HasValue)
+        {
+            return await DbSet.Where(d => d.BusinessId == businessId).CountAsync();
+        }
+
+        return await base.GetTotalCount(businessId);
+    }
 }

@@ -28,7 +28,7 @@ export const useModifiers = ({ paginationFilter, queryConfig }: UseModifiersOpti
       const applicationUser = state.applicationUser;
   
       if (!applicationUser || applicationUser.businessId === null) {
-        throw new Error('Application user with business is required to get discounts.');
+        throw new Error('Application user with business is required to get modifiers.');
       }
   
       return applicationUser.businessId;
