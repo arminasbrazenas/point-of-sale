@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PointOfSale.BusinessLogic.BusinessManagement.DTOs;
 using PointOfSale.BusinessLogic.BusinessManagement.Interfaces;
+using PointOfSale.BusinessLogic.Shared.DTOs;
 
 namespace PointOfSale.Api.Controllers;
 
@@ -35,9 +36,9 @@ public class BusinessesController : ControllerBase
 
     [HttpGet]
     [Authorize(Roles = "Admin")]
-    public async Task<ActionResult<BusinessDTO>> GetBusinesses()
+    public async Task<ActionResult<BusinessDTO>> GetBusinesses([FromQuery] PaginationFilterDTO paginationFilterDTO)
     {
-        var businesses = await _businessService.GetBusinesses();
+        var businesses = await _businessService.GetBusinesses(paginationFilterDTO);
         return Ok(businesses);
     }
 

@@ -35,10 +35,11 @@ public class ProductsController : ControllerBase
 
     [HttpGet]
     public async Task<ActionResult<PagedResponseDTO<ProductDTO>>> GetProducts(
+        [FromQuery] int businessId,
         [FromQuery] PaginationFilterDTO paginationFilterDTO
     )
     {
-        var products = await _productService.GetProducts(paginationFilterDTO);
+        var products = await _productService.GetProducts(paginationFilterDTO, businessId);
         return Ok(products);
     }
 

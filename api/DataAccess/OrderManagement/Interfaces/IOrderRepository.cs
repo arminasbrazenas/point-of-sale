@@ -6,6 +6,6 @@ namespace PointOfSale.DataAccess.OrderManagement.Interfaces;
 
 public interface IOrderRepository : IRepositoryBase<Order, int>
 {
-    Task<List<Order>> GetWithFilter(PaginationFilter paginationFilter);
+    Task<List<Order>> GetWithFilter(PaginationFilter paginationFilter, int businessId);
     Task<Order> GetWithOrderItems(int orderId);
 }

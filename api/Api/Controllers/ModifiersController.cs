@@ -27,10 +27,11 @@ public class ModifiersController : ControllerBase
 
     [HttpGet]
     public async Task<ActionResult<PagedResponseDTO<ModifierDTO>>> GetModifiers(
+        [FromQuery] int businessId,
         [FromQuery] PaginationFilterDTO paginationFilterDTO
     )
     {
-        var modifiers = await _modifierService.GetModifiers(paginationFilterDTO);
+        var modifiers = await _modifierService.GetModifiers(paginationFilterDTO, businessId);
         return Ok(modifiers);
     }
 

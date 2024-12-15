@@ -7,7 +7,7 @@ public interface IDiscountService
 {
     Task<DiscountDTO> CreateDiscount(CreateDiscountDTO createDiscountDTO);
     Task<DiscountDTO> GetDiscount(int discountId);
-    Task<PagedResponseDTO<DiscountDTO>> GetDiscounts(PaginationFilterDTO paginationFilterDTO);
+    Task<PagedResponseDTO<DiscountDTO>> GetDiscounts(PaginationFilterDTO paginationFilterDTO, int businessId);
     Task<DiscountDTO> UpdateDiscount(int discountId, UpdateDiscountDTO updateDiscountDTO);
     Task DeleteDiscount(int discountId);
 }

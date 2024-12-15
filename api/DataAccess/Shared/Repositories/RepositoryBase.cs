@@ -60,7 +60,7 @@ public abstract class RepositoryBase<TEntity, TKey> : IRepositoryBase<TEntity, T
         DbSet.Update(entity);
     }
 
-    public async Task<int> GetTotalCount()
+    public virtual async Task<int> GetTotalCount(int? businessId = null)
     {
         return await DbSet.CountAsync();
     }

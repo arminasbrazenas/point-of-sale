@@ -27,9 +27,9 @@ public class DiscountRepository : RepositoryBase<Discount, int>, IDiscountReposi
         return discount;
     }
 
-    public async Task<List<Discount>> GetPagedWithProducts(PaginationFilter paginationFilter)
+    public async Task<List<Discount>> GetPagedWithProducts(PaginationFilter paginationFilter, int businessId)
     {
-        var query = DbSet.Include(d => d.AppliesTo).AsQueryable();
+        var query = DbSet.Where(d => d.BusinessId == businessId).Include(d => d.AppliesTo).AsQueryable();
         return await GetPaged(query, paginationFilter);
     }
 
@@ -41,5 +41,15 @@ public class DiscountRepository : RepositoryBase<Discount, int>, IDiscountReposi
     protected override IPointOfSaleErrorMessage GetEntityNotFoundErrorMessage(int id)
     {
         return new DiscountNotFoundErrorMessage(id);
+    }
+
+    public override async Task<int> GetTotalCount(int? businessId = null)
+    {
+        if (businessId.HasValue)
+        {
+            return await DbSet.Where(d => d.BusinessId == businessId).CountAsync();
+        }
+
+        return await base.GetTotalCount(businessId);
     }
 }

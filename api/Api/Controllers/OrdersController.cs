@@ -27,10 +27,11 @@ public class OrdersController : ControllerBase
 
     [HttpGet]
     public async Task<ActionResult<PagedResponseDTO<OrderMinimalDTO>>> GetOrders(
+        [FromQuery] int businessId,
         [FromQuery] PaginationFilterDTO paginationFilterDTO
     )
     {
-        var orders = await _orderService.GetOrders(paginationFilterDTO);
+        var orders = await _orderService.GetOrders(paginationFilterDTO, businessId);
         return Ok(orders);
     }
 

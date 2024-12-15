@@ -35,10 +35,11 @@ public class DiscountsController : ControllerBase
 
     [HttpGet]
     public async Task<ActionResult<PagedResponseDTO<DiscountDTO>>> GetDiscounts(
+        [FromQuery] int businessId,
         [FromQuery] PaginationFilterDTO paginationFilterDTO
     )
     {
-        var pagedDiscounts = await _discountService.GetDiscounts(paginationFilterDTO);
+        var pagedDiscounts = await _discountService.GetDiscounts(paginationFilterDTO, businessId);
         return Ok(pagedDiscounts);
     }
 
