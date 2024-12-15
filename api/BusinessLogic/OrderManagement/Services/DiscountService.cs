@@ -76,7 +76,10 @@ public class DiscountService : IDiscountService
         return _discountMappingService.MapToDiscountDTO(discount);
     }
 
-    public async Task<PagedResponseDTO<DiscountDTO>> GetDiscounts(PaginationFilterDTO paginationFilterDTO, int businessId)
+    public async Task<PagedResponseDTO<DiscountDTO>> GetDiscounts(
+        PaginationFilterDTO paginationFilterDTO,
+        int businessId
+    )
     {
         var paginationFilter = PaginationFilterFactory.Create(paginationFilterDTO);
         var discounts = await _discountRepository.GetPagedWithProducts(paginationFilter, businessId);

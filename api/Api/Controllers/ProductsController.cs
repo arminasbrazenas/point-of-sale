@@ -34,7 +34,8 @@ public class ProductsController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<PagedResponseDTO<ProductDTO>>> GetProducts([FromQuery] int businessId,
+    public async Task<ActionResult<PagedResponseDTO<ProductDTO>>> GetProducts(
+        [FromQuery] int businessId,
         [FromQuery] PaginationFilterDTO paginationFilterDTO
     )
     {

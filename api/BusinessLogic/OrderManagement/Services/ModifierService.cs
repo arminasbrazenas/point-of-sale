@@ -48,7 +48,10 @@ public class ModifierService : IModifierService
         return _modifierMappingService.MapToModifierDTO(modifier);
     }
 
-    public async Task<PagedResponseDTO<ModifierDTO>> GetModifiers(PaginationFilterDTO paginationFilterDTO, int businessId)
+    public async Task<PagedResponseDTO<ModifierDTO>> GetModifiers(
+        PaginationFilterDTO paginationFilterDTO,
+        int businessId
+    )
     {
         var paginationFilter = PaginationFilterFactory.Create(paginationFilterDTO);
         var modifiers = await _modifierRepository.GetWithFilter(paginationFilter, businessId);
