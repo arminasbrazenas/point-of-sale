@@ -7,5 +7,5 @@ namespace PointOfSale.DataAccess.OrderManagement.Interfaces;
 
 public interface IModifierRepository : IRepositoryBase<Modifier, int>
 {
-    Task<List<Modifier>> GetWithFilter(PaginationFilter paginationFilter, ModifierFilter? modifierFilter = null);
+    Task<List<Modifier>> GetWithFilter(PaginationFilter paginationFilter, int businessId, ModifierFilter? modifierFilter = null);
 }

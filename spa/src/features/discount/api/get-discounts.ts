@@ -13,7 +13,7 @@ export const getDiscounts = (paginationFilter: PaginationFilter, businessId: num
 
 export const getDiscountsQueryOptions = (paginationFilter: PaginationFilter, businessId: number) => {
   return queryOptions({
-    queryKey: ['discounts', paginationFilter],
+    queryKey: ['discounts', paginationFilter, businessId],
     queryFn: () => getDiscounts(paginationFilter, businessId),
   });
 };

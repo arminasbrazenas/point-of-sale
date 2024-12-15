@@ -48,10 +48,10 @@ public class ModifierService : IModifierService
         return _modifierMappingService.MapToModifierDTO(modifier);
     }
 
-    public async Task<PagedResponseDTO<ModifierDTO>> GetModifiers(PaginationFilterDTO paginationFilterDTO)
+    public async Task<PagedResponseDTO<ModifierDTO>> GetModifiers(PaginationFilterDTO paginationFilterDTO, int businessId)
     {
         var paginationFilter = PaginationFilterFactory.Create(paginationFilterDTO);
-        var modifiers = await _modifierRepository.GetWithFilter(paginationFilter);
+        var modifiers = await _modifierRepository.GetWithFilter(paginationFilter, businessId);
         var totalCount = await _modifierRepository.GetTotalCount();
         return _modifierMappingService.MapToPagedModifierDTO(modifiers, paginationFilter, totalCount);
     }

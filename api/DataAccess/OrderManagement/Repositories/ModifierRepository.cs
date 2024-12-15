@@ -15,10 +15,11 @@ public class ModifierRepository : RepositoryBase<Modifier, int>, IModifierReposi
 
     public async Task<List<Modifier>> GetWithFilter(
         PaginationFilter paginationFilter,
+        int businessId,
         ModifierFilter? modifierFilter = null
     )
     {
-        var query = DbSet.OrderBy(m => m.CreatedAt).AsQueryable();
+        var query = DbSet.Where(m => m.BusinessId == businessId).OrderBy(m => m.CreatedAt).AsQueryable();
 
         if (modifierFilter?.CompatibleWithProductById is not null)
         {
