@@ -9,10 +9,15 @@ import { useProducts } from '@/features/product/api/get-products';
 import { toReadablePricingStrategy } from '@/utilities';
 import { DateTimePicker } from '@mantine/dates';
 import { useState } from 'react';
+import { useAppStore } from '@/lib/app-store';
 
 export const AddDiscount = () => {
   const [selectedProductNames, setSelectedProductNames] = useState<string[]>([]);
   const navigate = useNavigate();
+  const businessId = useAppStore((state) => state.applicationUser?.businessId);
+            if (!businessId) {
+              throw new Error("Business ID is required to create a product.");
+            }
   const productsQuery = useProducts({ paginationFilter: { page: 1, itemsPerPage: 50 } });
 
   const form = useForm<CreateDiscountInput>({
@@ -55,7 +60,7 @@ export const AddDiscount = () => {
       appliesToProductIds = products.filter((p) => selectedProductNames.includes(p.name)).map((p) => p.id);
     }
 
-    createDiscountMutation.mutate({ data: { ...values, appliesToProductIds } });
+    createDiscountMutation.mutate({ data: { ...values, appliesToProductIds, businessId } });
   };
 
   return (

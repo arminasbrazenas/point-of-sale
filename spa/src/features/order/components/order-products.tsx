@@ -10,6 +10,7 @@ import { OrderItemList } from './order-item-list';
 import { useUpdateOrder } from '../api/update-order';
 import { useServiceCharges } from '@/features/service-charge/api/get-service-charges';
 import { DiscountType } from '@/types/api';
+import { useAppStore } from '@/lib/app-store';
 
 type OrderProductsProps = {
   orderId?: number;
@@ -24,6 +25,10 @@ export const OrderProducts = (props: OrderProductsProps) => {
   const [orderItems, setOrderItems] = useState<EnhancedCreateOrderItemInput[]>(props.orderItems ?? []);
   const serviceChargesQuery = useServiceCharges({ paginationFilter: { page: 1, itemsPerPage: 50 } });
   const navigate = useNavigate();
+  const businessId = useAppStore((state) => state.applicationUser?.businessId);
+            if (!businessId) {
+              throw new Error("Business ID is required to create a product.");
+            }
 
   const createOrderMutation = useCreateOrder({
     mutationConfig: {
@@ -86,7 +91,7 @@ export const OrderProducts = (props: OrderProductsProps) => {
         data: { orderItems: mappedItems, serviceChargeIds, discounts: flexibleDiscounts },
       });
     } else {
-      createOrderMutation.mutate({ data: { orderItems: mappedItems, serviceChargeIds, discounts: flexibleDiscounts } });
+      createOrderMutation.mutate({ data: { orderItems: mappedItems, serviceChargeIds, discounts: flexibleDiscounts, businessId } });
     }
   };
 

@@ -15,6 +15,7 @@ public class ApplicationUserMappingService : IApplicationUserMappingService
             user.FirstName,
             user.LastName,
             user.Email!,
+            user.PhoneNumber!,
             user.Business?.Id,
             user.Business?.Name,
             role

@@ -95,6 +95,7 @@ public class ApplicationUserService : IApplicationUserService
             Email = dto.Email,
             FirstName = dto.FirstName,
             LastName = dto.LastName,
+            PhoneNumber = dto.PhoneNumber,
         };
 
         var result = await _userManager.CreateAsync(applicationUser, dto.Password);
