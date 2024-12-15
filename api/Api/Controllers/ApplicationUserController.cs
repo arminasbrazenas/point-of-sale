@@ -58,12 +58,33 @@ public class ApplicationUserController : ControllerBase
     }
 
     [HttpGet]
-    [Authorize(Roles = "Admin,BusinessOwner")]
+    [Authorize(Roles = "Admin,BusinessOwner,Employee")]
     [Route("{userId:int}")]
-    public async Task<IActionResult> GetApplicationUsers(int userId)
+    public async Task<IActionResult> GetApplicationUser(int userId)
     {
         var user = await _applicationUserService.GetApplicationUserById(userId);
         return Ok(user);
+    }
+
+    [HttpPatch]
+    [Authorize(Roles = "Admin,BusinessOwner,Employee")]
+    [Route("{userId:int}")]
+    public async Task<IActionResult> UpdateApplicationUser(
+        int userId,
+        [FromBody] UpdateApplicationUserDTO updateApplicationUserDTO
+    )
+    {
+        var user = await _applicationUserService.UpdateApplicationUser(userId, updateApplicationUserDTO);
+        return Ok(user);
+    }
+
+    [HttpDelete]
+    [Authorize(Roles = "Admin,BusinessOwner,Employee")]
+    [Route("{userId:int}")]
+    public async Task<IActionResult> DeleteApplicationUser(int userId)
+    {
+        await _applicationUserService.DeleteApplicationUser(userId);
+        return NoContent();
     }
 
     [HttpPost]

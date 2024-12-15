@@ -7,8 +7,16 @@ public interface IApplicationUserService
 {
     Task<ApplicationUserDTO> CreateApplicationUser(RegisterApplicationUserDTO dto);
     Task<ApplicationUserDTO> GetApplicationUserByEmail(string email);
-    Task<PagedResponseDTO<ApplicationUserDTO>> GetApplicationUsers(int? businessId, PaginationFilterDTO paginationFilterDTO);
+    Task<PagedResponseDTO<ApplicationUserDTO>> GetApplicationUsers(
+        int? businessId,
+        PaginationFilterDTO paginationFilterDTO
+    );
     Task<TokensDTO> AuthenticateApplicationUser(LoginApplicationUserDTO dto);
     Task<ApplicationUserDTO> GetApplicationUserById(int id);
     Task<ApplicationUserDTO> GetCurrentApplicationUser();
+    Task<ApplicationUserDTO> UpdateApplicationUser(
+        int applicationUserId,
+        UpdateApplicationUserDTO updateApplicationUserDTO
+    );
+    Task DeleteApplicationUser(int applicationUserId);
 }
