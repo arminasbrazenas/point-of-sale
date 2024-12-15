@@ -13,6 +13,7 @@ COPY ["DataAccess/DataAccess.csproj", "DataAccess/"]
 COPY ["Models/Models.csproj", "Models/"]
 RUN dotnet restore "Api/Api.csproj"
 COPY . .
+COPY .env /src/Api/
 WORKDIR "/src/Api"
 RUN dotnet build "Api.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
