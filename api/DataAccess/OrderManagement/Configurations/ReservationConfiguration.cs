@@ -24,6 +24,12 @@ public class ReservationConfiguration : EntityBaseConfiguration<Reservation, int
             .HasForeignKey(r => r.EmployeeId)
             .IsRequired();
 
+        builder
+            .HasOne(r => r.Service)
+            .WithMany()
+            .HasForeignKey(r => r.ServiceId)
+            .OnDelete(DeleteBehavior.SetNull);
+
         builder.ToTable("Reservations", Constants.SchemaName);
     }
 }
