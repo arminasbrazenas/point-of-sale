@@ -39,7 +39,7 @@ public class BusinessValidationService : IBusinessValidationService
             throw new ValidationException(new InvalidApplicationUserRoleToOwnBusinessErrorMessage());
         }
 
-        if (owner.Business is not null)
+        if (owner.OwnedBusiness is not null)
         {
             throw new ValidationException(
                 new ApplicationUserCannotOwnMultipleBusinessesErrorMessage(dto.BusinessOwnerId)

@@ -56,7 +56,7 @@ public class BusinessService : IBusinessService
         await _unitOfWork.SaveChanges();
 
         var businessOwner = await _userManager.FindByIdAsync(createBusinessDTO.BusinessOwnerId.ToString());
-        businessOwner!.Business = business;
+        businessOwner!.OwnedBusiness = business;
         await _userManager.UpdateAsync(businessOwner);
 
         return _businessMappingService.MapToBusinessDTO(business);

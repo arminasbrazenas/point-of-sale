@@ -4,7 +4,7 @@ import { BusinessList } from '@/features/business/components/business-list';
 
 export const BusinessesBusinessManagementRoute = () => {
   return (
-    <OverviewContainer title="Businesses" addButton={{ text: 'Add new businesses', href: paths.businessManagement.newBusiness.getHref() }}>
+    <OverviewContainer title="Businesses" addButton={{ text: 'Add new business', href: paths.businessManagement.newBusiness.getHref() }}>
       <BusinessList />
     </OverviewContainer>
   );

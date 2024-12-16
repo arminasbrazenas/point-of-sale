@@ -27,7 +27,6 @@ public class BusinessMappingService : IBusinessMappingService
         int totalCount
     )
     {
-        businesses.ForEach(item => Console.WriteLine(item));
         return new PagedResponseDTO<BusinessDTO>
         {
             Page = paginationFilter.Page,

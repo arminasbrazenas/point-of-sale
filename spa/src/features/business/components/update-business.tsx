@@ -48,14 +48,13 @@ export const UpdateBusiness = ({ businessId }: { businessId: number }) => {
         ) as UpdateBusinessInput;
     };
 
-    const form = useForm<CreateBusinessInput>({
+    const form = useForm<UpdateBusinessInput>({
         mode: 'uncontrolled',
         initialValues: {
             name: '',
             address: '',
             email: '',
             phoneNumber: '',
-            password: '',
         },
         validate: zodResolver(createBusinessInputSchema),
         onValuesChange: (updatedBusiness) => {
@@ -130,12 +129,6 @@ export const UpdateBusiness = ({ businessId }: { businessId: number }) => {
                         placeholder="PhoneNumber"
                         key={form.key('phoneNumber')}
                         {...form.getInputProps('phoneNumber')}
-                    />
-                    <PasswordInput
-                        label="Password"
-                        placeholder="Password"
-                        key={form.key('password')}
-                        {...form.getInputProps('password')}
                     />
                     <Group justify="space-between" mt="xs">
                         <Button color="red" variant="light" onClick={openDeleteModal}>

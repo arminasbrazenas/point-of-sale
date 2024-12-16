@@ -11,4 +11,5 @@ public class Business : EntityBase<int>
     public required string Address { get; set; }
     public required string TelephoneNumber { get; set; }
     public required string Email { get; set; }
+    public ICollection<ApplicationUser> Employees { get; set; } = new List<ApplicationUser>();
 }

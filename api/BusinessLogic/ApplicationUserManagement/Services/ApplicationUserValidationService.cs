@@ -29,12 +29,16 @@ public class ApplicationUserValidationService : IApplicationUserValidationServic
     {
         if (dto.BusinessId is not null && dto.Role == "BusinessOwner")
         {
-            throw new ValidationException(new FailedActionOnApplicationUserErrorMessage("Cannot create BusinessOwner with pre-existing business."));
+            throw new ValidationException(
+                new FailedActionOnApplicationUserErrorMessage("Cannot create BusinessOwner with pre-existing business.")
+            );
         }
 
         if (dto.BusinessId is null && dto.Role == "Employee")
         {
-            throw new ValidationException(new FailedActionOnApplicationUserErrorMessage("Cannot create Employee without pre-existing business."));
+            throw new ValidationException(
+                new FailedActionOnApplicationUserErrorMessage("Cannot create Employee without pre-existing business.")
+            );
         }
 
         if (dto.BusinessId is int businessId && await _businessService.GetBusiness(businessId) is null)

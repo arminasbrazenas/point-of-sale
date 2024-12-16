@@ -36,43 +36,47 @@ public class ApplicationUserAuthorizationService : IApplicationUserAuthorization
             throw new ApplicationUserAuthenticationException(new ApplicationUserNotFoundErrorMessage(currentUserId));
         }
 
-
         if (currentUserRole == "Admin")
         {
             return;
         }
-
         else if (currentUserId == applicationUserId)
         {
             return;
         }
-
         else if (currentUserRole == "BusinessOwner")
         {
-            if (currentUser.Business is null)
+            if (currentUser.OwnedBusiness is null)
             {
+                Console.WriteLine("current user business is null");
                 throw new ApplicationUserAuthorizationException(new ApplicationUserUnauthorizedErrorMessage());
             }
-            else{
+            else
+            {
                 var applicationUser = await _applicationUserRepository.GetUserByIdWithBusinessAsync(currentUserId);
                 if (applicationUser is null)
                 {
-                    throw new ApplicationUserAuthenticationException(new ApplicationUserNotFoundErrorMessage(applicationUserId));
+                    Console.WriteLine("application user is null");
+                    throw new ApplicationUserAuthenticationException(
+                        new ApplicationUserNotFoundErrorMessage(applicationUserId)
+                    );
                 }
-                if (applicationUser.Business != currentUser.Business)
+                if (applicationUser.EmployerBusiness != currentUser.OwnedBusiness)
                 {
+                    Console.WriteLine("businesses do not match");
                     throw new ApplicationUserAuthorizationException(new ApplicationUserUnauthorizedErrorMessage());
                 }
             }
         }
     }
 
-    public async Task AuthorizeGetApplicationUsersAction(int? businessId){
+    public async Task AuthorizeGetApplicationUsersAction(int? businessId)
+    {
         var currentUserId = _currentApplicationUserAccessor.GetApplicationUserId();
-        var currentUser  = await _applicationUserRepository.GetUserByIdWithBusinessAsync(currentUserId);
+        var currentUser = await _applicationUserRepository.GetUserByIdWithBusinessAsync(currentUserId);
         var currentUserRole = _currentApplicationUserAccessor.GetApplicationUserRole();
 
-        if (businessId is null && currentUserRole!="Admin")
+        if (businessId is null && currentUserRole != "Admin")
         {
             throw new ApplicationUserAuthorizationException(new ApplicationUserUnauthorizedErrorMessage());
         }

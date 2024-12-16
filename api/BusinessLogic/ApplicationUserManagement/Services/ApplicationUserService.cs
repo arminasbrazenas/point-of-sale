@@ -96,17 +96,6 @@ public class ApplicationUserService : IApplicationUserService
     {
         _applicationUserValidationService.ValidateApplicationUserRole(dto.Role);
         await _applicationUserValidationService.ValidateRegisterApplicationUserDTO(dto);
-        Business? business = null;
-
-        if (dto.BusinessId.HasValue)
-        {
-            business = await _businessRepository.Get(dto.BusinessId.Value);
-
-            if (business is null)
-            {
-                throw new ValidationException(new BusinessNotFoundErrorMessage(dto.BusinessId.Value));
-            }
-        }
 
         var applicationUser = new ApplicationUser
         {
@@ -115,7 +104,7 @@ public class ApplicationUserService : IApplicationUserService
             FirstName = dto.FirstName,
             LastName = dto.LastName,
             PhoneNumber = dto.PhoneNumber,
-            Business = business,
+            EmployerBusinessId = dto.BusinessId,
         };
 
         var result = await _userManager.CreateAsync(applicationUser, dto.Password);
@@ -135,6 +124,7 @@ public class ApplicationUserService : IApplicationUserService
 
     public async Task<PagedResponseDTO<ApplicationUserDTO>> GetApplicationUsers(
         int? businessId,
+        string? role,
         PaginationFilterDTO paginationFilterDTO
     )
     {
@@ -142,7 +132,7 @@ public class ApplicationUserService : IApplicationUserService
 
         var paginationFilter = PaginationFilterFactory.Create(paginationFilterDTO);
 
-        var users = await _applicationUserRepository.GetAllUsersWithBusinessAsync(businessId, paginationFilter);
+        var users = await _applicationUserRepository.GetAllUsersWithBusinessAsync(businessId, role, paginationFilter);
 
         var totalCount = await _applicationUserRepository.GetTotalCountAsync();
 

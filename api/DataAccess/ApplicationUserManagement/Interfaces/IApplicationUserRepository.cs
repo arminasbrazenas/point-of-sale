@@ -9,6 +9,7 @@ public interface IApplicationUserRepository
     Task<ApplicationUser?> GetUserByEmailWithBusinessAsync(string email);
     Task<List<(ApplicationUser User, string Role)>> GetAllUsersWithBusinessAsync(
         int? businessId,
+        string? role,
         PaginationFilter paginationFilter
     );
     Task<int> GetTotalCountAsync();

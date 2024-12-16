@@ -1,29 +1,29 @@
-import { useMemo, useState } from 'react';
-import { useBusinesses } from '../api/get-businesses';
+import { useAppStore } from '@/lib/app-store';
+import { useBusiness } from '../api/get-business';
 import { useNavigate } from 'react-router-dom';
-import { Center, Pagination, Paper, Table } from '@mantine/core';
+import { Center, Paper, Table, Title } from '@mantine/core';
 import { paths } from '@/config/paths';
 
-export const BusinessList = () => {
-  const [page, setPage] = useState<number>(1);
-  const businessesQuery = useBusinesses({ paginationFilter: { page, itemsPerPage: 25 } });
+export const Business = () => {
+  const businessId = useAppStore((state) => state.applicationUser?.businessId);
   const navigate = useNavigate();
 
-  const totalPages = useMemo(() => {
-    if (businessesQuery.data == null) {
-      return 0;
-    }
 
-    return Math.ceil(businessesQuery.data.totalItems / businessesQuery.data.itemsPerPage);
-  }, [businessesQuery.data]);
+  const businessQuery = useBusiness({
+    businessId: businessId ?? 0, 
+    queryConfig: {
+      enabled: businessId !== null && businessId !== undefined,
+    },
+  });
 
-  if (businessesQuery.isLoading) {
-    return <div>loading...</div>;
+  if (businessQuery.isLoading) {
+    return <div>Loading...</div>;
   }
 
-  const businesses = businessesQuery.data?.items;
-  if (!businesses) {
-    return null;
+  const business = businessQuery.data;
+
+  if (!business) {
+    return <div>Business not found.</div>;
   }
 
   return (
@@ -40,7 +40,6 @@ export const BusinessList = () => {
             </Table.Tr>
           </Table.Thead>
           <Table.Tbody>
-            {businesses.map((business) => (
               <Table.Tr
                 key={business.id}
                 onClick={() => navigate(paths.businessManagement.updateBusiness.getHref(business.id))}
@@ -51,14 +50,9 @@ export const BusinessList = () => {
                 <Table.Td>{business.email}</Table.Td>
                 <Table.Td>{business.phoneNumber}</Table.Td>
               </Table.Tr>
-            ))}
           </Table.Tbody>
         </Table>
       </Paper>
-
-      <Center>
-        <Pagination total={totalPages} value={page} onChange={setPage} mt="md" />
-      </Center>
     </>
   );
 };

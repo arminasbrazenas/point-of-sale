@@ -4,7 +4,7 @@ import { Business } from '@/types/api';
 import { queryOptions, useQuery } from '@tanstack/react-query';
 
 export const getBusiness = ({ businessId }: { businessId: number }): Promise<Business> => {
-  return api.get(`v1/businesses/${businessId}`);
+  return api.get(`/v1/businesses/${businessId}`);
 };
 
 export const getBusinessQueryOptions = (businessId: number) => {
@@ -15,7 +15,7 @@ export const getBusinessQueryOptions = (businessId: number) => {
 };
 
 type UseGetBusinessOptions = {
-    businessId: number;
+  businessId: number;
   queryConfig?: QueryConfig<typeof getBusinessQueryOptions>;
 };
 

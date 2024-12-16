@@ -3,6 +3,7 @@ using PointOfSale.BusinessLogic.ApplicationUserManagement.Interfaces;
 using PointOfSale.BusinessLogic.Shared.DTOs;
 using PointOfSale.DataAccess.Shared.Filters;
 using PointOfSale.Models.ApplicationUserManagement.Entities;
+using PointOfSale.Models.BusinessManagement.Entities;
 
 namespace PointOfSale.BusinessLogic.ApplicationUserManagement.Services;
 
@@ -10,14 +11,28 @@ public class ApplicationUserMappingService : IApplicationUserMappingService
 {
     public ApplicationUserDTO MapApplicationUserDTO(ApplicationUser user, string role)
     {
+        Business? business;
+        if (role == "BusinessOwner")
+        {
+            business = user.OwnedBusiness;
+        }
+        else if (role == "Employee")
+        {
+            business = user.EmployerBusiness;
+        }
+        else
+        {
+            business = null;
+        }
+
         return new ApplicationUserDTO(
             user.Id,
             user.FirstName,
             user.LastName,
             user.Email!,
             user.PhoneNumber!,
-            user.Business?.Id,
-            user.Business?.Name,
+            business?.Id,
+            business?.Name,
             role
         );
     }
