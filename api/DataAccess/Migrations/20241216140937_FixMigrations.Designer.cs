@@ -12,8 +12,8 @@ using PointOfSale.DataAccess;
 namespace PointOfSale.DataAccess.Shared.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20241212184026_AddBusinessFKToOrderManagement")]
-    partial class AddBusinessFKToOrderManagement
+    [Migration("20241216140937_FixMigrations")]
+    partial class FixMigrations
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -362,6 +362,11 @@ namespace PointOfSale.DataAccess.Shared.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
 
+                    b.Property<string>("Target")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
                     b.Property<DateTimeOffset>("ValidUntil")
                         .HasColumnType("timestamp with time zone");
 
@@ -467,6 +472,58 @@ namespace PointOfSale.DataAccess.Shared.Migrations
                     b.ToTable("Orders", "Order");
                 });
 
+            modelBuilder.Entity("PointOfSale.Models.OrderManagement.Entities.OrderDiscount", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("Amount")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("numeric(10,2)");
+
+                    b.Property<decimal>("AppliedAmount")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("numeric(10,2)");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("CreatedById")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("ModifiedById")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("OrderId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("PricingStrategy")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedById");
+
+                    b.HasIndex("ModifiedById");
+
+                    b.HasIndex("OrderId");
+
+                    b.ToTable("OrderDiscounts", "Order");
+                });
+
             modelBuilder.Entity("PointOfSale.Models.OrderManagement.Entities.OrderItem", b =>
                 {
                     b.Property<int>("Id")
@@ -475,7 +532,7 @@ namespace PointOfSale.DataAccess.Shared.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<decimal>("BaseUnitGrossPrice")
+                    b.Property<decimal>("BaseUnitPrice")
                         .HasPrecision(10, 2)
                         .HasColumnType("numeric(10,2)");
 
@@ -529,7 +586,7 @@ namespace PointOfSale.DataAccess.Shared.Migrations
                     b.Property<decimal>("Amount")
                         .HasColumnType("numeric");
 
-                    b.Property<decimal>("AppliedUnitAmount")
+                    b.Property<decimal>("AppliedAmount")
                         .HasPrecision(10, 2)
                         .HasColumnType("numeric(10,2)");
 
@@ -551,6 +608,11 @@ namespace PointOfSale.DataAccess.Shared.Migrations
                     b.Property<int>("PricingStrategy")
                         .HasMaxLength(50)
                         .HasColumnType("integer");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
 
                     b.HasKey("Id");
 
@@ -577,10 +639,6 @@ namespace PointOfSale.DataAccess.Shared.Migrations
                     b.Property<int?>("CreatedById")
                         .HasColumnType("integer");
 
-                    b.Property<decimal>("GrossPrice")
-                        .HasPrecision(10, 2)
-                        .HasColumnType("numeric(10,2)");
-
                     b.Property<DateTimeOffset>("ModifiedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -598,7 +656,7 @@ namespace PointOfSale.DataAccess.Shared.Migrations
                     b.Property<int>("OrderItemId")
                         .HasColumnType("integer");
 
-                    b.Property<decimal>("TaxTotal")
+                    b.Property<decimal>("Price")
                         .HasPrecision(10, 2)
                         .HasColumnType("numeric(10,2)");
 
@@ -621,7 +679,7 @@ namespace PointOfSale.DataAccess.Shared.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<decimal>("AppliedUnitAmount")
+                    b.Property<decimal>("AppliedAmount")
                         .HasPrecision(10, 2)
                         .HasColumnType("numeric(10,2)");
 
@@ -1181,6 +1239,27 @@ namespace PointOfSale.DataAccess.Shared.Migrations
                     b.Navigation("ModifiedBy");
                 });
 
+            modelBuilder.Entity("PointOfSale.Models.OrderManagement.Entities.OrderDiscount", b =>
+                {
+                    b.HasOne("PointOfSale.Models.ApplicationUserManagement.Entities.ApplicationUser", "CreatedBy")
+                        .WithMany()
+                        .HasForeignKey("CreatedById");
+
+                    b.HasOne("PointOfSale.Models.ApplicationUserManagement.Entities.ApplicationUser", "ModifiedBy")
+                        .WithMany()
+                        .HasForeignKey("ModifiedById");
+
+                    b.HasOne("PointOfSale.Models.OrderManagement.Entities.Order", null)
+                        .WithMany("Discounts")
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("CreatedBy");
+
+                    b.Navigation("ModifiedBy");
+                });
+
             modelBuilder.Entity("PointOfSale.Models.OrderManagement.Entities.OrderItem", b =>
                 {
                     b.HasOne("PointOfSale.Models.ApplicationUserManagement.Entities.ApplicationUser", "CreatedBy")
@@ -1449,6 +1528,8 @@ namespace PointOfSale.DataAccess.Shared.Migrations
 
             modelBuilder.Entity("PointOfSale.Models.OrderManagement.Entities.Order", b =>
                 {
+                    b.Navigation("Discounts");
+
                     b.Navigation("Items");
 
                     b.Navigation("ServiceCharges");
