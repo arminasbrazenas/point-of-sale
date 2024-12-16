@@ -59,39 +59,49 @@ const createAppRouter = () =>
         {
           path: paths.businessManagement.businesses.path,
           lazy: async () => {
-            const { BusinessesBusinessManagementRoute } = await import('./routes/business-management/businesses/businesses');
+            const { BusinessesBusinessManagementRoute } = await import(
+              './routes/business-management/businesses/businesses'
+            );
             return { Component: BusinessesBusinessManagementRoute };
           },
         },
         {
           path: paths.businessManagement.updateBusiness.path,
           lazy: async () => {
-            const { UpdateBusinessBusinessManagementRoute } = await import('./routes/business-management/businesses/update-business');
+            const { UpdateBusinessBusinessManagementRoute } = await import(
+              './routes/business-management/businesses/update-business'
+            );
             return { Component: UpdateBusinessBusinessManagementRoute };
           },
         },
         {
-        path: paths.businessManagement.employees.path,
-        lazy: async () => {
-          const { EmployeesBusinessManagementRoute } = await import('./routes/business-management/employees/employees');
-          return { Component: EmployeesBusinessManagementRoute };
+          path: paths.businessManagement.employees.path,
+          lazy: async () => {
+            const { EmployeesBusinessManagementRoute } = await import(
+              './routes/business-management/employees/employees'
+            );
+            return { Component: EmployeesBusinessManagementRoute };
+          },
         },
-      },
-      {
-        path: paths.businessManagement.newEmployee.path,
-        lazy: async () => {
-          const { AddEmployeeBusinessManagementRoute } = await import('./routes/business-management/employees/add-employee');
-          return { Component: AddEmployeeBusinessManagementRoute };
+        {
+          path: paths.businessManagement.newEmployee.path,
+          lazy: async () => {
+            const { AddEmployeeBusinessManagementRoute } = await import(
+              './routes/business-management/employees/add-employee'
+            );
+            return { Component: AddEmployeeBusinessManagementRoute };
+          },
         },
-      },
-      {
-        path: paths.businessManagement.updateEmployee.path,
-        lazy: async () => {
-          const { UpdateEmployeeBusinessManagementRoute } = await import('./routes/business-management/employees/update-employee');
-          return { Component: UpdateEmployeeBusinessManagementRoute };
+        {
+          path: paths.businessManagement.updateEmployee.path,
+          lazy: async () => {
+            const { UpdateEmployeeBusinessManagementRoute } = await import(
+              './routes/business-management/employees/update-employee'
+            );
+            return { Component: UpdateEmployeeBusinessManagementRoute };
+          },
         },
-      },
-    ]
+      ],
     },
     {
       path: paths.employee.root.path,
@@ -262,6 +272,27 @@ const createAppRouter = () =>
           lazy: async () => {
             const { AddGiftCardManagementRoute } = await import('./routes/management/gift-card/add-gift-card');
             return { Component: AddGiftCardManagementRoute };
+          },
+        },
+        {
+          path: paths.management.services.path,
+          lazy: async () => {
+            const { ServicesManagementRoute } = await import('./routes/management/service/services');
+            return { Component: ServicesManagementRoute };
+          },
+        },
+        {
+          path: paths.management.updateService.path,
+          lazy: async () => {
+            const { UpdateServiceManagementRoute } = await import('./routes/management/service/update-service');
+            return { Component: UpdateServiceManagementRoute };
+          },
+        },
+        {
+          path: paths.management.addService.path,
+          lazy: async () => {
+            const { AddServiceManagementRoute } = await import('./routes/management/service/add-service');
+            return { Component: AddServiceManagementRoute };
           },
         },
       ],
