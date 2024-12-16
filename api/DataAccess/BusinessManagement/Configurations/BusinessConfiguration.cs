@@ -15,6 +15,8 @@ public class BusinessConfiguration : EntityBaseConfiguration<Business, int>
         builder.HasKey(b => b.Id);
         builder.HasOne(b => b.BusinessOwner).WithOne(a => a.Business).HasForeignKey<Business>(b => b.BusinessOwnerId);
 
+        builder.OwnsOne(b => b.WorkingHours);
+
         builder.ToTable(TableName, Constants.SchemaName);
     }
 }

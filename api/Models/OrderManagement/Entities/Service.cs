@@ -1,8 +1,9 @@
 using PointOfSale.Models.BusinessManagement.Entities;
+using PointOfSale.Models.Shared.Entities;
 
 namespace PointOfSale.Models.OrderManagement.Entities;
 
-public class Service
+public class Service : EntityBase<int>
 {
     public required string Name { get; set; }
     public required decimal Price { get; set; }
