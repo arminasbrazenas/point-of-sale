@@ -6,6 +6,8 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { z } from 'zod';
 
 export const createEmployeeInputSchema = z.object({
+  businessId: z.number().nullable(),
+  role: z.string(),
   firstName: z.string(),
   lastName: z.string(),
   email: z.string(),
@@ -15,8 +17,8 @@ export const createEmployeeInputSchema = z.object({
 
 export type CreateEmployeeInput = z.infer<typeof createEmployeeInputSchema>;
 
-export const createEmployee = ({ data }: { data: CreateEmployeeInput & { businessId: number }}): Promise<ApplicationUser> => {
-    return api.post('/v1/users/register', { ...data, role: 'Employee' });
+export const createEmployee = ({ data }: { data: CreateEmployeeInput}): Promise<ApplicationUser> => {
+    return api.post('/v1/users/register', data);
 };
 
 type UseCreateEmployeeOptions = {
@@ -39,13 +41,7 @@ export const useCreateEmployee = ({ mutationConfig }: UseCreateEmployeeOptions =
     },
     ...restConfig,
     mutationFn: async ({ data }: { data: CreateEmployeeInput }) => {
-      if (!businessId) {
-        const error = new Error('Forbidden');
-        (error as any).statusCode = 403;
-        throw error;
-      }
-
-      return createEmployee({ data: { ...data, businessId } });
+      return createEmployee({data});
     },
   });
 };

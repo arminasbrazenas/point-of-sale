@@ -3,12 +3,15 @@ using PointOfSale.BusinessLogic.ApplicationUserManagement.DTOs;
 using PointOfSale.BusinessLogic.ApplicationUserManagement.Exceptions;
 using PointOfSale.BusinessLogic.ApplicationUserManagement.Interfaces;
 using PointOfSale.BusinessLogic.Shared.DTOs;
+using PointOfSale.BusinessLogic.Shared.Exceptions;
 using PointOfSale.BusinessLogic.Shared.Factories;
 using PointOfSale.DataAccess.ApplicationUserManagement.ErrorMessages;
 using PointOfSale.DataAccess.ApplicationUserManagement.Interfaces;
+using PointOfSale.DataAccess.BusinessManagement.ErrorMessages;
 using PointOfSale.DataAccess.BusinessManagement.Interfaces;
 using PointOfSale.DataAccess.Shared.Exceptions;
 using PointOfSale.Models.ApplicationUserManagement.Entities;
+using PointOfSale.Models.BusinessManagement.Entities;
 
 namespace PointOfSale.BusinessLogic.ApplicationUserManagement.Services;
 
@@ -20,6 +23,8 @@ public class ApplicationUserService : IApplicationUserService
     private readonly IApplicationUserMappingService _applicationUserMappingService;
     private readonly IApplicationUserAuthorizationService _applicationUserAuthorizationService;
     private readonly ICurrentApplicationUserAccessor _currentApplicationUserAccessor;
+    private readonly IBusinessRepository _businessRepository;
+    private readonly IApplicationUserTokenService _tokenService;
 
     public ApplicationUserService(
         UserManager<ApplicationUser> userManager,
@@ -27,7 +32,9 @@ public class ApplicationUserService : IApplicationUserService
         IApplicationUserMappingService applicationUserMappingService,
         IApplicationUserAuthorizationService applicationUserAuthorizationService,
         IApplicationUserRepository applicationUserRepository,
-        ICurrentApplicationUserAccessor currentApplicationUserAccessor
+        ICurrentApplicationUserAccessor currentApplicationUserAccessor,
+        IBusinessRepository businessRepository,
+        IApplicationUserTokenService tokenService
     )
     {
         _userManager = userManager;
@@ -36,6 +43,8 @@ public class ApplicationUserService : IApplicationUserService
         _applicationUserAuthorizationService = applicationUserAuthorizationService;
         _applicationUserRepository = applicationUserRepository;
         _currentApplicationUserAccessor = currentApplicationUserAccessor;
+        _businessRepository = businessRepository;
+        _tokenService = tokenService;
     }
 
     public async Task<TokensDTO> AuthenticateApplicationUser(LoginApplicationUserDTO dto)
@@ -46,11 +55,8 @@ public class ApplicationUserService : IApplicationUserService
         )
         {
             var userRole = (await _userManager.GetRolesAsync(user)).FirstOrDefault();
-            var accessToken = _applicationUserAuthorizationService.GetApplicationUserAccessToken(user, userRole!);
-            var refreshToken = await _applicationUserAuthorizationService.GetApplicationUserRefreshToken(
-                user,
-                userRole!
-            );
+            var accessToken = _tokenService.GetApplicationUserAccessToken(user, userRole!);
+            var refreshToken = await _tokenService.GetApplicationUserRefreshToken(user, userRole!);
 
             return _applicationUserMappingService.MapTokensDTO(accessToken, refreshToken);
         }
@@ -73,9 +79,11 @@ public class ApplicationUserService : IApplicationUserService
 
     public async Task<ApplicationUserDTO> GetApplicationUserById(int id)
     {
+        await _applicationUserAuthorizationService.AuthorizeApplicationUserAction(id);
         if (await _applicationUserRepository.GetUserByIdWithBusinessAsync(id) is { } user)
         {
             var role = (await _userManager.GetRolesAsync(user)).FirstOrDefault();
+
             return _applicationUserMappingService.MapApplicationUserDTO(user, role!);
         }
         else
@@ -96,6 +104,7 @@ public class ApplicationUserService : IApplicationUserService
             FirstName = dto.FirstName,
             LastName = dto.LastName,
             PhoneNumber = dto.PhoneNumber,
+            EmployerBusinessId = dto.BusinessId,
         };
 
         var result = await _userManager.CreateAsync(applicationUser, dto.Password);
@@ -115,12 +124,15 @@ public class ApplicationUserService : IApplicationUserService
 
     public async Task<PagedResponseDTO<ApplicationUserDTO>> GetApplicationUsers(
         int? businessId,
+        string? role,
         PaginationFilterDTO paginationFilterDTO
     )
     {
+        await _applicationUserAuthorizationService.AuthorizeGetApplicationUsersAction(businessId);
+
         var paginationFilter = PaginationFilterFactory.Create(paginationFilterDTO);
 
-        var users = await _applicationUserRepository.GetAllUsersWithBusinessAsync(businessId, paginationFilter);
+        var users = await _applicationUserRepository.GetAllUsersWithBusinessAsync(businessId, role, paginationFilter);
 
         var totalCount = await _applicationUserRepository.GetTotalCountAsync();
 
@@ -142,6 +154,7 @@ public class ApplicationUserService : IApplicationUserService
         UpdateApplicationUserDTO updateApplicationUserDTO
     )
     {
+        await _applicationUserAuthorizationService.AuthorizeApplicationUserAction(applicationUserId);
         var user = await _userManager.FindByIdAsync(applicationUserId.ToString());
 
         if (user is null)
@@ -183,6 +196,7 @@ public class ApplicationUserService : IApplicationUserService
 
     public async Task DeleteApplicationUser(int applicationUserId)
     {
+        await _applicationUserAuthorizationService.AuthorizeApplicationUserAction(applicationUserId);
         var user = await _userManager.FindByIdAsync(applicationUserId.ToString());
 
         if (user is null)

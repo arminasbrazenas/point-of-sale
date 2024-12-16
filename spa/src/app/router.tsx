@@ -64,10 +64,24 @@ const createAppRouter = () =>
           },
         },
         {
+          path: paths.businessManagement.business.path,
+          lazy: async () => {
+            const { BusinessBusinessManagementRoute } = await import('./routes/business-management/businesses/business');
+            return { Component: BusinessBusinessManagementRoute };
+          },
+        },
+        {
           path: paths.businessManagement.updateBusiness.path,
           lazy: async () => {
             const { UpdateBusinessBusinessManagementRoute } = await import('./routes/business-management/businesses/update-business');
             return { Component: UpdateBusinessBusinessManagementRoute };
+          },
+        },
+        {
+          path: paths.businessManagement.newBusiness.path,
+          lazy: async () => {
+            const { AddBusinessBusinessManagementRoute } = await import('./routes/business-management/businesses/add-business');
+            return { Component: AddBusinessBusinessManagementRoute };
           },
         },
         {

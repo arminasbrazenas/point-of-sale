@@ -1,108 +1,84 @@
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Security.Cryptography;
-using System.Text;
-using Microsoft.Extensions.Configuration;
-using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.Identity;
+using PointOfSale.BusinessLogic.ApplicationUserManagement.Exceptions;
 using PointOfSale.BusinessLogic.ApplicationUserManagement.Interfaces;
+using PointOfSale.DataAccess.ApplicationUserManagement.ErrorMessages;
 using PointOfSale.DataAccess.ApplicationUserManagement.Interfaces;
-using PointOfSale.DataAccess.Shared.Interfaces;
+using PointOfSale.DataAccess.BusinessManagement.Interfaces;
 using PointOfSale.Models.ApplicationUserManagement.Entities;
 
 namespace PointOfSale.BusinessLogic.ApplicationUserManagement.Services;
 
 public class ApplicationUserAuthorizationService : IApplicationUserAuthorizationService
 {
-    private readonly IConfiguration _configuration;
-    private readonly IRefreshTokenRepository _refreshTokenRepository;
-    private readonly IUnitOfWork _unitOfWork;
+    private readonly ICurrentApplicationUserAccessor _currentApplicationUserAccessor;
+    private readonly IApplicationUserRepository _applicationUserRepository;
+    private readonly UserManager<ApplicationUser> _userManager;
 
     public ApplicationUserAuthorizationService(
-        IConfiguration configuration,
-        IRefreshTokenRepository refreshTokenRepository,
-        IUnitOfWork unitOfWork
+        ICurrentApplicationUserAccessor currentApplicationUserAccessor,
+        IApplicationUserRepository applicationUserRepository,
+        UserManager<ApplicationUser> userManager
     )
     {
-        _configuration = configuration;
-        _refreshTokenRepository = refreshTokenRepository;
-        _unitOfWork = unitOfWork;
+        _currentApplicationUserAccessor = currentApplicationUserAccessor;
+        _applicationUserRepository = applicationUserRepository;
+        _userManager = userManager;
     }
 
-    public string GetApplicationUserAccessToken(ApplicationUser user, string role)
+    public async Task AuthorizeApplicationUserAction(int applicationUserId)
     {
-        var tokenHandler = new JwtSecurityTokenHandler();
-        var key = Encoding.ASCII.GetBytes(_configuration["Jwt:Key"]!);
+        var currentUserId = _currentApplicationUserAccessor.GetApplicationUserId();
+        var currentUser = await _applicationUserRepository.GetUserByIdWithBusinessAsync(currentUserId);
+        var currentUserRole = _currentApplicationUserAccessor.GetApplicationUserRole();
 
-        var claims = new List<Claim>
+        if (currentUser == null)
         {
-            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-            new Claim(ClaimTypes.Email, user.Email!),
-            new Claim(ClaimTypes.Role, role),
-        };
+            throw new ApplicationUserAuthenticationException(new ApplicationUserNotFoundErrorMessage(currentUserId));
+        }
 
-        var tokenDescriptor = new SecurityTokenDescriptor
+        if (currentUserRole == "Admin")
         {
-            Subject = new ClaimsIdentity(claims),
-            Issuer = _configuration["Jwt:Issuer"],
-            Audience = _configuration["Jwt:Audience"],
-            Expires = DateTime.UtcNow.AddMinutes(100),
-            SigningCredentials = new SigningCredentials(
-                new SymmetricSecurityKey(key),
-                SecurityAlgorithms.HmacSha512Signature
-            ),
-        };
-
-        return tokenHandler.WriteToken(tokenHandler.CreateToken(tokenDescriptor));
-    }
-
-    public async Task<string> GetApplicationUserRefreshToken(ApplicationUser user, string role)
-    {
-        var refreshTokenValue = GenerateRefreshToken();
-        var hashedRefreshToken = HashRefreshToken(refreshTokenValue);
-
-        var refreshToken = new RefreshToken
+            return;
+        }
+        else if (currentUserId == applicationUserId)
         {
-            RefreshTokenHash = hashedRefreshToken,
-            ApplicationUserId = user.Id,
-            ExpiryDate = DateTime.UtcNow.AddMinutes(int.Parse(_configuration["Jwt:RefreshTokenExpirationTime"]!)),
-            IsRevoked = false,
-        };
-
-        _refreshTokenRepository.Add(refreshToken);
-        await _unitOfWork.SaveChanges();
-
-        return refreshTokenValue;
-    }
-
-    public Task<string> RevokeApplicationUserRefreshToken(ApplicationUser user, string role, string refreshToken)
-    {
-        throw new NotImplementedException();
-    }
-
-    private string GenerateRefreshToken()
-    {
-        // TODO sign with HMAC512
-        var randomNumber = new byte[32];
-        using (var rng = RandomNumberGenerator.Create())
+            return;
+        }
+        else if (currentUserRole == "BusinessOwner")
         {
-            rng.GetBytes(randomNumber);
-            return Convert.ToBase64String(randomNumber);
+            if (currentUser.OwnedBusiness is null)
+            {
+                Console.WriteLine("current user business is null");
+                throw new ApplicationUserAuthorizationException(new ApplicationUserUnauthorizedErrorMessage());
+            }
+            else
+            {
+                var applicationUser = await _applicationUserRepository.GetUserByIdWithBusinessAsync(currentUserId);
+                if (applicationUser is null)
+                {
+                    Console.WriteLine("application user is null");
+                    throw new ApplicationUserAuthenticationException(
+                        new ApplicationUserNotFoundErrorMessage(applicationUserId)
+                    );
+                }
+                if (applicationUser.EmployerBusiness != currentUser.OwnedBusiness)
+                {
+                    Console.WriteLine("businesses do not match");
+                    throw new ApplicationUserAuthorizationException(new ApplicationUserUnauthorizedErrorMessage());
+                }
+            }
         }
     }
 
-    private string HashRefreshToken(string refreshToken)
+    public async Task AuthorizeGetApplicationUsersAction(int? businessId)
     {
-        using (var sha256 = SHA256.Create())
-        {
-            var hashedBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(refreshToken));
-            return BitConverter.ToString(hashedBytes).Replace("-", "").ToLower();
-        }
-    }
+        var currentUserId = _currentApplicationUserAccessor.GetApplicationUserId();
+        var currentUser = await _applicationUserRepository.GetUserByIdWithBusinessAsync(currentUserId);
+        var currentUserRole = _currentApplicationUserAccessor.GetApplicationUserRole();
 
-    private async Task RevokeRefreshToken(RefreshToken refreshToken)
-    {
-        refreshToken.IsRevoked = true;
-        _refreshTokenRepository.Update(refreshToken);
-        await _unitOfWork.SaveChanges();
+        if (businessId is null && currentUserRole != "Admin")
+        {
+            throw new ApplicationUserAuthorizationException(new ApplicationUserUnauthorizedErrorMessage());
+        }
     }
 }

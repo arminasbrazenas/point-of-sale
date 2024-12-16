@@ -28,6 +28,10 @@ export const paths = {
       path: 'businesses',
       getHref: () => '/business-management/businesses'
     },
+    business:{
+      path: 'business',
+      getHref: () => '/business-management/business'
+    },
     newBusiness: {
       path: 'businesses/new',
       getHref: () => '/business-management/businesses/new'

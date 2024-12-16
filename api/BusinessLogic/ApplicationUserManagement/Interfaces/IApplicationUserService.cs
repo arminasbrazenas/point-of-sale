@@ -9,6 +9,7 @@ public interface IApplicationUserService
     Task<ApplicationUserDTO> GetApplicationUserByEmail(string email);
     Task<PagedResponseDTO<ApplicationUserDTO>> GetApplicationUsers(
         int? businessId,
+        string? role,
         PaginationFilterDTO paginationFilterDTO
     );
     Task<TokensDTO> AuthenticateApplicationUser(LoginApplicationUserDTO dto);

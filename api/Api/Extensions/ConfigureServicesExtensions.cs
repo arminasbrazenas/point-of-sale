@@ -149,6 +149,7 @@ public static class ConfigureServicesExtensions
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 
         services.AddScoped<ICurrentApplicationUserAccessor, CurrentApplicationUserAccessor>();
+        services.AddScoped<IApplicationUserTokenService, ApplicationUserTokenService>();
 
         services
             .AddIdentityCore<ApplicationUser>(options =>
