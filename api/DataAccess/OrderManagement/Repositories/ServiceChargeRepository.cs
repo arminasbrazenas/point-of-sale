@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using PointOfSale.DataAccess.OrderManagement.ErrorMessages;
 using PointOfSale.DataAccess.OrderManagement.Interfaces;
 using PointOfSale.DataAccess.Shared.Filters;
@@ -12,14 +13,24 @@ public class ServiceChargeRepository : RepositoryBase<ServiceCharge, int>, IServ
     public ServiceChargeRepository(ApplicationDbContext dbContext)
         : base(dbContext) { }
 
-    public async Task<List<ServiceCharge>> GetPagedWithTaxes(PaginationFilter paginationFilter)
+    public async Task<List<ServiceCharge>> GetPagedWithTaxes(PaginationFilter paginationFilter, int businessId)
     {
-        var query = DbSet.OrderBy(s => s.CreatedAt).AsQueryable();
+        var query = DbSet.Where(s => s.BusinessId == businessId).OrderBy(s => s.CreatedAt).AsQueryable();
         return await GetPaged(query, paginationFilter);
     }
 
     protected override IPointOfSaleErrorMessage GetEntityNotFoundErrorMessage(int id)
     {
         return new ServiceChargeNotFoundErrorMessage(id);
+    }
+
+    public override async Task<int> GetTotalCount(int? businessId = null)
+    {
+        if (businessId.HasValue)
+        {
+            return await DbSet.Where(s => s.BusinessId == businessId).CountAsync();
+        }
+
+        return await base.GetTotalCount(businessId);
     }
 }

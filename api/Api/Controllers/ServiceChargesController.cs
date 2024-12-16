@@ -29,10 +29,11 @@ public class ServiceChargesController : ControllerBase
 
     [HttpGet]
     public async Task<ActionResult<PagedResponseDTO<ServiceChargeDTO>>> GetServiceCharges(
+        [FromQuery] int businessId,
         [FromQuery] PaginationFilterDTO paginationFilterDTO
     )
     {
-        var serviceCharges = await _serviceChargeService.GetServiceCharges(paginationFilterDTO);
+        var serviceCharges = await _serviceChargeService.GetServiceCharges(paginationFilterDTO, businessId);
         return Ok(serviceCharges);
     }
 

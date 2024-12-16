@@ -10,5 +10,5 @@ public interface IProductRepository : IRepositoryBase<Product, int>
     Task<List<Product>> GetManyWithRelatedData(IEnumerable<int> productIds);
     Task<Product> GetWithModifiers(int productId);
     Task<Product?> GetByNameOptional(string name);
-    Task<List<Product>> GetPaged(PaginationFilter paginationFilter);
+    Task<List<Product>> GetPaged(PaginationFilter paginationFilter, int businessId);
 }

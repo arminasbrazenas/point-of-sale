@@ -19,6 +19,7 @@ export const BusinessManagementLayout = (props: BusinessManagementLayoutProps) =
       </AppShell.Header>
       <AppShell.Navbar bg="white">
         <NavLink label="Employees" component={Link} to={paths.businessManagement.employees.getHref()} fw={600} />
+        <NavLink label="Businesses" component={Link} to={paths.businessManagement.businesses.getHref()} fw={600} />
       </AppShell.Navbar>
       <AppShell.Main>
         <Center px="md" py="lg">

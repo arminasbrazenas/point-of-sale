@@ -23,6 +23,18 @@ export const paths = {
     newEmployee: {
       path: 'employees/new',
       getHref: () => '/business-management/employees/new'
+    },
+    businesses: {
+      path: 'businesses',
+      getHref: () => '/business-management/businesses'
+    },
+    newBusiness: {
+      path: 'businesses/new',
+      getHref: () => '/business-management/businesses/new'
+    },
+    updateBusiness: {
+      path: 'businesses/:businessId',
+      getHref: (businessId: number) => `/business-management/businesses/${businessId}`,
     }
   },
   employee: {

@@ -67,11 +67,14 @@ public class OrderService : IOrderService
         return _orderMappingService.MapToOrderDTO(order);
     }
 
-    public async Task<PagedResponseDTO<OrderMinimalDTO>> GetOrders(PaginationFilterDTO paginationFilterDTO)
+    public async Task<PagedResponseDTO<OrderMinimalDTO>> GetOrders(
+        PaginationFilterDTO paginationFilterDTO,
+        int businessId
+    )
     {
         var paginationFilter = PaginationFilterFactory.Create(paginationFilterDTO);
-        var orders = await _orderRepository.GetWithFilter(paginationFilter);
-        var totalCount = await _orderRepository.GetTotalCount();
+        var orders = await _orderRepository.GetWithFilter(paginationFilter, businessId);
+        var totalCount = await _orderRepository.GetTotalCount(businessId);
         return _orderMappingService.MapToPagedOrderMinimalDTO(orders, paginationFilter, totalCount);
     }
 

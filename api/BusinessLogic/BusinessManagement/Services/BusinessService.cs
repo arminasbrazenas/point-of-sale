@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Identity;
 using PointOfSale.BusinessLogic.BusinessManagement.DTOs;
 using PointOfSale.BusinessLogic.BusinessManagement.Interfaces;
+using PointOfSale.BusinessLogic.Shared.DTOs;
+using PointOfSale.BusinessLogic.Shared.Factories;
 using PointOfSale.DataAccess.BusinessManagement.Interfaces;
 using PointOfSale.DataAccess.Shared.Interfaces;
 using PointOfSale.Models.ApplicationUserManagement.Entities;
@@ -46,7 +48,7 @@ public class BusinessService : IBusinessService
             Name = createBusinessDTO.Name,
             Address = createBusinessDTO.Address,
             Email = createBusinessDTO.Email,
-            TelephoneNumber = createBusinessDTO.TelephoneNumber,
+            TelephoneNumber = createBusinessDTO.PhoneNumber,
         };
 
         _businessRepository.Add(business);
@@ -70,9 +72,12 @@ public class BusinessService : IBusinessService
         await _unitOfWork.SaveChanges();
     }
 
-    public Task<List<BusinessDTO>> GetBusinesses()
+    public async Task<PagedResponseDTO<BusinessDTO>> GetBusinesses(PaginationFilterDTO paginationFilterDTO)
     {
-        throw new NotImplementedException();
+        var paginationFilter = PaginationFilterFactory.Create(paginationFilterDTO);
+        var businesses = await _businessRepository.GetPagedBusiness(paginationFilter);
+        var totalCount = await _businessRepository.GetTotalCount();
+        return _businessMappingService.MapToPagedBusinessDTO(businesses, paginationFilter, totalCount);
     }
 
     public async Task<BusinessDTO> UpdateBusiness(int businessId, UpdateBusinessDTO updateBusinessDTO)
@@ -99,9 +104,9 @@ public class BusinessService : IBusinessService
             business.Address = updateBusinessDTO.Address;
         }
 
-        if (updateBusinessDTO.TelephoneNumber is not null)
+        if (updateBusinessDTO.PhoneNumber is not null)
         {
-            business.TelephoneNumber = updateBusinessDTO.TelephoneNumber;
+            business.TelephoneNumber = updateBusinessDTO.PhoneNumber;
         }
 
         await _unitOfWork.SaveChanges();

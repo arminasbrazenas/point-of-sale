@@ -172,3 +172,17 @@ export type ApplicationUser = {
   phoneNumber : string;
   role: string;
 };
+
+export const Roles = {
+  Admin: "Admin",
+  BusinessOwner: "BusinessOwner",
+  Employee: "Employee",
+} as const;
+
+export type Business = {
+  id: number;
+  name : string;
+  address : string;
+  email : string;
+  phoneNumber : string;
+};

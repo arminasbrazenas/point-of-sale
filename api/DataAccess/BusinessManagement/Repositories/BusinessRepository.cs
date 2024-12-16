@@ -1,5 +1,6 @@
 using PointOfSale.DataAccess.BusinessManagement.ErrorMessages;
 using PointOfSale.DataAccess.BusinessManagement.Interfaces;
+using PointOfSale.DataAccess.Shared.Filters;
 using PointOfSale.DataAccess.Shared.Interfaces;
 using PointOfSale.DataAccess.Shared.Repositories;
 using PointOfSale.Models.BusinessManagement.Entities;
@@ -14,5 +15,11 @@ public class BusinessRepository : RepositoryBase<Business, int>, IBusinessReposi
     protected override IPointOfSaleErrorMessage GetEntityNotFoundErrorMessage(int id)
     {
         return new BusinessNotFoundErrorMessage(id);
+    }
+
+    public async Task<List<Business>> GetPagedBusiness(PaginationFilter paginationFilter)
+    {
+        //return DbSet.ToList();
+        return await GetPaged(DbSet.OrderBy(b => b.Id), paginationFilter);
     }
 }
