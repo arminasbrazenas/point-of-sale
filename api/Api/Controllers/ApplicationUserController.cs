@@ -49,7 +49,7 @@ public class ApplicationUserController : ControllerBase
     }
 
     [HttpGet]
-    [Authorize(Roles = "Admin,BusinessOwner")]
+    [Authorize(Roles = "Admin,BusinessOwner,Employee")]
     [Route("currentUser")]
     public async Task<IActionResult> GetCurrentApplicationUser()
     {

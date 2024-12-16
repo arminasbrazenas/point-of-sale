@@ -4,6 +4,7 @@ using PointOfSale.BusinessLogic.BusinessManagement.Interfaces;
 using PointOfSale.BusinessLogic.Shared.Exceptions;
 using PointOfSale.DataAccess.ApplicationUserManagement.ErrorMessages;
 using PointOfSale.DataAccess.BusinessManagement.ErrorMessages;
+using PointOfSale.DataAccess.BusinessManagement.Interfaces;
 using PointOfSale.Models.ApplicationUserManagement.Entities;
 
 namespace PointOfSale.BusinessLogic.BusinessManagement.Services;
@@ -11,15 +12,20 @@ namespace PointOfSale.BusinessLogic.BusinessManagement.Services;
 public class BusinessValidationService : IBusinessValidationService
 {
     private readonly UserManager<ApplicationUser> _userManager;
+    private readonly IApplicationUserRepository _applicationUserRepository;
 
-    public BusinessValidationService(UserManager<ApplicationUser> userManager)
+    public BusinessValidationService(
+        UserManager<ApplicationUser> userManager,
+        IApplicationUserRepository applicationUserRepository
+    )
     {
         _userManager = userManager;
+        _applicationUserRepository = applicationUserRepository;
     }
 
     public async Task ValidateCreateBusinessDTO(CreateBusinessDTO dto)
     {
-        var owner = await _userManager.FindByIdAsync(dto.BusinessOwnerId.ToString());
+        var owner = await _applicationUserRepository.GetUserByIdWithBusinessAsync(dto.BusinessOwnerId);
 
         if (owner is null)
         {
@@ -32,27 +38,12 @@ public class BusinessValidationService : IBusinessValidationService
         {
             throw new ValidationException(new InvalidApplicationUserRoleToOwnBusinessErrorMessage());
         }
-    }
 
-    public async Task ValidateUpdateBusinessDTO(UpdateBusinessDTO dto)
-    {
-        if (dto.BusinessOwnerId is not null)
+        if (owner.Business is not null)
         {
-            ApplicationUser? newBusinessOwner = await _userManager.FindByIdAsync(dto.BusinessOwnerId.Value.ToString());
-            if (newBusinessOwner is null)
-            {
-                throw new ValidationException(new InvalidBusinessOwnerIdErrorMessage(dto.BusinessOwnerId.Value));
-            }
-            else if ((await _userManager.GetRolesAsync(newBusinessOwner)).FirstOrDefault() != "BusinessOwner")
-            {
-                throw new ValidationException(new InvalidApplicationUserRoleToOwnBusinessErrorMessage());
-            }
-            else if (newBusinessOwner.Business is not null)
-            {
-                throw new ValidationException(
-                    new ApplicationUserCannotOwnMultipleBusinessesErrorMessage(newBusinessOwner.Id)
-                );
-            }
+            throw new ValidationException(
+                new ApplicationUserCannotOwnMultipleBusinessesErrorMessage(dto.BusinessOwnerId)
+            );
         }
     }
 }

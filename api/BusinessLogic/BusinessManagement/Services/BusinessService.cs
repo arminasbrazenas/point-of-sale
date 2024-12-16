@@ -55,6 +55,10 @@ public class BusinessService : IBusinessService
 
         await _unitOfWork.SaveChanges();
 
+        var businessOwner = await _userManager.FindByIdAsync(createBusinessDTO.BusinessOwnerId.ToString());
+        businessOwner!.Business = business;
+        await _userManager.UpdateAsync(businessOwner);
+
         return _businessMappingService.MapToBusinessDTO(business);
     }
 
@@ -83,16 +87,8 @@ public class BusinessService : IBusinessService
     public async Task<BusinessDTO> UpdateBusiness(int businessId, UpdateBusinessDTO updateBusinessDTO)
     {
         await _businessAuthorizationService.AuthorizeBusinessWriteAction(businessId);
-        await _businessValidationService.ValidateUpdateBusinessDTO(updateBusinessDTO);
 
         var business = await _businessRepository.Get(businessId);
-
-        if (updateBusinessDTO.BusinessOwnerId.HasValue)
-        {
-            business.BusinessOwner = (
-                await _userManager.FindByIdAsync(updateBusinessDTO.BusinessOwnerId.Value.ToString())
-            )!;
-        }
 
         if (updateBusinessDTO.Name is not null)
         {
