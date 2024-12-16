@@ -49,6 +49,11 @@ public class BusinessService : IBusinessService
             Address = createBusinessDTO.Address,
             Email = createBusinessDTO.Email,
             TelephoneNumber = createBusinessDTO.PhoneNumber,
+            WorkingHours = new BusinessWorkingHours
+            {
+                Start = new TimeOnly(8, 0),
+                End = new TimeOnly(18, 0)
+            }
         };
 
         _businessRepository.Add(business);
