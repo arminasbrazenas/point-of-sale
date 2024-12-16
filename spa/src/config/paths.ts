@@ -3,18 +3,18 @@ export const paths = {
     path: '/',
     getHref: () => '/',
   },
-  login :{
+  login: {
     path: '/login',
     getHref: () => '/login',
   },
-  businessManagement : {
+  businessManagement: {
     root: {
       path: '/business-management',
-      getHref: () => '/business-management'
+      getHref: () => '/business-management',
     },
     employees: {
       path: 'employees',
-      getHref: () => '/business-management/employees'
+      getHref: () => '/business-management/employees',
     },
     updateEmployee: {
       path: 'employees/:employeeId',
@@ -22,20 +22,20 @@ export const paths = {
     },
     newEmployee: {
       path: 'employees/new',
-      getHref: () => '/business-management/employees/new'
+      getHref: () => '/business-management/employees/new',
     },
     businesses: {
       path: 'businesses',
-      getHref: () => '/business-management/businesses'
+      getHref: () => '/business-management/businesses',
     },
     newBusiness: {
       path: 'businesses/new',
-      getHref: () => '/business-management/businesses/new'
+      getHref: () => '/business-management/businesses/new',
     },
     updateBusiness: {
       path: 'businesses/:businessId',
       getHref: (businessId: number) => `/business-management/businesses/${businessId}`,
-    }
+    },
   },
   employee: {
     root: {
@@ -135,6 +135,18 @@ export const paths = {
     addGiftCard: {
       path: 'gift-cards/add',
       getHref: () => '/management/gift-cards/add',
+    },
+    services: {
+      path: 'services',
+      getHref: () => '/management/services',
+    },
+    updateService: {
+      path: 'services/:serviceId',
+      getHref: (serviceId: number) => `/management/services/${serviceId}`,
+    },
+    addService: {
+      path: 'services/add',
+      getHref: () => '/management/services/add',
     },
   },
 } as const;
