@@ -9,7 +9,7 @@ export const getBusiness = ({ businessId }: { businessId: number }): Promise<Bus
 
 export const getBusinessQueryOptions = (businessId: number) => {
   return queryOptions({
-    queryKey: ['businesses', businessId],
+    queryKey: ['business', businessId],
     queryFn: () => getBusiness({ businessId }),
   });
 };
