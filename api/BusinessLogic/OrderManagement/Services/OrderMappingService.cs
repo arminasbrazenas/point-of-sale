@@ -15,6 +15,7 @@ public class OrderMappingService : IOrderMappingService
             Id = order.Id,
             Status = order.Status,
             CreatedAt = order.CreatedAt,
+            BusinessId = order.BusinessId,
         };
     }
 
@@ -52,6 +53,7 @@ public class OrderMappingService : IOrderMappingService
             TotalPrice = totalPrice,
             ServiceCharges = serviceCharges,
             Discounts = orderDiscounts,
+            BusinessId = order.BusinessId,
         };
     }
 

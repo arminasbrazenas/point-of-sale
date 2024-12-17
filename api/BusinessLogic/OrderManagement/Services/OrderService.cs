@@ -52,6 +52,24 @@ public class OrderService : IOrderService
         var orderDiscounts = await GetOrderDiscounts(orderItems, createOrderDTO.Discounts);
         var serviceCharges = await GetOrderServiceCharges(createOrderDTO.ServiceChargeIds, orderItems, orderDiscounts);
 
+        foreach (var orderItem in orderItems)
+        {
+            if (orderItem.Product is not null)
+                await _orderAuthorizationService.AuthorizeApplicationUser(orderItem.Product.BusinessId);
+
+            foreach (var orderItemModifier in orderItem.Modifiers)
+            {
+                var modifier = await _modifierRepository.Get(orderItemModifier.Id);
+                await _orderAuthorizationService.AuthorizeApplicationUser(modifier.BusinessId);
+            }
+        }
+
+        foreach (var serviceChargeId in createOrderDTO.ServiceChargeIds)
+        {
+            var serviceCharge = await _serviceChargeRepository.Get(serviceChargeId);
+            await _orderAuthorizationService.AuthorizeApplicationUser(serviceCharge.BusinessId);
+        }
+
         var order = new Order
         {
             Items = orderItems,
@@ -72,6 +90,7 @@ public class OrderService : IOrderService
         int businessId
     )
     {
+        await _orderAuthorizationService.AuthorizeApplicationUser(businessId);
         var paginationFilter = PaginationFilterFactory.Create(paginationFilterDTO);
         var orders = await _orderRepository.GetWithFilter(paginationFilter, businessId);
         var totalCount = await _orderRepository.GetTotalCount(businessId);
@@ -90,6 +109,9 @@ public class OrderService : IOrderService
     public async Task<OrderMinimalDTO> GetOrderMinimal(int orderId)
     {
         var order = await _orderRepository.Get(orderId);
+
+        await _orderAuthorizationService.AuthorizeApplicationUser(order.BusinessId);
+
         return _orderMappingService.MapToOrderMinimalDTO(order);
     }
 
@@ -121,6 +143,12 @@ public class OrderService : IOrderService
 
             // Recalculate order service charges
             var serviceChargesIds = order.ServiceCharges.Select(c => c.Id).ToList();
+
+            foreach (var serviceChargeId in serviceChargesIds)
+            {
+                var serviceCharge = await _serviceChargeRepository.Get(serviceChargeId);
+                await _orderAuthorizationService.AuthorizeApplicationUser(serviceCharge.BusinessId);
+            }
             order.ServiceCharges = await GetOrderServiceCharges(serviceChargesIds, order.Items, order.Discounts);
         }
 
@@ -189,6 +217,9 @@ public class OrderService : IOrderService
     public async Task CloseOrder(int orderId)
     {
         var order = await _orderRepository.Get(orderId);
+        
+        await _orderAuthorizationService.AuthorizeApplicationUser(order.BusinessId);
+
         if (order.Status != OrderStatus.Completed)
         {
             throw new ValidationException(new CannotCloseNonCompletedOrderErrorMessage());

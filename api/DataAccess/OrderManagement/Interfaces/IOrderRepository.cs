@@ -8,4 +8,5 @@ public interface IOrderRepository : IRepositoryBase<Order, int>
 {
     Task<List<Order>> GetWithFilter(PaginationFilter paginationFilter, int businessId);
     Task<Order> GetWithOrderItems(int orderId);
+    Task<int> GetTotalCount(int businessId);
 }

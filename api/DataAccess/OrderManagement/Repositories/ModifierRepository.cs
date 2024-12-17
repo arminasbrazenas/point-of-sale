@@ -37,7 +37,6 @@ public class ModifierRepository : RepositoryBase<Modifier, int>, IModifierReposi
 
     public async Task<int> GetTotalCount(int businessId)
     {
-            return await DbSet.Where(m => m.BusinessId == businessId).CountAsync();
-
+        return await DbSet.Where(m => m.BusinessId == businessId).CountAsync();
     }
 }
