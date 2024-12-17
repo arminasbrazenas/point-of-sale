@@ -9,7 +9,7 @@ import { useEmployee } from '../api/get-employee';
 import { UpdateEmployeeInput, updateEmployeeInputSchema, useUpdateEmployee } from '../api/update-employee';
 import { useDeleteEmployee } from '../api/delete-employee';
 import { useAppStore } from '@/lib/app-store';
-import { logoutApplicationUser } from '@/features/application-user/api/logout-application-user';
+import { logoutApplicationUser, useLogoutApplicationUser } from '@/features/application-user/api/logout-application-user';
 
 export const UpdateEmployee = ({ employeeId }: { employeeId: number }) => {
     const employeeQuery = useEmployee({
@@ -19,7 +19,8 @@ export const UpdateEmployee = ({ employeeId }: { employeeId: number }) => {
     const [updatedEmployeeProperties, setUpdatedEmployeeProperties] = useState<UpdateEmployeeInput>({});
     const [isDeleteModelOpen, { open: openDeleteModal, close: closeDeleteModal }] = useDisclosure(false);
     const userId = useAppStore((state) => state.applicationUser?.id);
-
+    const resetApplicationUser = useAppStore((state) => state.resetApplicationUser);
+    
     const deleteEmployeeMutation = useDeleteEmployee({
         mutationConfig: {
             onSuccess: () => {
@@ -30,6 +31,7 @@ export const UpdateEmployee = ({ employeeId }: { employeeId: number }) => {
 
                 if (employeeId === userId) {
                     logoutApplicationUser();
+                    resetApplicationUser();
                     navigate(paths.login.getHref());
                 } else {
                     navigate(paths.businessManagement.employees.getHref());
