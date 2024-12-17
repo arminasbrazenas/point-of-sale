@@ -7,4 +7,5 @@ namespace PointOfSale.DataAccess.OrderManagement.Interfaces;
 public interface IServiceChargeRepository : IRepositoryBase<ServiceCharge, int>
 {
     Task<List<ServiceCharge>> GetPagedWithTaxes(PaginationFilter paginationFilter, int businessId);
+    Task<int> GetTotalCount(int businessId);
 }

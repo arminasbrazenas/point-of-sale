@@ -1,3 +1,4 @@
+using Microsoft.VisualBasic;
 using PointOfSale.BusinessLogic.OrderManagement.DTOs;
 using PointOfSale.BusinessLogic.OrderManagement.Interfaces;
 using PointOfSale.BusinessLogic.OrderManagement.Utilities;
@@ -40,7 +41,18 @@ public class ProductService : IProductService
         var price = _productValidationService.ValidatePrice(createProductDTO.Price).ToRoundedPrice();
         var stock = _productValidationService.ValidateStock(createProductDTO.Stock);
         var taxes = await _productValidationService.ValidateTaxes(createProductDTO.TaxIds);
+
+        foreach (var tax in taxes)
+        {
+            await _orderManagementAuthorizationService.AuthorizeApplicationUser(tax.BusinessId);
+        }
+
         var modifiers = await _productValidationService.ValidateModifiers(createProductDTO.ModifierIds);
+
+        foreach (var modifier in modifiers)
+        {
+            await _orderManagementAuthorizationService.AuthorizeApplicationUser(modifier.BusinessId);
+        }
 
         var product = new Product
         {
@@ -82,12 +94,26 @@ public class ProductService : IProductService
 
         if (updateProductDTO.TaxIds is not null)
         {
-            product.Taxes = await _productValidationService.ValidateTaxes(updateProductDTO.TaxIds);
+            var taxes = await _productValidationService.ValidateTaxes(updateProductDTO.TaxIds);
+
+            foreach (var tax in taxes)
+            {
+                await _orderManagementAuthorizationService.AuthorizeApplicationUser(tax.BusinessId);
+            }
+
+            product.Taxes = taxes;
         }
 
         if (updateProductDTO.ModifierIds is not null)
         {
-            product.Modifiers = await _productValidationService.ValidateModifiers(updateProductDTO.ModifierIds);
+            var modifiers = await _productValidationService.ValidateModifiers(updateProductDTO.ModifierIds);
+
+            foreach (var modifier in modifiers)
+            {
+                await _orderManagementAuthorizationService.AuthorizeApplicationUser(modifier.BusinessId);
+            }
+
+            product.Modifiers = modifiers;
         }
 
         _productRepository.Update(product);
@@ -107,6 +133,7 @@ public class ProductService : IProductService
 
     public async Task<PagedResponseDTO<ProductDTO>> GetProducts(PaginationFilterDTO paginationFilterDTO, int businessId)
     {
+        await _orderManagementAuthorizationService.AuthorizeApplicationUser(businessId);
         var paginationFilter = PaginationFilterFactory.Create(paginationFilterDTO);
         var products = await _productRepository.GetPaged(paginationFilter, businessId);
         var totalCount = await _productRepository.GetTotalCount(businessId);

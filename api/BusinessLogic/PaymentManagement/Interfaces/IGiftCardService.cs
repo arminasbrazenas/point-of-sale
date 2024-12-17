@@ -7,7 +7,7 @@ public interface IGiftCardService
 {
     Task<GiftCardDTO> CreateGiftCard(CreateGiftCardDTO createGiftCardDTO);
     Task<GiftCardDTO> GetGiftCard(int giftCardId);
-    Task<PagedResponseDTO<GiftCardDTO>> GetGiftCards(PaginationFilterDTO paginationFilterDTO);
+    Task<PagedResponseDTO<GiftCardDTO>> GetGiftCards(int businessId, PaginationFilterDTO paginationFilterDTO);
     Task<GiftCardDTO> UpdateGiftCard(int giftCardId, UpdateGiftCardDTO updateGiftCardDTO);
     Task DeleteGiftCard(int giftCardId);
     Task<GiftCardDTO> GetUsableGiftCardByCode(string code);

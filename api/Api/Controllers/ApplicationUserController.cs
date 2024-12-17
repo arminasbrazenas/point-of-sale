@@ -68,7 +68,7 @@ public class ApplicationUserController : ControllerBase
     }
 
     [HttpPatch]
-    [Authorize(Roles = "Admin,BusinessOwner,Employee")]
+    [Authorize(Roles = "Admin,BusinessOwner")]
     [Route("{userId:int}")]
     public async Task<IActionResult> UpdateApplicationUser(
         int userId,
@@ -80,7 +80,7 @@ public class ApplicationUserController : ControllerBase
     }
 
     [HttpDelete]
-    [Authorize(Roles = "Admin,BusinessOwner,Employee")]
+    [Authorize(Roles = "Admin,BusinessOwner")]
     [Route("{userId:int}")]
     public async Task<IActionResult> DeleteApplicationUser(int userId)
     {

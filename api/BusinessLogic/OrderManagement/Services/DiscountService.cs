@@ -38,6 +38,7 @@ public class DiscountService : IDiscountService
     {
         await _orderManagementAuthorizationService.AuthorizeApplicationUser(createDiscountDTO.BusinessId);
         var products = await _productRepository.GetMany(createDiscountDTO.AppliesToProductIds);
+
         switch (createDiscountDTO)
         {
             case { Target: DiscountTarget.Product, AppliesToProductIds: null }:
@@ -49,6 +50,11 @@ public class DiscountService : IDiscountService
         if (createDiscountDTO.AppliesToProductIds is not null)
         {
             products = await _productRepository.GetMany(createDiscountDTO.AppliesToProductIds);
+        }
+
+        foreach (Product product in products)
+        {
+            await _orderManagementAuthorizationService.AuthorizeApplicationUser(product.BusinessId);
         }
 
         var discount = new Discount

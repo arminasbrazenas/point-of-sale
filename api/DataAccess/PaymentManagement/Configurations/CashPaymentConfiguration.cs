@@ -4,7 +4,7 @@ using PointOfSale.Models.PaymentManagement.Entities;
 
 namespace PointOfSale.DataAccess.PaymentManagement.Configurations;
 
-public class CashPaymentConfiguration : IEntityTypeConfiguration<CashPayment>
+public class CashPaymentConfiguration : EntityBaseConfiguration<CashPayment, int>
 {
-    public void Configure(EntityTypeBuilder<CashPayment> builder) { }
+    public override void Configure(EntityTypeBuilder<CashPayment> builder) { }
 }

@@ -5,10 +5,12 @@ using PointOfSale.Models.PaymentManagement.Entities;
 
 namespace PointOfSale.DataAccess.PaymentManagement.Configurations;
 
-public class TipConfiguration : IEntityTypeConfiguration<Tip>
+public class TipConfiguration : EntityBaseConfiguration<Tip, int>
 {
-    public void Configure(EntityTypeBuilder<Tip> builder)
+    public override void Configure(EntityTypeBuilder<Tip> builder)
     {
+        base.Configure(builder);
+
         builder.HasKey(t => t.Id);
 
         builder
@@ -17,6 +19,8 @@ public class TipConfiguration : IEntityTypeConfiguration<Tip>
             .IsRequired();
 
         builder.HasOne(t => t.Order).WithMany().HasForeignKey(t => t.OrderId).IsRequired();
+
+        builder.HasOne(o => o.Employee).WithMany().HasForeignKey(o => o.EmployeeId).IsRequired();
 
         builder.ToTable("Tips", Constants.SchemaName);
     }

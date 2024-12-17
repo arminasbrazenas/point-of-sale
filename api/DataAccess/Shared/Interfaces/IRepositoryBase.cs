@@ -12,5 +12,5 @@ public interface IRepositoryBase<TEntity, TKey>
     Task Delete(TKey id);
     void DeleteMany(IEnumerable<TEntity> entities);
     void Update(TEntity entity);
-    Task<int> GetTotalCount(int? businessId = null);
+    Task<int> GetTotalCount();
 }

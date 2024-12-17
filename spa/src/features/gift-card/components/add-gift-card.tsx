@@ -8,9 +8,15 @@ import { toReadablePricingStrategy } from '@/utilities';
 import { CreateGiftCardInput, createGiftCardInputSchema, useCreateGiftCard } from '../api/create-gift-card';
 import { CurrencyInput } from '@/components/inputs/currency-input';
 import { DateTimePicker } from '@mantine/dates';
+import { useAppStore } from '@/lib/app-store';
 
 export const AddGiftCard = () => {
   const navigate = useNavigate();
+
+  const businessId = useAppStore((state) => state.applicationUser?.businessId);
+            if (!businessId) {
+              throw new Error("Business ID is required to create a product.");
+            }
 
   const form = useForm<CreateGiftCardInput>({
     mode: 'uncontrolled',
@@ -36,7 +42,7 @@ export const AddGiftCard = () => {
   });
 
   const createGiftCard = (values: CreateGiftCardInput) => {
-    createGiftCardMutation.mutate({ data: values });
+    createGiftCardMutation.mutate({  data :{ ...values, businessId}});;
   };
 
   return (

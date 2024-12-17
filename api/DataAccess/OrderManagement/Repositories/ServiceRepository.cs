@@ -41,18 +41,13 @@ public class ServiceRepository : RepositoryBase<Service, int>, IServiceRepositor
         return await GetPaged(query, paginationFilter);
     }
 
-    public override async Task<int> GetTotalCount(int? businessId = null)
-    {
-        if (businessId.HasValue)
-        {
-            return await DbSet.Where(s => s.BusinessId == businessId).CountAsync();
-        }
-
-        return await base.GetTotalCount(businessId);
-    }
-
     protected override IPointOfSaleErrorMessage GetEntityNotFoundErrorMessage(int id)
     {
         return new ServiceNotFoundErrorMessage(id);
+    }
+
+    public async Task<int> GetTotalCount(int businessId)
+    {
+        return await DbSet.Where(s => s.BusinessId == businessId).CountAsync();
     }
 }

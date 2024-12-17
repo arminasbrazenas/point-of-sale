@@ -35,13 +35,8 @@ public class ModifierRepository : RepositoryBase<Modifier, int>, IModifierReposi
         return new ModifierNotFoundErrorMessage(id);
     }
 
-    public override async Task<int> GetTotalCount(int? businessId = null)
+    public async Task<int> GetTotalCount(int businessId)
     {
-        if (businessId.HasValue)
-        {
-            return await DbSet.Where(m => m.BusinessId == businessId).CountAsync();
-        }
-
-        return await base.GetTotalCount(businessId);
+        return await DbSet.Where(m => m.BusinessId == businessId).CountAsync();
     }
 }

@@ -17,6 +17,7 @@ public class GiftCardMappingService : IGiftCardMappingService
             Amount = giftCard.Amount,
             ExpiresAt = giftCard.ExpiresAt,
             UsedAt = giftCard.UsedAt,
+            BusinessId = giftCard.BusinessId,
         };
     }
 

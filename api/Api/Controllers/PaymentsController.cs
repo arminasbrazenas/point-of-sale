@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PointOfSale.BusinessLogic.PaymentManagement.DTOs;
 using PointOfSale.BusinessLogic.PaymentManagement.Interfaces;
@@ -5,6 +6,7 @@ using PointOfSale.BusinessLogic.PaymentManagement.Interfaces;
 namespace PointOfSale.Api.Controllers;
 
 [ApiController]
+[Authorize(Roles = "BusinessOwner,Employee")]
 [Route("v1/payments")]
 public class PaymentsController : ControllerBase
 {

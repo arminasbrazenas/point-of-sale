@@ -13,4 +13,5 @@ public interface IReservationRepository : IRepositoryBase<Reservation, int>
         int businessId,
         ReservationFilter? filter = null
     );
+    Task<int> GetTotalCount(int businessId);
 }

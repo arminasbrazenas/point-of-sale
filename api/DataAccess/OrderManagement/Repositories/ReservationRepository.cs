@@ -50,18 +50,13 @@ public class ReservationRepository : RepositoryBase<Reservation, int>, IReservat
         return await GetPaged(query, paginationFilter);
     }
 
-    public override async Task<int> GetTotalCount(int? businessId = null)
-    {
-        if (businessId.HasValue)
-        {
-            return await DbSet.Where(o => o.BusinessId == businessId).CountAsync();
-        }
-
-        return await base.GetTotalCount(businessId);
-    }
-
     protected override IPointOfSaleErrorMessage GetEntityNotFoundErrorMessage(int id)
     {
         return new ReservationNotFoundErrorMessage(id);
+    }
+
+    public async Task<int> GetTotalCount(int businessId)
+    {
+        return await DbSet.Where(s => s.BusinessId == businessId).CountAsync();
     }
 }

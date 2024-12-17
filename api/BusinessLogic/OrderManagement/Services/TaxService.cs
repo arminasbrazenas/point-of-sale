@@ -82,11 +82,12 @@ public class TaxService : ITaxService
         return _taxMappingService.MapToTaxDTO(tax);
     }
 
-    public async Task<PagedResponseDTO<TaxDTO>> GetTaxes(PaginationFilterDTO paginationFilterDTO)
+    public async Task<PagedResponseDTO<TaxDTO>> GetTaxes(int businessId, PaginationFilterDTO paginationFilterDTO)
     {
+        await _orderManagementAuthorizationService.AuthorizeApplicationUser(businessId);
         var paginationFilter = PaginationFilterFactory.Create(paginationFilterDTO);
-        var taxes = await _taxRepository.GetPaged(paginationFilter);
-        var totalCount = await _taxRepository.GetTotalCount();
+        var taxes = await _taxRepository.GetPaged(businessId, paginationFilter);
+        var totalCount = await _taxRepository.GetTotalCount(businessId);
         return _taxMappingService.MapToPagedTaxDTO(taxes, paginationFilter, totalCount);
     }
 

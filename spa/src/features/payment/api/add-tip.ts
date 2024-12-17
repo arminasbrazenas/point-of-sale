@@ -7,6 +7,7 @@ import { z } from 'zod';
 export const addTipInputSchema = z.object({
   orderId: z.coerce.number(),
   tipAmount: z.coerce.number(),
+  employeeId: z.coerce.number(),
 });
 
 export type AddTipInput = z.infer<typeof addTipInputSchema>;

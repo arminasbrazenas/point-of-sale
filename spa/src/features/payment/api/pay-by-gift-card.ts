@@ -7,6 +7,8 @@ import { z } from 'zod';
 export const payByGiftCardInputSchema = z.object({
   orderId: z.coerce.number(),
   giftCardCode: z.string(),
+  businessId: z.coerce.number(),
+  employeeId: z.coerce.number(),
 });
 
 export type PayByGiftCardInput = z.infer<typeof payByGiftCardInputSchema>;

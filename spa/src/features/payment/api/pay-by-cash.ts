@@ -7,6 +7,8 @@ import { z } from 'zod';
 export const payByCashInputSchema = z.object({
   orderId: z.coerce.number(),
   paymentAmount: z.coerce.number(),
+  businessId: z.coerce.number(),
+  employeeId: z.coerce.number(),
 });
 
 export type PayByCashInput = z.infer<typeof payByCashInputSchema>;

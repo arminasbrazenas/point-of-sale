@@ -35,10 +35,11 @@ public class TaxesController : ControllerBase
 
     [HttpGet]
     public async Task<ActionResult<PagedResponseDTO<TaxDTO>>> GetTaxes(
+        [FromQuery] int businessId,
         [FromQuery] PaginationFilterDTO paginationFilterDTO
     )
     {
-        var taxes = await _taxService.GetTaxes(paginationFilterDTO);
+        var taxes = await _taxService.GetTaxes(businessId, paginationFilterDTO);
         return Ok(taxes);
     }
 
