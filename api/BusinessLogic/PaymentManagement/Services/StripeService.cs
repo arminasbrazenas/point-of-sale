@@ -4,16 +4,19 @@ using PointOfSale.BusinessLogic.Shared.ErrorMessages;
 using PointOfSale.BusinessLogic.Shared.Exceptions;
 using PointOfSale.Models.PaymentManagement.Enums;
 using Stripe;
+using Stripe.TestHelpers;
 
 namespace PointOfSale.BusinessLogic.PaymentManagement.Services;
 
 public class StripeService : IStripeService
 {
     private readonly PaymentIntentService _paymentIntentService;
+    private readonly Stripe.RefundService _refundService;
 
     public StripeService()
     {
         _paymentIntentService = new PaymentIntentService();
+        _refundService = new Stripe.RefundService();
     }
 
     public async Task<PaymentIntentDTO> CreatePaymentIntent(CreatePaymentIntentDTO paymentIntentDTO)
@@ -56,5 +59,31 @@ public class StripeService : IStripeService
     public async Task CancelPaymentIntent(string paymentId)
     {
         await _paymentIntentService.CancelAsync(paymentId);
+    }
+
+    public async Task<Refund> CreateRefundAsync(RefundCreateOptions refundCreateOptions)
+    {
+        try
+        {
+            var refund = await _refundService.CreateAsync(refundCreateOptions);
+
+            return refund;
+        }
+        catch (StripeException ex)
+        {
+            throw new ValidationException(new TextErrorMessage(ex.StripeError.Message));
+        }
+    }
+    public async Task<Refund> GetRefundAsync(string refundId)
+    {
+        try
+        {
+            var refund = await _refundService.GetAsync(refundId);
+            return refund;
+        }
+        catch (StripeException ex)
+        {
+            throw new ValidationException(new TextErrorMessage(ex.StripeError.Message));
+        }
     }
 }
