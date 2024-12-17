@@ -58,6 +58,18 @@ export const paths = {
       path: 'orders/new',
       getHref: () => '/employee/orders/new',
     },
+    reservations: {
+      path: 'reservations',
+      getHref: () => '/employee/reservations',
+    },
+    updateReservation: {
+      path: 'reservations/:reservationId',
+      getHref: (reservationId: number) => `/employee/reservations/${reservationId}`,
+    },
+    newReservation: {
+      path: 'reservations/new',
+      getHref: () => '/employee/reservations/new',
+    },
   },
   management: {
     root: {

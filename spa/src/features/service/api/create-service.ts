@@ -8,7 +8,7 @@ import { z } from 'zod';
 export const createServiceInputSchema = z.object({
   name: z.string(),
   price: z.coerce.number(),
-  duration: z.string(),
+  durationInMinutes: z.coerce.number(),
 });
 
 export type CreateServiceInput = z.infer<typeof createServiceInputSchema>;

@@ -29,7 +29,7 @@ type UseCreateReservationOptions = {
   mutationConfig?: MutationConfig<typeof createReservation>;
 };
 
-export const useCreateReservatino = ({ mutationConfig }: UseCreateReservationOptions = {}) => {
+export const useCreateReservation = ({ mutationConfig }: UseCreateReservationOptions = {}) => {
   const queryClient = useQueryClient();
 
   const { onSuccess, ...restConfig } = mutationConfig || {};

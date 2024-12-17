@@ -4,31 +4,35 @@ import { showNotification } from '@/lib/notifications';
 import { useNavigate } from 'react-router-dom';
 import { paths } from '@/config/paths';
 import { useAppStore } from '@/lib/app-store';
-import { CreateServiceInput, createServiceInputSchema, useCreateService } from '../api/create-service';
+import { CreateReservationInput, createReservationInputSchema, useCreateReservation } from '../api/create-reservation';
 
-export const AddService = () => {
+export const AddReservation = () => {
   const navigate = useNavigate();
   const businessId = useAppStore((state) => state.applicationUser?.businessId);
   if (!businessId) {
-    throw new Error('Business ID is required to create a service.');
+    throw new Error('Business ID is required to create a reservation.');
   }
 
-  const form = useForm<CreateServiceInput>({
+  const form = useForm<CreateReservationInput>({
     mode: 'uncontrolled',
     initialValues: {
-      name: '',
-      price: 0,
-      durationInMinutes: 0,
+      employeeId: 0,
+      serviceId: 0,
+      startDate: '',
+      customer: {
+        firstName: '',
+        lastName: '',
+      },
     },
-    validate: zodResolver(createServiceInputSchema),
+    validate: zodResolver(createReservationInputSchema),
   });
 
-  const createServiceMutation = useCreateService({
+  const createReservationMutation = useCreateReservation({
     mutationConfig: {
       onSuccess: () => {
         showNotification({
           type: 'success',
-          title: 'Service added successfully.',
+          title: 'Reservation added successfully.',
         });
 
         navigate(paths.management.services.getHref());
@@ -36,13 +40,13 @@ export const AddService = () => {
     },
   });
 
-  const createService = (values: CreateServiceInput) => {
-    createServiceMutation.mutate({ data: { ...values, businessId } });
+  const createReservation = (values: CreateReservationInput) => {
+    createReservationMutation.mutate({ data: { ...values, businessId } });
   };
 
   return (
     <Paper withBorder p="lg">
-      <form onSubmit={form.onSubmit(createService)}>
+      <form onSubmit={form.onSubmit(createReservation)}>
         <Stack>
           <TextInput
             label="Name"
@@ -65,7 +69,7 @@ export const AddService = () => {
             key={form.key('durationInMinutes')}
             {...form.getInputProps('durationInMinutes')}
           />
-          <Button type="submit" mt="xs" fullWidth loading={createServiceMutation.isPending}>
+          <Button type="submit" mt="xs" fullWidth loading={createReservationMutation.isPending}>
             Add
           </Button>
         </Stack>

@@ -132,6 +132,20 @@ const createAppRouter = () =>
             return { Component: UpdateOrderEmployeeRoute };
           },
         },
+        {
+          path: paths.employee.reservations.path,
+          lazy: async () => {
+            const { ReservationEmployeeRoute } = await import('./routes/employee/reservation/reservations');
+            return { Component: ReservationEmployeeRoute };
+          },
+        },
+        {
+          path: paths.employee.newReservation.path,
+          lazy: async () => {
+            const { NewReservationEmployeeRoute } = await import('./routes/employee/reservation/new-reservation');
+            return { Component: NewReservationEmployeeRoute };
+          },
+        },
       ],
     },
     {
