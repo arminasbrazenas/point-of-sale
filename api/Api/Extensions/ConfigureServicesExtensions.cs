@@ -80,6 +80,8 @@ public static class ConfigureServicesExtensions
         services.AddScoped<IModifierRepository, ModifierRepository>();
         services.AddScoped<IServiceChargeRepository, ServiceChargeRepository>();
         services.AddScoped<IDiscountRepository, DiscountRepository>();
+        services.AddScoped<IServiceRepository, ServiceRepository>();
+        services.AddScoped<IReservationRepository, ReservationRepository>();
 
         services.AddScoped<ITaxMappingService, TaxMappingService>();
         services.AddScoped<IProductMappingService, ProductMappingService>();
@@ -87,9 +89,13 @@ public static class ConfigureServicesExtensions
         services.AddScoped<IModifierMappingService, ModifierMappingService>();
         services.AddScoped<IServiceChargeMappingService, ServiceChargeMappingService>();
         services.AddScoped<IDiscountMappingService, DiscountMappingService>();
+        services.AddScoped<IServiceMappingService, ServiceMappingService>();
+        services.AddScoped<IReservationMappingService, ReservationMappingService>();
 
         services.AddScoped<ITaxValidationService, TaxValidationService>();
         services.AddScoped<IProductValidationService, ProductValidationService>();
+        services.AddScoped<IServiceValidationService, ServiceValidationService>();
+        services.AddScoped<IReservationValidationService, ReservationValidationService>();
 
         services.AddScoped<ITaxService, TaxService>();
         services.AddScoped<IProductService, ProductService>();
@@ -97,6 +103,8 @@ public static class ConfigureServicesExtensions
         services.AddScoped<IModifierService, ModifierService>();
         services.AddScoped<IServiceChargeService, ServiceChargeService>();
         services.AddScoped<IDiscountService, DiscountService>();
+        services.AddScoped<IServiceService, ServiceService>();
+        services.AddScoped<IReservationService, ReservationService>();
 
         return services;
     }

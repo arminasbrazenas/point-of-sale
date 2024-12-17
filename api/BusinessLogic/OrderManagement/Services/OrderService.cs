@@ -22,6 +22,7 @@ public class OrderService : IOrderService
     private readonly IServiceChargeRepository _serviceChargeRepository;
     private readonly IOrderManagementAuthorizationService _orderAuthorizationService;
     private readonly IDiscountRepository _discountRepository;
+    private readonly IReservationRepository _reservationRepository;
 
     public OrderService(
         IUnitOfWork unitOfWork,
@@ -31,7 +32,8 @@ public class OrderService : IOrderService
         IOrderMappingService orderMappingService,
         IServiceChargeRepository serviceChargeRepository,
         IOrderManagementAuthorizationService orderAuthorizationService,
-        IDiscountRepository discountRepository
+        IDiscountRepository discountRepository,
+        IReservationRepository reservationRepository
     )
     {
         _unitOfWork = unitOfWork;
@@ -42,15 +44,25 @@ public class OrderService : IOrderService
         _serviceChargeRepository = serviceChargeRepository;
         _orderAuthorizationService = orderAuthorizationService;
         _discountRepository = discountRepository;
+        _reservationRepository = reservationRepository;
     }
 
     public async Task<OrderDTO> CreateOrder(CreateOrderDTO createOrderDTO)
     {
         await _orderAuthorizationService.AuthorizeApplicationUser(createOrderDTO.BusinessId);
 
+        var reservation = createOrderDTO.ReservationId.HasValue
+            ? await _reservationRepository.Get(createOrderDTO.ReservationId.Value)
+            : null;
+
         var orderItems = await ReserveOrderItems(createOrderDTO.OrderItems);
-        var orderDiscounts = await GetOrderDiscounts(orderItems, createOrderDTO.Discounts);
-        var serviceCharges = await GetOrderServiceCharges(createOrderDTO.ServiceChargeIds, orderItems, orderDiscounts);
+        var orderDiscounts = await GetOrderDiscounts(orderItems, createOrderDTO.Discounts, reservation);
+        var serviceCharges = await GetOrderServiceCharges(
+            createOrderDTO.ServiceChargeIds,
+            orderItems,
+            orderDiscounts,
+            reservation
+        );
 
         foreach (var orderItem in orderItems)
         {
@@ -77,6 +89,7 @@ public class OrderService : IOrderService
             BusinessId = createOrderDTO.BusinessId,
             ServiceCharges = serviceCharges,
             Discounts = orderDiscounts,
+            ReservationId = reservation?.Id,
         };
 
         _orderRepository.Add(order);
@@ -139,7 +152,7 @@ public class OrderService : IOrderService
                     PricingStrategy = d.PricingStrategy,
                 })
                 .ToList();
-            order.Discounts = await GetOrderDiscounts(order.Items, orderDiscounts);
+            order.Discounts = await GetOrderDiscounts(order.Items, orderDiscounts, order.Reservation);
 
             // Recalculate order service charges
             var serviceChargesIds = order.ServiceCharges.Select(c => c.Id).ToList();
@@ -149,12 +162,17 @@ public class OrderService : IOrderService
                 var serviceCharge = await _serviceChargeRepository.Get(serviceChargeId);
                 await _orderAuthorizationService.AuthorizeApplicationUser(serviceCharge.BusinessId);
             }
-            order.ServiceCharges = await GetOrderServiceCharges(serviceChargesIds, order.Items, order.Discounts);
+            order.ServiceCharges = await GetOrderServiceCharges(
+                serviceChargesIds,
+                order.Items,
+                order.Discounts,
+                order.Reservation
+            );
         }
 
         if (updateOrderDTO.Discounts is not null)
         {
-            order.Discounts = await GetOrderDiscounts(order.Items, updateOrderDTO.Discounts);
+            order.Discounts = await GetOrderDiscounts(order.Items, updateOrderDTO.Discounts, order.Reservation);
         }
 
         if (updateOrderDTO.ServiceChargeIds is not null)
@@ -162,7 +180,8 @@ public class OrderService : IOrderService
             order.ServiceCharges = await GetOrderServiceCharges(
                 updateOrderDTO.ServiceChargeIds,
                 order.Items,
-                order.Discounts
+                order.Discounts,
+                order.Reservation
             );
         }
 
@@ -372,17 +391,12 @@ public class OrderService : IOrderService
 
     private async Task<List<OrderDiscount>> GetOrderDiscounts(
         List<OrderItem> orderItems,
-        List<CreateOrderDiscountDTO> createOrderDiscountDTOs
+        List<CreateOrderDiscountDTO> createOrderDiscountDTOs,
+        Reservation? reservation
     )
     {
         var orderDiscounts = await _discountRepository.GetOrderDiscounts();
-        var price = orderItems.Sum(i =>
-        {
-            var productPrice = (i.BaseUnitPrice + i.Modifiers.Sum(m => m.Price)) * i.Quantity;
-            var discounts = i.Discounts.Sum(d => d.AppliedAmount);
-            var taxes = i.Taxes.Sum(t => t.AppliedAmount);
-            return productPrice - discounts + taxes;
-        });
+        var price = GetOrderItemsPrice(orderItems, reservation);
 
         var predefinedDiscounts = orderDiscounts
             .OrderBy(d => d.CreatedAt)
@@ -421,17 +435,12 @@ public class OrderService : IOrderService
     private async Task<List<OrderServiceCharge>> GetOrderServiceCharges(
         List<int> serviceChargeIds,
         List<OrderItem> orderItems,
-        List<OrderDiscount> orderDiscounts
+        List<OrderDiscount> orderDiscounts,
+        Reservation? reservation
     )
     {
-        var price =
-            orderItems.Sum(i =>
-            {
-                var productPrice = (i.BaseUnitPrice + i.Modifiers.Sum(m => m.Price)) * i.Quantity;
-                var discounts = i.Discounts.Sum(d => d.AppliedAmount);
-                var taxes = i.Taxes.Sum(t => t.AppliedAmount);
-                return productPrice - discounts + taxes;
-            }) - orderDiscounts.Sum(d => d.AppliedAmount);
+        var orderDiscount = orderDiscounts.Sum(d => d.AppliedAmount);
+        var price = GetOrderItemsPrice(orderItems, reservation) - orderDiscount;
 
         var serviceCharges = await _serviceChargeRepository.GetMany(serviceChargeIds);
         return serviceCharges
@@ -450,6 +459,19 @@ public class OrderService : IOrderService
                 };
             })
             .ToList();
+    }
+
+    private static decimal GetOrderItemsPrice(List<OrderItem> orderItems, Reservation? reservation)
+    {
+        var itemsPrice = orderItems.Sum(i =>
+        {
+            var productPrice = (i.BaseUnitPrice + i.Modifiers.Sum(m => m.Price)) * i.Quantity;
+            var discounts = i.Discounts.Sum(d => d.AppliedAmount);
+            var taxes = i.Taxes.Sum(t => t.AppliedAmount);
+            return productPrice - discounts + taxes;
+        });
+
+        return itemsPrice + (reservation?.Price ?? 0m);
     }
 
     private async Task ReturnOrderItems(List<OrderItem> orderItems)

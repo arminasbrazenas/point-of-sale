@@ -22,6 +22,7 @@ export const createOrderInputSchema = z.object({
   orderItems: z.array(createOrUpdateOrderItemInputSchema),
   serviceChargeIds: z.array(z.number()),
   discounts: z.array(createOrUpdateOrderDiscountInputSchema),
+  reservationId: z.number().optional(),
 });
 
 export type CreateOrUpdateDiscountInput = z.infer<typeof createOrUpdateOrderDiscountInputSchema>;
@@ -30,7 +31,7 @@ export type CreateOrUpdateOrderItemInput = z.infer<typeof createOrUpdateOrderIte
 
 export type CreateOrderInput = z.infer<typeof createOrderInputSchema>;
 
-export const createOrder = ({ data }: { data: CreateOrderInput & { businessId: number }}): Promise<Order> => {
+export const createOrder = ({ data }: { data: CreateOrderInput & { businessId: number } }): Promise<Order> => {
   return api.post('/v1/orders', data);
 };
 

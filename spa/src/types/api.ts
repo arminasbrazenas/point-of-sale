@@ -33,6 +33,12 @@ export enum DiscountTarget {
   Order = 'Order',
 }
 
+export enum ReservationStatus {
+  Active = 'Active',
+  Canceled = 'Canceled',
+  Completed = 'Completed',
+}
+
 export type EntityBase = {
   id: number;
   createdAt: string;
@@ -107,6 +113,7 @@ export type Order = Entity<{
   status: OrderStatus;
   serviceCharges: OrderServiceCharge[];
   discounts: OrderDiscount[];
+  reservation?: Reservation;
 }>;
 
 export type OrderReceipt = {
@@ -114,6 +121,7 @@ export type OrderReceipt = {
   orderItems: OrderItem[];
   serviceCharges: OrderServiceCharge[];
   discounts: OrderDiscount[];
+  reservation?: Reservation;
 };
 
 export type Modifier = Entity<{ name: string; priceTaxExcluded: number; price: number; stock: number }>;
@@ -165,24 +173,56 @@ export type PaymentIntent = {
 
 export type ApplicationUser = {
   id: number;
-  businessId : number | null;
-  firstName : string;
-  lastName : string;
-  email : string;
-  phoneNumber : string;
+  businessId: number | null;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phoneNumber: string;
   role: string;
 };
 
 export const Roles = {
-  Admin: "Admin",
-  BusinessOwner: "BusinessOwner",
-  Employee: "Employee",
+  Admin: 'Admin',
+  BusinessOwner: 'BusinessOwner',
+  Employee: 'Employee',
 } as const;
 
 export type Business = {
   id: number;
-  name : string;
-  address : string;
-  email : string;
-  phoneNumber : string;
+  name: string;
+  address: string;
+  email: string;
+  phoneNumber: string;
 };
+
+export type ServiceEmployee = {
+  id: number;
+  fullName: string;
+};
+
+export type Service = Entity<{
+  name: string;
+  price: number;
+  durationInMinutes: number;
+  providedByEmployees: ServiceEmployee[];
+}>;
+
+export type ReservationCustomer = {
+  firstName: string;
+  lastName: string;
+};
+
+export type ReservationDate = {
+  start: string;
+  end: string;
+};
+
+export type Reservation = Entity<{
+  description: string;
+  customer: ReservationCustomer;
+  date: ReservationDate;
+  status: ReservationStatus;
+  employee: ServiceEmployee;
+  serviceId: number;
+  price: number;
+}>;

@@ -3,7 +3,7 @@ import { showNotification } from './notifications';
 
 export const api = Axios.create({
   baseURL: 'http://localhost:8080',
-  withCredentials:true,
+  withCredentials: true,
 });
 
 api.interceptors.response.use(
