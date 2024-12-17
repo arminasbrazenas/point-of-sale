@@ -3,14 +3,12 @@ using PointOfSale.BusinessLogic.Shared.Exceptions;
 using PointOfSale.DataAccess.OrderManagement;
 using PointOfSale.DataAccess.OrderManagement.ErrorMessages;
 
-
 namespace PointOfSale.BusinessLogic.OrderManagement.Services;
 
 public class ReservationValidationService : IReservationValidationService
 {
     public DateTimeOffset ValidateDateStart(DateTimeOffset date)
     {
-
         if (date < DateTimeOffset.Now)
         {
             throw new ValidationException(new ReservationDateStartErrorMessage());
@@ -26,12 +24,14 @@ public class ReservationValidationService : IReservationValidationService
 
         if (firstName.Length > Constants.CustomerFirstNameMaxLength)
         {
-            throw new ValidationException(new CustomerFirstNameLengthErrorMessage(Constants.CustomerFirstNameMaxLength));
+            throw new ValidationException(
+                new CustomerFirstNameLengthErrorMessage(Constants.CustomerFirstNameMaxLength)
+            );
         }
-        
+
         return firstName;
     }
-    
+
     public string ValidateLastName(string lastName)
     {
         if (string.IsNullOrWhiteSpace(lastName))
@@ -43,7 +43,7 @@ public class ReservationValidationService : IReservationValidationService
         {
             throw new ValidationException(new CustomerLastNameLengthErrorMessage(Constants.CustomerLastNameMaxLength));
         }
-        
+
         return lastName;
     }
 }

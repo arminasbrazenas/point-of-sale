@@ -54,10 +54,15 @@ public class OrderService : IOrderService
         var reservation = createOrderDTO.ReservationId.HasValue
             ? await _reservationRepository.Get(createOrderDTO.ReservationId.Value)
             : null;
-            
+
         var orderItems = await ReserveOrderItems(createOrderDTO.OrderItems);
         var orderDiscounts = await GetOrderDiscounts(orderItems, createOrderDTO.Discounts, reservation);
-        var serviceCharges = await GetOrderServiceCharges(createOrderDTO.ServiceChargeIds, orderItems, orderDiscounts, reservation);
+        var serviceCharges = await GetOrderServiceCharges(
+            createOrderDTO.ServiceChargeIds,
+            orderItems,
+            orderDiscounts,
+            reservation
+        );
 
         var order = new Order
         {
@@ -66,7 +71,7 @@ public class OrderService : IOrderService
             BusinessId = createOrderDTO.BusinessId,
             ServiceCharges = serviceCharges,
             Discounts = orderDiscounts,
-            ReservationId = reservation?.Id
+            ReservationId = reservation?.Id,
         };
 
         _orderRepository.Add(order);
@@ -129,7 +134,12 @@ public class OrderService : IOrderService
 
             // Recalculate order service charges
             var serviceChargesIds = order.ServiceCharges.Select(c => c.Id).ToList();
-            order.ServiceCharges = await GetOrderServiceCharges(serviceChargesIds, order.Items, order.Discounts, order.Reservation);
+            order.ServiceCharges = await GetOrderServiceCharges(
+                serviceChargesIds,
+                order.Items,
+                order.Discounts,
+                order.Reservation
+            );
         }
 
         if (updateOrderDTO.Discounts is not null)

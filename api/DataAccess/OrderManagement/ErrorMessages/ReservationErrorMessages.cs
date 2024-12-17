@@ -8,8 +8,8 @@ public class ReservationDateStartErrorMessage : IPointOfSaleErrorMessage
     public string En => "This reservation time has already passed.";
 }
 
-public class ReservationWithoutServiceUpdateErrorMessage : IPointOfSaleErrorMessage 
-{ 
+public class ReservationWithoutServiceUpdateErrorMessage : IPointOfSaleErrorMessage
+{
     public string En => "This reservation can not be modified as its service no longer exists.";
 }
 
@@ -31,6 +31,6 @@ public class ReservationNotFoundErrorMessage : IPointOfSaleErrorMessage
     {
         _reservationId = reservationId;
     }
-    
+
     public string En => $"Reservation with id '{_reservationId}' not found.";
 }

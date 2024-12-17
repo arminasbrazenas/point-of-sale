@@ -6,5 +6,6 @@ namespace PointOfSale.DataAccess.OrderManagement.Interfaces;
 
 public interface IReservationRepository : IRepositoryBase<Reservation, int>
 {
-    Task<List<Reservation>> GetPaged(PaginationFilter paginationFilter);
+    Task<Reservation> GetWithRelatedData(int reservationId);
+    Task<List<Reservation>> GetPaged(PaginationFilter paginationFilter, int businessId);
 }

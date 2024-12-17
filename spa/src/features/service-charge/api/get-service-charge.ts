@@ -14,12 +14,12 @@ export const getServiceChargeQueryOptions = (serviceChargeId: number) => {
   });
 };
 
-type UseGetServiceChargesOptions = {
+type UseGetServiceChargeOptions = {
   serviceChargeId: number;
   queryConfig?: QueryConfig<typeof getServiceChargeQueryOptions>;
 };
 
-export const useServiceCharge = ({ serviceChargeId, queryConfig }: UseGetServiceChargesOptions) => {
+export const useServiceCharge = ({ serviceChargeId, queryConfig }: UseGetServiceChargeOptions) => {
   return useQuery({
     ...getServiceChargeQueryOptions(serviceChargeId),
     ...queryConfig,

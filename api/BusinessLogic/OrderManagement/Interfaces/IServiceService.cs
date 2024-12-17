@@ -9,5 +9,5 @@ public interface IServiceService
     Task<ServiceDTO> UpdateService(int serviceId, UpdateServiceDTO updateServiceDto);
     Task DeleteService(int serviceId);
     Task<ServiceDTO> GetService(int serviceId);
-    Task<PagedResponseDTO<ServiceDTO>> GetServices(PaginationFilterDTO paginationFilterDTO);
+    Task<PagedResponseDTO<ServiceDTO>> GetServices(PaginationFilterDTO paginationFilterDTO, int businessId);
 }

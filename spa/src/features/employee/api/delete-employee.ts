@@ -16,13 +16,13 @@ export const useDeleteEmployee = ({ mutationConfig }: UseDeleteEmployeeOptions) 
   const { onSuccess, ...restConfig } = mutationConfig || {};
 
   return useMutation({
-    onSuccess: (...args) => {
-      queryClient.invalidateQueries({
-        queryKey: ['employees'],
-      });
-      onSuccess?.(...args);
-    },
-    ...restConfig,
-    mutationFn: deleteEmployee,
-  });
+      onSuccess: (...args) => {
+        queryClient.invalidateQueries({
+          queryKey: ['employees'],
+        });
+        onSuccess?.(...args);
+      },
+      ...restConfig,
+      mutationFn: deleteEmployee,
+    });
 };

@@ -7,5 +7,7 @@ public class ApplicationUser : IdentityUser<int>
 {
     public required string FirstName { get; set; }
     public required string LastName { get; set; }
-    public Business? Business { get; set; }
+    public Business? OwnedBusiness { get; set; }
+    public int? EmployerBusinessId { get; set; }
+    public Business? EmployerBusiness { get; set; }
 }

@@ -9,5 +9,9 @@ public interface IReservationMappingService
 {
     ReservationDTO MapToReservationDTO(Reservation reservation);
 
-    PagedResponseDTO<ReservationDTO> MapToPagedReservationDTO(List<Reservation> reservations, PaginationFilter paginationFilter, int totalCount);
+    PagedResponseDTO<ReservationDTO> MapToPagedReservationDTO(
+        List<Reservation> reservations,
+        PaginationFilter paginationFilter,
+        int totalCount
+    );
 }

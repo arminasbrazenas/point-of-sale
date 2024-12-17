@@ -15,8 +15,7 @@ public class ServiceValidationService : IServiceValidationService
         _serviceRepository = serviceRepository;
     }
 
-    
-    public async Task<string> ValidateName(string name)
+    public async Task<string> ValidateName(string name, int businessId)
     {
         if (string.IsNullOrWhiteSpace(name))
         {
@@ -27,9 +26,8 @@ public class ServiceValidationService : IServiceValidationService
         {
             throw new ValidationException(new ServiceNameLengthErrorMessage(Constants.ServiceNameMaxLength));
         }
-        
-        var existingService = await _serviceRepository.GetServiceByName(name);
-        if (existingService is not null)
+
+        if (await _serviceRepository.ServiceExists(name, businessId))
         {
             throw new ValidationException(new ServiceExistsErrorMessage());
         }
@@ -43,5 +41,15 @@ public class ServiceValidationService : IServiceValidationService
             throw new ValidationException(new ServicePriceErrorMessage());
         }
         return price;
+    }
+
+    public int ValidateDurationInMinutes(int durationInMinutes)
+    {
+        if (durationInMinutes <= 0)
+        {
+            throw new ValidationException(new ServiceDurationMustBePositiveErrorMessage());
+        }
+
+        return durationInMinutes;
     }
 }

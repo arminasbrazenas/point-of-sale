@@ -9,7 +9,7 @@ export const getEmployee = ({ employeeId }: { employeeId: number }): Promise<App
 
 export const getEmployeeQueryOptions = (employeeId: number) => {
   return queryOptions({
-    queryKey: ['employees', employeeId],
+    queryKey: ['employee', employeeId],
     queryFn: () => getEmployee({ employeeId }),
   });
 };

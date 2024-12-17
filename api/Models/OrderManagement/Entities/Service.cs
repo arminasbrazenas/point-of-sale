@@ -1,3 +1,4 @@
+using PointOfSale.Models.ApplicationUserManagement.Entities;
 using PointOfSale.Models.BusinessManagement.Entities;
 using PointOfSale.Models.Shared.Entities;
 
@@ -10,4 +11,5 @@ public class Service : EntityBase<int>
     public required TimeSpan Duration { get; set; }
     public required int BusinessId { get; set; }
     public Business Business { get; set; } = null!;
+    public required List<ApplicationUser> ProvidedByEmployees { get; set; }
 }

@@ -10,5 +10,5 @@ public interface IReservationService
     Task DeleteReservation(int reservationId);
     Task<ReservationDTO> CancelReservation(int reservationId);
     Task<ReservationDTO> GetReservation(int reservationId);
-    Task<PagedResponseDTO<ReservationDTO>> GetReservations(PaginationFilterDTO paginationFilterDTO);
+    Task<PagedResponseDTO<ReservationDTO>> GetReservations(PaginationFilterDTO paginationFilterDTO, int businessId);
 }

@@ -1,4 +1,12 @@
-import { Button, Group, Modal, Stack, TextInput, Text, Paper, PasswordInput } from '@mantine/core';
+import {
+    Button,
+    Group,
+    Modal,
+    Stack,
+    TextInput,
+    Text,
+    Paper,
+} from '@mantine/core';
 import { useNavigate } from 'react-router-dom';
 import { paths } from '@/config/paths';
 import { useForm, zodResolver } from '@mantine/form';
@@ -6,15 +14,16 @@ import { useEffect, useState } from 'react';
 import { useDisclosure } from '@mantine/hooks';
 import { showNotification } from '@/lib/notifications';
 import { useBusiness } from '../api/get-business';
-import { UpdateBusinessInput, useUpdateBusiness } from '../api/update-business';
+import { UpdateBusinessInput, useUpdateBusiness, updateBusinessInputSchema } from '../api/update-business';
 import { useDeleteBusiness } from '../api/delete-business';
-import { CreateBusinessInput, createBusinessInputSchema } from '../api/create-business';
+import { useAppStore } from '@/lib/app-store';
 
 export const UpdateBusiness = ({ businessId }: { businessId: number }) => {
+    const role = useAppStore((state) => state.applicationUser?.role);
     const businessQuery = useBusiness({ businessId });
     const navigate = useNavigate();
-    const [updatedBusinessProperties, setUpdatedBusinessProperties] = useState<UpdateBusinessInput>({});
-    const [isDeleteModelOpen, { open: openDeleteModal, close: closeDeleteModal }] = useDisclosure(false);
+    const [updatedBusinessProperties, setUpdatedBusinessProperties] = useState<Partial<UpdateBusinessInput>>({});
+    const [isDeleteModalOpen, { open: openDeleteModal, close: closeDeleteModal }] = useDisclosure(false);
 
     const deleteBusinessMutation = useDeleteBusiness({
         mutationConfig: {
@@ -23,8 +32,7 @@ export const UpdateBusiness = ({ businessId }: { businessId: number }) => {
                     type: 'success',
                     title: 'Business deleted successfully.',
                 });
-
-                navigate(paths.businessManagement.businesses.getHref());
+                role === 'Admin' ? navigate(paths.businessManagement.businesses.getHref()) : navigate(paths.login.getHref());
             },
         },
     });
@@ -36,62 +44,59 @@ export const UpdateBusiness = ({ businessId }: { businessId: number }) => {
                     type: 'success',
                     title: 'Business updated successfully.',
                 });
-
                 setUpdatedBusinessProperties({});
+                role === 'Admin' ? navigate(paths.businessManagement.businesses.getHref()) : navigate(paths.businessManagement.business.getHref());
             },
         },
     });
 
     const filterEmptyFields = (data: UpdateBusinessInput) => {
         return Object.fromEntries(
-            Object.entries(data).filter(([_, value]) => value !== undefined && value !== null && value !== '')
-        ) as UpdateBusinessInput;
+            Object.entries(data).filter(
+                ([_, value]) => value !== undefined && value !== null && value.trim() !== ''
+            )
+        );
     };
 
-    const form = useForm<CreateBusinessInput>({
+    const form = useForm<UpdateBusinessInput>({
         mode: 'uncontrolled',
         initialValues: {
             name: '',
             address: '',
             email: '',
             phoneNumber: '',
-            password: '',
         },
-        validate: zodResolver(createBusinessInputSchema),
-        onValuesChange: (updatedBusiness) => {
+        validate: zodResolver(updateBusinessInputSchema),
+        onValuesChange: (updatedValues) => {
             const business = businessQuery.data;
-            if (!business) {
-                setUpdatedBusinessProperties({});
-                return;
-            }
+            if (!business) return;
 
             setUpdatedBusinessProperties({
-                name: business.name === updatedBusiness.name.trim() ? undefined : updatedBusiness.name,
-                address: business.address === updatedBusiness.address.trim() ? undefined : updatedBusiness.address,
-                email: business.email === updatedBusiness.email.trim() ? undefined : updatedBusiness.email,
-                phoneNumber: business.phoneNumber === updatedBusiness.phoneNumber.trim() ? undefined : updatedBusiness.phoneNumber,
+                name: business.name === updatedValues.name?.trim() ? undefined : updatedValues.name?.trim() || '',
+                address: business.address === updatedValues.address?.trim() ? undefined : updatedValues.address?.trim() || '',
+                email: business.email === updatedValues.email?.trim() ? undefined : updatedValues.email?.trim() || '',
+                phoneNumber:
+                    business.phoneNumber === updatedValues.phoneNumber?.trim()
+                        ? undefined
+                        : updatedValues.phoneNumber?.trim() || '',
             });
         },
     });
 
     useEffect(() => {
-        if (!businessQuery.data) {
-            return;
+        if (businessQuery.data) {
+            const { name, address, email, phoneNumber } = businessQuery.data;
+            form.setValues({ name, address, email, phoneNumber });
         }
-
-        form.setFieldValue('name', businessQuery.data.name);
-        form.setFieldValue('address', businessQuery.data.address);
-        form.setFieldValue('email', businessQuery.data.email);
-        form.setFieldValue('phoneNumber', businessQuery.data.phoneNumber);
     }, [businessQuery.data]);
 
     if (businessQuery.isLoading) {
-        return <div>loading...</div>;
+        return <div>Loading...</div>;
     }
 
     const business = businessQuery.data;
     if (!business) {
-        return null;
+        return <div>Business not found.</div>;
     }
 
     const deleteBusiness = () => {
@@ -107,42 +112,35 @@ export const UpdateBusiness = ({ businessId }: { businessId: number }) => {
         <Paper withBorder p="lg">
             <form onSubmit={form.onSubmit(updateBusiness)}>
                 <Stack>
-                    <TextInput
-                        label="Name"
-                        placeholder="Name"
-                        key={form.key('name')}
-                        {...form.getInputProps('name')}
-                    />
+                    <TextInput label="Name" placeholder="Name" {...form.getInputProps('name')} />
                     <TextInput
                         label="Address"
                         placeholder="Address"
-                        key={form.key('address')}
                         {...form.getInputProps('address')}
                     />
                     <TextInput
                         label="Email"
                         placeholder="Email"
-                        key={form.key('email')}
                         {...form.getInputProps('email')}
                     />
                     <TextInput
                         label="Phone Number"
                         placeholder="PhoneNumber"
-                        key={form.key('phoneNumber')}
                         {...form.getInputProps('phoneNumber')}
-                    />
-                    <PasswordInput
-                        label="Password"
-                        placeholder="Password"
-                        key={form.key('password')}
-                        {...form.getInputProps('password')}
                     />
                     <Group justify="space-between" mt="xs">
                         <Button color="red" variant="light" onClick={openDeleteModal}>
                             Delete
                         </Button>
                         <Group>
-                            <Button variant="default" onClick={() => navigate(paths.businessManagement.businesses.getHref())}>
+                            <Button
+                                variant="default"
+                                onClick={() =>
+                                    role === 'BusinessOwner'
+                                        ? navigate(paths.businessManagement.business.getHref())
+                                        : navigate(paths.businessManagement.businesses.getHref())
+                                }
+                            >
                                 Cancel
                             </Button>
                             <Button type="submit" loading={updateBusinessMutation.isPending}>
@@ -153,7 +151,11 @@ export const UpdateBusiness = ({ businessId }: { businessId: number }) => {
                 </Stack>
             </form>
 
-            <Modal opened={isDeleteModelOpen} onClose={closeDeleteModal} title="Delete business">
+            <Modal
+                opened={isDeleteModalOpen}
+                onClose={closeDeleteModal}
+                title="Delete business"
+            >
                 <Text mt="md">
                     Are you sure you want to delete{' '}
                     <Text component="span" fw={600}>
@@ -165,7 +167,12 @@ export const UpdateBusiness = ({ businessId }: { businessId: number }) => {
                     <Button variant="default" onClick={closeDeleteModal}>
                         Cancel
                     </Button>
-                    <Button color="red" variant="light" loading={deleteBusinessMutation.isPending} onClick={deleteBusiness}>
+                    <Button
+                        color="red"
+                        variant="light"
+                        loading={deleteBusinessMutation.isPending}
+                        onClick={deleteBusiness}
+                    >
                         Delete
                     </Button>
                 </Group>

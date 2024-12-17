@@ -12,8 +12,17 @@ public class BusinessConfiguration : EntityBaseConfiguration<Business, int>
     {
         base.Configure(builder);
 
-        builder.HasKey(b => b.Id);
-        builder.HasOne(b => b.BusinessOwner).WithOne(a => a.Business).HasForeignKey<Business>(b => b.BusinessOwnerId);
+        builder
+            .HasOne(b => b.BusinessOwner)
+            .WithOne(u => u.OwnedBusiness)
+            .HasForeignKey<Business>(b => b.BusinessOwnerId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder
+            .HasMany(b => b.Employees)
+            .WithOne(u => u.EmployerBusiness)
+            .HasForeignKey(u => u.EmployerBusinessId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         builder.OwnsOne(b => b.WorkingHours);
 

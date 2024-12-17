@@ -41,7 +41,10 @@ export const BusinessList = () => {
           </Table.Thead>
           <Table.Tbody>
             {businesses.map((business) => (
-              <Table.Tr key={business.id} onClick={() => navigate(paths.businessManagement.updateBusiness.getHref(business.id))}>
+              <Table.Tr
+                key={business.id}
+                onClick={() => navigate(paths.businessManagement.updateBusiness.getHref(business.id))}
+              >
                 <Table.Td>#{business.id}</Table.Td>
                 <Table.Td>{business.name}</Table.Td>
                 <Table.Td>{business.address}</Table.Td>

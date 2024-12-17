@@ -26,9 +26,9 @@ export const OrderProducts = (props: OrderProductsProps) => {
   const serviceChargesQuery = useServiceCharges({ paginationFilter: { page: 1, itemsPerPage: 50 } });
   const navigate = useNavigate();
   const businessId = useAppStore((state) => state.applicationUser?.businessId);
-            if (!businessId) {
-              throw new Error("Business ID is required to create a product.");
-            }
+  if (!businessId) {
+    throw new Error('Business ID is required to create a product.');
+  }
 
   const createOrderMutation = useCreateOrder({
     mutationConfig: {
@@ -91,7 +91,9 @@ export const OrderProducts = (props: OrderProductsProps) => {
         data: { orderItems: mappedItems, serviceChargeIds, discounts: flexibleDiscounts },
       });
     } else {
-      createOrderMutation.mutate({ data: { orderItems: mappedItems, serviceChargeIds, discounts: flexibleDiscounts, businessId } });
+      createOrderMutation.mutate({
+        data: { orderItems: mappedItems, serviceChargeIds, discounts: flexibleDiscounts, businessId },
+      });
     }
   };
 

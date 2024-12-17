@@ -41,15 +41,16 @@ public class ApplicationUserController : ControllerBase
     [Route("")]
     public async Task<IActionResult> GetApplicationUsers(
         [FromQuery] int? businessId,
+        [FromQuery] string? role,
         [FromQuery] PaginationFilterDTO paginationFilterDTO
     )
     {
-        var pagedUsers = await _applicationUserService.GetApplicationUsers(businessId, paginationFilterDTO);
+        var pagedUsers = await _applicationUserService.GetApplicationUsers(businessId, role, paginationFilterDTO);
         return Ok(pagedUsers);
     }
 
     [HttpGet]
-    [Authorize(Roles = "Admin,BusinessOwner")]
+    [Authorize(Roles = "Admin,BusinessOwner,Employee")]
     [Route("currentUser")]
     public async Task<IActionResult> GetCurrentApplicationUser()
     {

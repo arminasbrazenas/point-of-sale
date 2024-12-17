@@ -39,3 +39,13 @@ public class ServiceNotFoundErrorMessage : IPointOfSaleErrorMessage
 
     public string En => $"Service with id '{_serviceId}' not found.";
 }
+
+public class ServiceDurationMustBePositiveErrorMessage : IPointOfSaleErrorMessage
+{
+    public string En => "Service duration must be positive.";
+}
+
+public class CannotCancelNonActiveReservationErrorMessage : IPointOfSaleErrorMessage
+{
+    public string En => "Non-active reservation cannot be cancelled.";
+}

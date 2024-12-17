@@ -27,6 +27,20 @@ public class ApplicationUserValidationService : IApplicationUserValidationServic
 
     public async Task ValidateRegisterApplicationUserDTO(RegisterApplicationUserDTO dto)
     {
+        if (dto.BusinessId is not null && dto.Role == "BusinessOwner")
+        {
+            throw new ValidationException(
+                new FailedActionOnApplicationUserErrorMessage("Cannot create BusinessOwner with pre-existing business.")
+            );
+        }
+
+        if (dto.BusinessId is null && dto.Role == "Employee")
+        {
+            throw new ValidationException(
+                new FailedActionOnApplicationUserErrorMessage("Cannot create Employee without pre-existing business.")
+            );
+        }
+
         if (dto.BusinessId is int businessId && await _businessService.GetBusiness(businessId) is null)
         {
             throw new ValidationException(new InvalidBusinessIdErrorMessage(businessId));

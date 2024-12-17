@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using PointOfSale.Models.ApplicationUserManagement.Entities;
+using PointOfSale.Models.BusinessManagement.Entities;
 
 namespace PointOfSale.DataAccess.BusinessManagement.Configurations;
 
@@ -38,6 +40,21 @@ public class IdentityUserTokenConfiguration : IEntityTypeConfiguration<IdentityU
             token.LoginProvider,
             token.Name,
         });
+        builder.ToTable(TableName);
+    }
+}
+
+public class ApplicationUserConfiguration : IEntityTypeConfiguration<ApplicationUser>
+{
+    private const string TableName = "Users";
+
+    public void Configure(EntityTypeBuilder<ApplicationUser> builder)
+    {
+        builder
+            .HasOne(u => u.OwnedBusiness)
+            .WithOne(b => b.BusinessOwner)
+            .HasForeignKey<Business>(b => b.BusinessOwnerId)
+            .OnDelete(DeleteBehavior.Cascade);
         builder.ToTable(TableName);
     }
 }

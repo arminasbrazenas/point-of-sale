@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 
 type OverviewContainerProps = {
   title: string;
-  addButton: {
+  addButton?: {
     text: string;
     href: string;
   };
@@ -18,9 +18,11 @@ export const OverviewContainer = (props: OverviewContainerProps) => {
         <Title order={2} size="h4">
           {props.title}
         </Title>
-        <Button component={Link} to={props.addButton.href}>
-          {props.addButton.text}
-        </Button>
+        {props.addButton && (
+          <Button component={Link} to={props.addButton.href}>
+            {props.addButton.text}
+          </Button>
+        )}
       </Group>
       {props.children}
     </Container>

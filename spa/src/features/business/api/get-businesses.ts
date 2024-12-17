@@ -1,7 +1,6 @@
 import { api } from '@/lib/api-client';
 import { QueryConfig } from '@/lib/react-query';
-import { Business } from '@/types/api';
-import { PagedResponse, PaginationFilter } from '@/types/api';
+import { Business, PagedResponse, PaginationFilter } from '@/types/api';
 import { queryOptions, useQuery } from '@tanstack/react-query';
 
 export const getBusinesses = (paginationFilter: PaginationFilter): Promise<PagedResponse<Business>> => {
@@ -10,9 +9,7 @@ export const getBusinesses = (paginationFilter: PaginationFilter): Promise<Paged
   });
 };
 
-export const getBusinessesQueryOptions = (
-  paginationFilter: PaginationFilter,
-) => {
+export const getBusinessesQueryOptions = (paginationFilter: PaginationFilter) => {
   return queryOptions({
     queryKey: ['businesses', paginationFilter],
     queryFn: () => getBusinesses(paginationFilter),

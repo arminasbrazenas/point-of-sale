@@ -8,21 +8,33 @@ namespace PointOfSale.BusinessLogic.OrderManagement.Services;
 
 public class ReservationMappingService : IReservationMappingService
 {
+    private readonly IServiceMappingService _serviceMappingService;
+
+    public ReservationMappingService(IServiceMappingService serviceMappingService)
+    {
+        _serviceMappingService = serviceMappingService;
+    }
+
     public ReservationDTO MapToReservationDTO(Reservation reservation)
     {
         return new ReservationDTO
         {
             Id = reservation.Id,
+            Description = reservation.Name,
             Date = reservation.Date,
             Status = reservation.Status,
             Customer = reservation.Customer,
+            Employee = _serviceMappingService.MapToServiceEmployeeDTO(reservation.Employee),
             ServiceId = reservation.ServiceId,
-            EmployeeId = reservation.EmployeeId,
             BusinessId = reservation.BusinessId,
         };
     }
-    
-    public PagedResponseDTO<ReservationDTO> MapToPagedReservationDTO(List<Reservation> reservations, PaginationFilter paginationFilter, int totalCount)
+
+    public PagedResponseDTO<ReservationDTO> MapToPagedReservationDTO(
+        List<Reservation> reservations,
+        PaginationFilter paginationFilter,
+        int totalCount
+    )
     {
         return new PagedResponseDTO<ReservationDTO>
         {
