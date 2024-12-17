@@ -4,7 +4,8 @@ using PointOfSale.Models.OrderManagement.Entities;
 
 namespace PointOfSale.DataAccess.OrderManagement.Interfaces;
 
-public interface IReservationRepository : IRepositoryBase<Reservation, int>
+public interface IServiceRepository : IRepositoryBase<Service, int>
 {
-    Task<List<Reservation>> GetPaged(PaginationFilter paginationFilter);
+    Task<Service?> GetServiceByName(string name);
+    Task<List<Service>> GetPaged(PaginationFilter paginationFilter);
 }

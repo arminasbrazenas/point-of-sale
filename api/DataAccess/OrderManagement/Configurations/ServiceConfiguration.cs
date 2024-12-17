@@ -15,6 +15,9 @@ public class ServiceConfiguration : EntityBaseConfiguration<Service, int>
             .Property(s => s.Name)
             .HasMaxLength(Constants.ServiceNameMaxLength)
             .IsRequired();
+
+        builder.Property(s => s.Duration)
+            .IsRequired();
         
         builder
             .Property(s => s.Price)
