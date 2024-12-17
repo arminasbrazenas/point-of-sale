@@ -11,6 +11,5 @@ namespace PointOfSale.BusinessLogic.PaymentManagement.Interfaces
     {
         Task<RefundResponseDTO> RefundPaymentAsync(RefundRequestDTO refundRequest);
         Task<RefundResponseDTO> GetRefundDetailsAsync(string refundId);
-        Task<List<RefundResponseDTO>> GetRefundsByPaymentIdAsync(string paymentId);
     }
 }

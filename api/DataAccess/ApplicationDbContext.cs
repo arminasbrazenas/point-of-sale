@@ -32,6 +32,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, IdentityR
     public DbSet<Payment> Payments { get; set; }
     public DbSet<GiftCard> GiftCards { get; set; }
     public DbSet<Tip> Tips { get; set; }
+    public DbSet<PaymentRefund> Refunds { get; set; }
 
     public ApplicationDbContext(
         DbContextOptions<ApplicationDbContext> options,

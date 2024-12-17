@@ -109,12 +109,14 @@ public static class ConfigureServicesExtensions
         services.AddScoped<IPaymentRepository, PaymentRepository>();
         services.AddScoped<IGiftCardRepository, GiftCardRepository>();
         services.AddScoped<ITipRepository, TipRepository>();
+        services.AddScoped<IRefundRepository, RefundRepository>();
 
         services.AddScoped<IPaymentMappingService, PaymentMappingService>();
         services.AddScoped<IGiftCardMappingService, GiftCardMappingService>();
 
         services.AddScoped<IPaymentService, PaymentService>();
         services.AddScoped<IGiftCardService, GiftCardService>();
+        services.AddScoped<IRefundService, BusinessLogic.PaymentManagement.Services.RefundService>();
 
         StripeConfiguration.ApiKey = Environment.GetEnvironmentVariable("STRIPE_SECRET_KEY");
         services.AddScoped<IStripeService, StripeService>();

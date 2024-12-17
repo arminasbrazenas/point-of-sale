@@ -7,6 +7,11 @@ public class PaymentNotFoundErrorMessage(int paymentId) : IPointOfSaleErrorMessa
     public string En => $"Payment with id {paymentId} was not found.";
 }
 
+public class RefundNotFoundErrorMessage(int refundId) : IPointOfSaleErrorMessage
+{
+    public string En => $"PaymentRefund with id {refundId} was not found.";
+}
+
 public class OnlinePaymentNotFoundErrorMessage(string paymentId) : IPointOfSaleErrorMessage
 {
     public string En => $"Online payment with id {paymentId} was not found.";
