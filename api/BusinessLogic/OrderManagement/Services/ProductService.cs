@@ -49,7 +49,7 @@ public class ProductService : IProductService
 
         var modifiers = await _productValidationService.ValidateModifiers(createProductDTO.ModifierIds);
 
-        foreach(var modifier in modifiers)
+        foreach (var modifier in modifiers)
         {
             await _orderManagementAuthorizationService.AuthorizeApplicationUser(modifier.BusinessId);
         }
@@ -94,7 +94,6 @@ public class ProductService : IProductService
 
         if (updateProductDTO.TaxIds is not null)
         {
-            
             var taxes = await _productValidationService.ValidateTaxes(updateProductDTO.TaxIds);
 
             foreach (var tax in taxes)
@@ -102,14 +101,15 @@ public class ProductService : IProductService
                 await _orderManagementAuthorizationService.AuthorizeApplicationUser(tax.BusinessId);
             }
 
-            product.Taxes =taxes;
+            product.Taxes = taxes;
         }
 
         if (updateProductDTO.ModifierIds is not null)
         {
             var modifiers = await _productValidationService.ValidateModifiers(updateProductDTO.ModifierIds);
 
-            foreach(var modifier in modifiers){
+            foreach (var modifier in modifiers)
+            {
                 await _orderManagementAuthorizationService.AuthorizeApplicationUser(modifier.BusinessId);
             }
 
