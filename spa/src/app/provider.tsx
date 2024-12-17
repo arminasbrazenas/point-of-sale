@@ -12,6 +12,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { queryConfig } from '@/lib/react-query';
 import { Notifications } from '@mantine/notifications';
 import { AppInitializer } from './app-initializer';
+import { DatesProvider } from '@mantine/dates';
 
 const cssVariablesResolver: CSSVariablesResolver = (theme) => ({
   variables: {},
@@ -44,12 +45,12 @@ export const AppProvider = (props: AppProviderProps) => {
 
   return (
     <MantineProvider theme={theme} cssVariablesResolver={cssVariablesResolver}>
-      <Notifications />
-      <QueryClientProvider client={queryClient}>
-        <AppInitializer>
-          {props.children}
-        </AppInitializer>
-      </QueryClientProvider>
+      <DatesProvider settings={{}}>
+        <Notifications />
+        <QueryClientProvider client={queryClient}>
+          <AppInitializer>{props.children}</AppInitializer>
+        </QueryClientProvider>
+      </DatesProvider>
     </MantineProvider>
   );
 };

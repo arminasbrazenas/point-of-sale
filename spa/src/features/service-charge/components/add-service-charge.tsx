@@ -15,10 +15,9 @@ import { useAppStore } from '@/lib/app-store';
 export const AddServiceCharge = () => {
   const navigate = useNavigate();
   const businessId = useAppStore((state) => state.applicationUser?.businessId);
-        if (!businessId) {
-          throw new Error("Business ID is required to create a product.");
-        }
-      
+  if (!businessId) {
+    throw new Error('Business ID is required to create a product.');
+  }
 
   const form = useForm<CreateServiceChargeInput>({
     mode: 'uncontrolled',
@@ -44,7 +43,7 @@ export const AddServiceCharge = () => {
   });
 
   const createServiceCharge = (values: CreateServiceChargeInput) => {
-    createServiceChargeMutation.mutate({ data :{ ...values, businessId}});
+    createServiceChargeMutation.mutate({ data: { ...values, businessId } });
   };
 
   return (

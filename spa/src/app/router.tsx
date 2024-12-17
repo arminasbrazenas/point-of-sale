@@ -19,7 +19,6 @@ export const ProtectedRoute: React.FC<{ children: JSX.Element }> = ({ children }
   return children;
 };
 
-
 export const RedirectToHomeIfLoggedIn: React.FC<{ children: JSX.Element }> = ({ children }) => {
   const isLoggedIn = useAppStore((state) => !!state.applicationUser);
   const location = useLocation();
@@ -63,38 +62,48 @@ export const AppRouter = () => {
             {
               path: paths.businessManagement.businesses.path,
               lazy: async () => {
-                const { BusinessesBusinessManagementRoute } = await import('./routes/business-management/businesses/businesses');
+                const { BusinessesBusinessManagementRoute } = await import(
+                  './routes/business-management/businesses/businesses'
+                );
                 return { Component: BusinessesBusinessManagementRoute };
               },
             },
             {
               path: paths.businessManagement.updateBusiness.path,
               lazy: async () => {
-                const { UpdateBusinessBusinessManagementRoute } = await import('./routes/business-management/businesses/update-business');
+                const { UpdateBusinessBusinessManagementRoute } = await import(
+                  './routes/business-management/businesses/update-business'
+                );
                 return { Component: UpdateBusinessBusinessManagementRoute };
               },
             },
             {
-            path: paths.businessManagement.employees.path,
-            lazy: async () => {
-              const { EmployeesBusinessManagementRoute } = await import('./routes/business-management/employees/employees');
-              return { Component: EmployeesBusinessManagementRoute };
+              path: paths.businessManagement.employees.path,
+              lazy: async () => {
+                const { EmployeesBusinessManagementRoute } = await import(
+                  './routes/business-management/employees/employees'
+                );
+                return { Component: EmployeesBusinessManagementRoute };
+              },
             },
-          },
-          {
-            path: paths.businessManagement.newEmployee.path,
-            lazy: async () => {
-              const { AddEmployeeBusinessManagementRoute } = await import('./routes/business-management/employees/add-employee');
-              return { Component: AddEmployeeBusinessManagementRoute };
+            {
+              path: paths.businessManagement.newEmployee.path,
+              lazy: async () => {
+                const { AddEmployeeBusinessManagementRoute } = await import(
+                  './routes/business-management/employees/add-employee'
+                );
+                return { Component: AddEmployeeBusinessManagementRoute };
+              },
             },
-          },
-          {
-            path: paths.businessManagement.updateEmployee.path,
-            lazy: async () => {
-              const { UpdateEmployeeBusinessManagementRoute } = await import('./routes/business-management/employees/update-employee');
-              return { Component: UpdateEmployeeBusinessManagementRoute };
+            {
+              path: paths.businessManagement.updateEmployee.path,
+              lazy: async () => {
+                const { UpdateEmployeeBusinessManagementRoute } = await import(
+                  './routes/business-management/employees/update-employee'
+                );
+                return { Component: UpdateEmployeeBusinessManagementRoute };
+              },
             },
-          },
           ],
         },
         {
@@ -104,6 +113,52 @@ export const AppRouter = () => {
               <EmployeeRoot />
             </ProtectedRoute>
           ),
+          children: [
+            {
+              path: paths.employee.orders.path,
+              lazy: async () => {
+                const { OrdersEmployeeRoute } = await import('./routes/employee/orders/orders');
+                return { Component: OrdersEmployeeRoute };
+              },
+            },
+            {
+              path: paths.employee.newOrder.path,
+              lazy: async () => {
+                const { NewOrderRoute } = await import('./routes/employee/orders/new-order');
+                return { Component: NewOrderRoute };
+              },
+            },
+            {
+              path: paths.employee.updateOrder.path,
+              lazy: async () => {
+                const { UpdateOrderEmployeeRoute } = await import('./routes/employee/orders/update-order');
+                return { Component: UpdateOrderEmployeeRoute };
+              },
+            },
+            {
+              path: paths.employee.reservations.path,
+              lazy: async () => {
+                const { ReservationEmployeeRoute } = await import('./routes/employee/reservation/reservations');
+                return { Component: ReservationEmployeeRoute };
+              },
+            },
+            {
+              path: paths.employee.newReservation.path,
+              lazy: async () => {
+                const { NewReservationEmployeeRoute } = await import('./routes/employee/reservation/new-reservation');
+                return { Component: NewReservationEmployeeRoute };
+              },
+            },
+            {
+              path: paths.employee.updateReservation.path,
+              lazy: async () => {
+                const { UpdateReservationEmployeeRoute } = await import(
+                  './routes/employee/reservation/update-reservation'
+                );
+                return { Component: UpdateReservationEmployeeRoute };
+              },
+            },
+          ],
         },
         {
           path: paths.management.root.path,
@@ -112,7 +167,7 @@ export const AppRouter = () => {
               <ManagementRoot />
             </ProtectedRoute>
           ),
-          children:[
+          children: [
             {
               path: paths.management.products.path,
               lazy: async () => {
@@ -234,7 +289,9 @@ export const AppRouter = () => {
             {
               path: paths.management.updateGiftCard.path,
               lazy: async () => {
-                const { UpdateGiftCardManagementRoute } = await import('./routes/management/gift-card/update-gift-card');
+                const { UpdateGiftCardManagementRoute } = await import(
+                  './routes/management/gift-card/update-gift-card'
+                );
                 return { Component: UpdateGiftCardManagementRoute };
               },
             },
@@ -245,10 +302,31 @@ export const AppRouter = () => {
                 return { Component: AddGiftCardManagementRoute };
               },
             },
-          ]
+            {
+              path: paths.management.services.path,
+              lazy: async () => {
+                const { ServicesManagementRoute } = await import('./routes/management/service/services');
+                return { Component: ServicesManagementRoute };
+              },
+            },
+            {
+              path: paths.management.updateService.path,
+              lazy: async () => {
+                const { UpdateServiceManagementRoute } = await import('./routes/management/service/update-service');
+                return { Component: UpdateServiceManagementRoute };
+              },
+            },
+            {
+              path: paths.management.addService.path,
+              lazy: async () => {
+                const { AddServiceManagementRoute } = await import('./routes/management/service/add-service');
+                return { Component: AddServiceManagementRoute };
+              },
+            },
+          ],
         },
       ]),
-    [applicationUser] 
+    [applicationUser],
   );
 
   return <RouterProvider router={router} />;

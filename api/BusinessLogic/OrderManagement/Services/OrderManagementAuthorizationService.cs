@@ -30,8 +30,10 @@ public class OrderManagementAuthorizationService : IOrderManagementAuthorization
         {
             throw new ApplicationUserAuthenticationException(new ApplicationUserNotFoundErrorMessage(currentUserId));
         }
-        if ((user.OwnedBusiness == null || user.OwnedBusiness.Id != businessId)
-    && (user.EmployerBusiness == null || user.EmployerBusiness.Id != businessId))
+        if (
+            (user.OwnedBusiness == null || user.OwnedBusiness.Id != businessId)
+            && (user.EmployerBusiness == null || user.EmployerBusiness.Id != businessId)
+        )
         {
             throw new ApplicationUserAuthorizationException(new ApplicationUserUnauthorizedErrorMessage());
         }

@@ -22,6 +22,21 @@ namespace PointOfSale.DataAccess.Shared.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("ApplicationUserService", b =>
+                {
+                    b.Property<int>("ProvidedByEmployeesId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ServiceId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("ProvidedByEmployeesId", "ServiceId");
+
+                    b.HasIndex("ServiceId");
+
+                    b.ToTable("ApplicationUserService");
+                });
+
             modelBuilder.Entity("DiscountProduct", b =>
                 {
                     b.Property<int>("AppliesToId")
@@ -458,6 +473,9 @@ namespace PointOfSale.DataAccess.Shared.Migrations
                     b.Property<int?>("ModifiedById")
                         .HasColumnType("integer");
 
+                    b.Property<int?>("ReservationId")
+                        .HasColumnType("integer");
+
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -470,6 +488,9 @@ namespace PointOfSale.DataAccess.Shared.Migrations
                     b.HasIndex("CreatedById");
 
                     b.HasIndex("ModifiedById");
+
+                    b.HasIndex("ReservationId")
+                        .IsUnique();
 
                     b.ToTable("Orders", "Order");
                 });
@@ -823,6 +844,110 @@ namespace PointOfSale.DataAccess.Shared.Migrations
                     b.ToTable("Products", "Order");
                 });
 
+            modelBuilder.Entity("PointOfSale.Models.OrderManagement.Entities.Reservation", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("BusinessId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("CreatedById")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("EmployeeId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("ModifiedById")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<decimal>("Price")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("numeric(10,2)");
+
+                    b.Property<int?>("ServiceId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BusinessId");
+
+                    b.HasIndex("CreatedById");
+
+                    b.HasIndex("EmployeeId");
+
+                    b.HasIndex("ModifiedById");
+
+                    b.HasIndex("ServiceId");
+
+                    b.ToTable("Reservations", "Order");
+                });
+
+            modelBuilder.Entity("PointOfSale.Models.OrderManagement.Entities.Service", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("BusinessId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("CreatedById")
+                        .HasColumnType("integer");
+
+                    b.Property<TimeSpan>("Duration")
+                        .HasColumnType("interval");
+
+                    b.Property<DateTimeOffset>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("ModifiedById")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<decimal>("Price")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("numeric(10,2)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BusinessId");
+
+                    b.HasIndex("CreatedById");
+
+                    b.HasIndex("ModifiedById");
+
+                    b.ToTable("Services", "Order");
+                });
+
             modelBuilder.Entity("PointOfSale.Models.OrderManagement.Entities.ServiceCharge", b =>
                 {
                     b.Property<int>("Id")
@@ -1096,6 +1221,21 @@ namespace PointOfSale.DataAccess.Shared.Migrations
                     b.HasDiscriminator().HasValue("Online");
                 });
 
+            modelBuilder.Entity("ApplicationUserService", b =>
+                {
+                    b.HasOne("PointOfSale.Models.ApplicationUserManagement.Entities.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("ProvidedByEmployeesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("PointOfSale.Models.OrderManagement.Entities.Service", null)
+                        .WithMany()
+                        .HasForeignKey("ServiceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("DiscountProduct", b =>
                 {
                     b.HasOne("PointOfSale.Models.OrderManagement.Entities.Product", null)
@@ -1252,11 +1392,17 @@ namespace PointOfSale.DataAccess.Shared.Migrations
                         .HasForeignKey("ModifiedById")
                         .OnDelete(DeleteBehavior.SetNull);
 
+                    b.HasOne("PointOfSale.Models.OrderManagement.Entities.Reservation", "Reservation")
+                        .WithOne()
+                        .HasForeignKey("PointOfSale.Models.OrderManagement.Entities.Order", "ReservationId");
+
                     b.Navigation("Business");
 
                     b.Navigation("CreatedBy");
 
                     b.Navigation("ModifiedBy");
+
+                    b.Navigation("Reservation");
                 });
 
             modelBuilder.Entity("PointOfSale.Models.OrderManagement.Entities.OrderDiscount", b =>
@@ -1407,6 +1553,119 @@ namespace PointOfSale.DataAccess.Shared.Migrations
                 });
 
             modelBuilder.Entity("PointOfSale.Models.OrderManagement.Entities.Product", b =>
+                {
+                    b.HasOne("PointOfSale.Models.BusinessManagement.Entities.Business", "Business")
+                        .WithMany()
+                        .HasForeignKey("BusinessId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("PointOfSale.Models.ApplicationUserManagement.Entities.ApplicationUser", "CreatedBy")
+                        .WithMany()
+                        .HasForeignKey("CreatedById")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("PointOfSale.Models.ApplicationUserManagement.Entities.ApplicationUser", "ModifiedBy")
+                        .WithMany()
+                        .HasForeignKey("ModifiedById")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("Business");
+
+                    b.Navigation("CreatedBy");
+
+                    b.Navigation("ModifiedBy");
+                });
+
+            modelBuilder.Entity("PointOfSale.Models.OrderManagement.Entities.Reservation", b =>
+                {
+                    b.HasOne("PointOfSale.Models.BusinessManagement.Entities.Business", "Business")
+                        .WithMany()
+                        .HasForeignKey("BusinessId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("PointOfSale.Models.ApplicationUserManagement.Entities.ApplicationUser", "CreatedBy")
+                        .WithMany()
+                        .HasForeignKey("CreatedById")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("PointOfSale.Models.ApplicationUserManagement.Entities.ApplicationUser", "Employee")
+                        .WithMany()
+                        .HasForeignKey("EmployeeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("PointOfSale.Models.ApplicationUserManagement.Entities.ApplicationUser", "ModifiedBy")
+                        .WithMany()
+                        .HasForeignKey("ModifiedById")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("PointOfSale.Models.OrderManagement.Entities.Service", "Service")
+                        .WithMany()
+                        .HasForeignKey("ServiceId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.OwnsOne("PointOfSale.Models.OrderManagement.ValueObjects.ReservationCustomer", "Customer", b1 =>
+                        {
+                            b1.Property<int>("ReservationId")
+                                .HasColumnType("integer");
+
+                            b1.Property<string>("FirstName")
+                                .IsRequired()
+                                .HasMaxLength(50)
+                                .HasColumnType("character varying(50)");
+
+                            b1.Property<string>("LastName")
+                                .IsRequired()
+                                .HasMaxLength(50)
+                                .HasColumnType("character varying(50)");
+
+                            b1.HasKey("ReservationId");
+
+                            b1.ToTable("Reservations", "Order");
+
+                            b1.WithOwner()
+                                .HasForeignKey("ReservationId");
+                        });
+
+                    b.OwnsOne("PointOfSale.Models.OrderManagement.ValueObjects.ReservationDate", "Date", b1 =>
+                        {
+                            b1.Property<int>("ReservationId")
+                                .HasColumnType("integer");
+
+                            b1.Property<DateTimeOffset>("End")
+                                .HasColumnType("timestamp with time zone");
+
+                            b1.Property<DateTimeOffset>("Start")
+                                .HasColumnType("timestamp with time zone");
+
+                            b1.HasKey("ReservationId");
+
+                            b1.ToTable("Reservations", "Order");
+
+                            b1.WithOwner()
+                                .HasForeignKey("ReservationId");
+                        });
+
+                    b.Navigation("Business");
+
+                    b.Navigation("CreatedBy");
+
+                    b.Navigation("Customer")
+                        .IsRequired();
+
+                    b.Navigation("Date")
+                        .IsRequired();
+
+                    b.Navigation("Employee");
+
+                    b.Navigation("ModifiedBy");
+
+                    b.Navigation("Service");
+                });
+
+            modelBuilder.Entity("PointOfSale.Models.OrderManagement.Entities.Service", b =>
                 {
                     b.HasOne("PointOfSale.Models.BusinessManagement.Entities.Business", "Business")
                         .WithMany()

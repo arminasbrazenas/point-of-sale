@@ -43,6 +43,8 @@ public class OrderConfiguration : EntityBaseConfiguration<Order, int>
             .OnDelete(DeleteBehavior.Cascade)
             .IsRequired();
 
+        builder.HasOne(o => o.Reservation).WithOne().HasForeignKey<Order>(o => o.ReservationId).IsRequired(false);
+
         builder.ToTable(TableName, Constants.SchemaName);
     }
 }

@@ -3,18 +3,18 @@ export const paths = {
     path: '/',
     getHref: () => '/',
   },
-  login :{
+  login: {
     path: '/login',
     getHref: () => '/login',
   },
-  businessManagement : {
+  businessManagement: {
     root: {
       path: '/business-management',
-      getHref: () => '/business-management'
+      getHref: () => '/business-management',
     },
     employees: {
       path: 'employees',
-      getHref: () => '/business-management/employees'
+      getHref: () => '/business-management/employees',
     },
     updateEmployee: {
       path: 'employees/:employeeId',
@@ -22,11 +22,11 @@ export const paths = {
     },
     newEmployee: {
       path: 'employees/new',
-      getHref: () => '/business-management/employees/new'
+      getHref: () => '/business-management/employees/new',
     },
     businesses: {
       path: 'businesses',
-      getHref: () => '/business-management/businesses'
+      getHref: () => '/business-management/businesses',
     },
     business:{
       path: 'business',
@@ -34,12 +34,12 @@ export const paths = {
     },
     newBusiness: {
       path: 'businesses/new',
-      getHref: () => '/business-management/businesses/new'
+      getHref: () => '/business-management/businesses/new',
     },
     updateBusiness: {
       path: 'businesses/:businessId',
       getHref: (businessId: number) => `/business-management/businesses/${businessId}`,
-    }
+    },
   },
   employee: {
     root: {
@@ -61,6 +61,18 @@ export const paths = {
     newOrder: {
       path: 'orders/new',
       getHref: () => '/employee/orders/new',
+    },
+    reservations: {
+      path: 'reservations',
+      getHref: () => '/employee/reservations',
+    },
+    updateReservation: {
+      path: 'reservations/:reservationId',
+      getHref: (reservationId: number) => `/employee/reservations/${reservationId}`,
+    },
+    newReservation: {
+      path: 'reservations/new',
+      getHref: () => '/employee/reservations/new',
     },
   },
   management: {
@@ -139,6 +151,18 @@ export const paths = {
     addGiftCard: {
       path: 'gift-cards/add',
       getHref: () => '/management/gift-cards/add',
+    },
+    services: {
+      path: 'services',
+      getHref: () => '/management/services',
+    },
+    updateService: {
+      path: 'services/:serviceId',
+      getHref: (serviceId: number) => `/management/services/${serviceId}`,
+    },
+    addService: {
+      path: 'services/add',
+      getHref: () => '/management/services/add',
     },
   },
 } as const;
