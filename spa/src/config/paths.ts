@@ -7,6 +7,10 @@ export const paths = {
     path: '/login',
     getHref: () => '/login',
   },
+  register :{
+    path: '/register',
+    getHref: () => '/register',
+  },
   businessManagement : {
     root: {
       path: '/business-management',

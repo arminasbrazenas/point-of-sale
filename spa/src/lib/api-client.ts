@@ -11,13 +11,17 @@ api.interceptors.response.use(
     return response.data;
   },
   (error) => {
-    const errorMessage = error.response?.data?.errorMessage || 'Something went wrong...';
+    const statusCode = error.response?.status;
 
-    showNotification({
-      type: 'failure',
-      title: 'An error occurred',
-      message: errorMessage,
-    });
+    if (statusCode !== 401) {
+      const errorMessage = error.response?.data?.errorMessage || 'Something went wrong...';
+
+      showNotification({
+        type: 'failure',
+        title: 'An error occurred',
+        message: errorMessage,
+      });
+    }
 
     return Promise.reject(error);
   },
