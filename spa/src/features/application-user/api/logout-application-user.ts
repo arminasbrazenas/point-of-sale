@@ -1,9 +1,7 @@
 import { api } from '@/lib/api-client';
 import { useAppStore } from '@/lib/app-store';
 import { MutationConfig } from '@/lib/react-query';
-import { ApplicationUser } from '@/types/api';
 import {useMutation, useQueryClient } from '@tanstack/react-query';
-import { z } from 'zod';
 
 
 export const logoutApplicationUser = (): Promise<void> => {

@@ -36,10 +36,6 @@ export const useLoginApplicationUser = ({ mutationConfig }: UseLoginApplicationU
         });
 
         onSuccess?.(data, ...args);
-
-        queryClient.invalidateQueries({
-            queryKey: ['applicationUsers'],
-        });
     },
     ...restConfig,
 });

@@ -17,7 +17,6 @@ import { useBusiness } from '../api/get-business';
 import { UpdateBusinessInput, useUpdateBusiness, updateBusinessInputSchema } from '../api/update-business';
 import { useDeleteBusiness } from '../api/delete-business';
 import { useAppStore } from '@/lib/app-store';
-import { logoutApplicationUser } from '@/features/application-user/api/logout-application-user';
 
 export const UpdateBusiness = ({ businessId }: { businessId: number }) => {
     const role = useAppStore((state) => state.applicationUser?.role);
@@ -33,7 +32,6 @@ export const UpdateBusiness = ({ businessId }: { businessId: number }) => {
                     type: 'success',
                     title: 'Business deleted successfully.',
                 });
-                logoutApplicationUser();
                 role === 'Admin' ? navigate(paths.businessManagement.businesses.getHref()) : navigate(paths.login.getHref());
             },
         },
