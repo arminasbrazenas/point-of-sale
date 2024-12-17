@@ -45,6 +45,7 @@ public class ProductMappingService : IProductMappingService
                 .Modifiers.Select(m => _modifierMappingService.MapToModifierDTO(m, product.Taxes))
                 .ToList(),
             Discounts = product.Discounts.Select(_discountMappingService.MapToDiscountDTO).ToList(),
+            BusinessId = product.BusinessId,
         };
     }
 

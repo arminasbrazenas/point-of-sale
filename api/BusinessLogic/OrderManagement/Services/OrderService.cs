@@ -217,7 +217,7 @@ public class OrderService : IOrderService
     public async Task CloseOrder(int orderId)
     {
         var order = await _orderRepository.Get(orderId);
-        
+
         await _orderAuthorizationService.AuthorizeApplicationUser(order.BusinessId);
 
         if (order.Status != OrderStatus.Completed)

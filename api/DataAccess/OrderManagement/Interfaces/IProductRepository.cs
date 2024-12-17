@@ -11,4 +11,5 @@ public interface IProductRepository : IRepositoryBase<Product, int>
     Task<Product> GetWithModifiers(int productId);
     Task<Product?> GetByNameOptional(string name);
     Task<List<Product>> GetPaged(PaginationFilter paginationFilter, int businessId);
+    Task<int> GetTotalCount(int businessId);
 }
