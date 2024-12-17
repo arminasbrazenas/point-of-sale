@@ -15,6 +15,7 @@ public class TaxMappingService : ITaxMappingService
             Id = tax.Id,
             Name = tax.Name,
             Rate = tax.Rate,
+            BusinessId = tax.BusinessId,
         };
     }
 

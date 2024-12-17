@@ -18,14 +18,19 @@ public class TaxRepository : RepositoryBase<Tax, int>, ITaxRepository
         return await DbSet.FirstOrDefaultAsync(t => t.Name == name);
     }
 
-    public async Task<List<Tax>> GetPaged(PaginationFilter paginationFilter)
+    public async Task<List<Tax>> GetPaged(int businessId, PaginationFilter paginationFilter)
     {
-        var query = DbSet.OrderBy(t => t.CreatedAt).AsQueryable();
+        var query = DbSet.Where(t => t.BusinessId == businessId).OrderBy(t => t.CreatedAt).AsQueryable();
         return await GetPaged(query, paginationFilter);
     }
 
     protected override IPointOfSaleErrorMessage GetEntityNotFoundErrorMessage(int id)
     {
         return new TaxNotFoundErrorMessage(id);
+    }
+
+    public async Task<int> GetTotalCount(int businessId)
+    {
+        return await DbSet.Where(t => t.BusinessId == businessId).CountAsync();
     }
 }

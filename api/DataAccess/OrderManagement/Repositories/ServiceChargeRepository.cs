@@ -24,13 +24,8 @@ public class ServiceChargeRepository : RepositoryBase<ServiceCharge, int>, IServ
         return new ServiceChargeNotFoundErrorMessage(id);
     }
 
-    public override async Task<int> GetTotalCount(int? businessId = null)
+    public async Task<int> GetTotalCount(int businessId)
     {
-        if (businessId.HasValue)
-        {
-            return await DbSet.Where(s => s.BusinessId == businessId).CountAsync();
-        }
-
-        return await base.GetTotalCount(businessId);
+        return await DbSet.Where(s => s.BusinessId == businessId).CountAsync();
     }
 }
