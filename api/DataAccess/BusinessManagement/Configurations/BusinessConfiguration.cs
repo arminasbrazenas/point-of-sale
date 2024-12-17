@@ -16,13 +16,13 @@ public class BusinessConfiguration : EntityBaseConfiguration<Business, int>
             .HasOne(b => b.BusinessOwner)
             .WithOne(u => u.OwnedBusiness)
             .HasForeignKey<Business>(b => b.BusinessOwnerId)
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.Cascade);
 
         builder
             .HasMany(b => b.Employees)
             .WithOne(u => u.EmployerBusiness)
             .HasForeignKey(u => u.EmployerBusinessId)
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.Cascade);
 
         builder.ToTable(TableName, Constants.SchemaName);
     }

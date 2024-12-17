@@ -47,7 +47,7 @@ export const AddBusiness = () => {
           type: 'success',
           title: 'Business added successfully.',
         });
-        navigate(paths.businessManagement.businesses.getHref());
+        role === 'BusinessOwner' ? navigate(paths.businessManagement.business.getHref()) : navigate(paths.businessManagement.businesses.getHref());
       },
       onError: (error) => {
         console.error('Error creating business:', error);

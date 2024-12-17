@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using PointOfSale.DataAccess;
@@ -11,9 +12,11 @@ using PointOfSale.DataAccess;
 namespace PointOfSale.DataAccess.Shared.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class PointOfSaleDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241217021223_UpdateBusinessOnDelete")]
+    partial class UpdateBusinessOnDelete
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1169,13 +1172,11 @@ namespace PointOfSale.DataAccess.Shared.Migrations
 
                     b.HasOne("PointOfSale.Models.ApplicationUserManagement.Entities.ApplicationUser", "CreatedBy")
                         .WithMany()
-                        .HasForeignKey("CreatedById")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .HasForeignKey("CreatedById");
 
                     b.HasOne("PointOfSale.Models.ApplicationUserManagement.Entities.ApplicationUser", "ModifiedBy")
                         .WithMany()
-                        .HasForeignKey("ModifiedById")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .HasForeignKey("ModifiedById");
 
                     b.Navigation("BusinessOwner");
 
@@ -1194,13 +1195,11 @@ namespace PointOfSale.DataAccess.Shared.Migrations
 
                     b.HasOne("PointOfSale.Models.ApplicationUserManagement.Entities.ApplicationUser", "CreatedBy")
                         .WithMany()
-                        .HasForeignKey("CreatedById")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .HasForeignKey("CreatedById");
 
                     b.HasOne("PointOfSale.Models.ApplicationUserManagement.Entities.ApplicationUser", "ModifiedBy")
                         .WithMany()
-                        .HasForeignKey("ModifiedById")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .HasForeignKey("ModifiedById");
 
                     b.Navigation("Business");
 
@@ -1219,13 +1218,11 @@ namespace PointOfSale.DataAccess.Shared.Migrations
 
                     b.HasOne("PointOfSale.Models.ApplicationUserManagement.Entities.ApplicationUser", "CreatedBy")
                         .WithMany()
-                        .HasForeignKey("CreatedById")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .HasForeignKey("CreatedById");
 
                     b.HasOne("PointOfSale.Models.ApplicationUserManagement.Entities.ApplicationUser", "ModifiedBy")
                         .WithMany()
-                        .HasForeignKey("ModifiedById")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .HasForeignKey("ModifiedById");
 
                     b.Navigation("Business");
 
@@ -1244,13 +1241,11 @@ namespace PointOfSale.DataAccess.Shared.Migrations
 
                     b.HasOne("PointOfSale.Models.ApplicationUserManagement.Entities.ApplicationUser", "CreatedBy")
                         .WithMany()
-                        .HasForeignKey("CreatedById")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .HasForeignKey("CreatedById");
 
                     b.HasOne("PointOfSale.Models.ApplicationUserManagement.Entities.ApplicationUser", "ModifiedBy")
                         .WithMany()
-                        .HasForeignKey("ModifiedById")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .HasForeignKey("ModifiedById");
 
                     b.Navigation("Business");
 
@@ -1284,13 +1279,11 @@ namespace PointOfSale.DataAccess.Shared.Migrations
                 {
                     b.HasOne("PointOfSale.Models.ApplicationUserManagement.Entities.ApplicationUser", "CreatedBy")
                         .WithMany()
-                        .HasForeignKey("CreatedById")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .HasForeignKey("CreatedById");
 
                     b.HasOne("PointOfSale.Models.ApplicationUserManagement.Entities.ApplicationUser", "ModifiedBy")
                         .WithMany()
-                        .HasForeignKey("ModifiedById")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .HasForeignKey("ModifiedById");
 
                     b.HasOne("PointOfSale.Models.OrderManagement.Entities.Order", "Order")
                         .WithMany("Items")
@@ -1316,13 +1309,11 @@ namespace PointOfSale.DataAccess.Shared.Migrations
                 {
                     b.HasOne("PointOfSale.Models.ApplicationUserManagement.Entities.ApplicationUser", "CreatedBy")
                         .WithMany()
-                        .HasForeignKey("CreatedById")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .HasForeignKey("CreatedById");
 
                     b.HasOne("PointOfSale.Models.ApplicationUserManagement.Entities.ApplicationUser", "ModifiedBy")
                         .WithMany()
-                        .HasForeignKey("ModifiedById")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .HasForeignKey("ModifiedById");
 
                     b.HasOne("PointOfSale.Models.OrderManagement.Entities.OrderItem", null)
                         .WithMany("Discounts")
@@ -1339,13 +1330,11 @@ namespace PointOfSale.DataAccess.Shared.Migrations
                 {
                     b.HasOne("PointOfSale.Models.ApplicationUserManagement.Entities.ApplicationUser", "CreatedBy")
                         .WithMany()
-                        .HasForeignKey("CreatedById")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .HasForeignKey("CreatedById");
 
                     b.HasOne("PointOfSale.Models.ApplicationUserManagement.Entities.ApplicationUser", "ModifiedBy")
                         .WithMany()
-                        .HasForeignKey("ModifiedById")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .HasForeignKey("ModifiedById");
 
                     b.HasOne("PointOfSale.Models.OrderManagement.Entities.OrderItem", null)
                         .WithMany("Modifiers")
@@ -1362,13 +1351,11 @@ namespace PointOfSale.DataAccess.Shared.Migrations
                 {
                     b.HasOne("PointOfSale.Models.ApplicationUserManagement.Entities.ApplicationUser", "CreatedBy")
                         .WithMany()
-                        .HasForeignKey("CreatedById")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .HasForeignKey("CreatedById");
 
                     b.HasOne("PointOfSale.Models.ApplicationUserManagement.Entities.ApplicationUser", "ModifiedBy")
                         .WithMany()
-                        .HasForeignKey("ModifiedById")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .HasForeignKey("ModifiedById");
 
                     b.HasOne("PointOfSale.Models.OrderManagement.Entities.OrderItem", "OrderItem")
                         .WithMany("Taxes")
@@ -1387,13 +1374,11 @@ namespace PointOfSale.DataAccess.Shared.Migrations
                 {
                     b.HasOne("PointOfSale.Models.ApplicationUserManagement.Entities.ApplicationUser", "CreatedBy")
                         .WithMany()
-                        .HasForeignKey("CreatedById")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .HasForeignKey("CreatedById");
 
                     b.HasOne("PointOfSale.Models.ApplicationUserManagement.Entities.ApplicationUser", "ModifiedBy")
                         .WithMany()
-                        .HasForeignKey("ModifiedById")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .HasForeignKey("ModifiedById");
 
                     b.HasOne("PointOfSale.Models.OrderManagement.Entities.Order", null)
                         .WithMany("ServiceCharges")
@@ -1416,13 +1401,11 @@ namespace PointOfSale.DataAccess.Shared.Migrations
 
                     b.HasOne("PointOfSale.Models.ApplicationUserManagement.Entities.ApplicationUser", "CreatedBy")
                         .WithMany()
-                        .HasForeignKey("CreatedById")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .HasForeignKey("CreatedById");
 
                     b.HasOne("PointOfSale.Models.ApplicationUserManagement.Entities.ApplicationUser", "ModifiedBy")
                         .WithMany()
-                        .HasForeignKey("ModifiedById")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .HasForeignKey("ModifiedById");
 
                     b.Navigation("Business");
 
@@ -1441,13 +1424,11 @@ namespace PointOfSale.DataAccess.Shared.Migrations
 
                     b.HasOne("PointOfSale.Models.ApplicationUserManagement.Entities.ApplicationUser", "CreatedBy")
                         .WithMany()
-                        .HasForeignKey("CreatedById")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .HasForeignKey("CreatedById");
 
                     b.HasOne("PointOfSale.Models.ApplicationUserManagement.Entities.ApplicationUser", "ModifiedBy")
                         .WithMany()
-                        .HasForeignKey("ModifiedById")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .HasForeignKey("ModifiedById");
 
                     b.Navigation("Business");
 
@@ -1466,13 +1447,11 @@ namespace PointOfSale.DataAccess.Shared.Migrations
 
                     b.HasOne("PointOfSale.Models.ApplicationUserManagement.Entities.ApplicationUser", "CreatedBy")
                         .WithMany()
-                        .HasForeignKey("CreatedById")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .HasForeignKey("CreatedById");
 
                     b.HasOne("PointOfSale.Models.ApplicationUserManagement.Entities.ApplicationUser", "ModifiedBy")
                         .WithMany()
-                        .HasForeignKey("ModifiedById")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .HasForeignKey("ModifiedById");
 
                     b.Navigation("Business");
 

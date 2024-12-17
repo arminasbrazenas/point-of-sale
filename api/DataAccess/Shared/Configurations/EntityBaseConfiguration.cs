@@ -10,8 +10,8 @@ public class EntityBaseConfiguration<TEntity, TKey> : IEntityTypeConfiguration<T
     {
         builder.HasKey(d => d.Id);
 
-        builder.HasOne(e => e.CreatedBy).WithMany().HasForeignKey(e => e.CreatedById);
+        builder.HasOne(e => e.CreatedBy).WithMany().HasForeignKey(e => e.CreatedById).OnDelete(DeleteBehavior.SetNull);
 
-        builder.HasOne(e => e.ModifiedBy).WithMany().HasForeignKey(e => e.ModifiedById);
+        builder.HasOne(e => e.ModifiedBy).WithMany().HasForeignKey(e => e.ModifiedById).OnDelete(DeleteBehavior.SetNull);
     }
 }

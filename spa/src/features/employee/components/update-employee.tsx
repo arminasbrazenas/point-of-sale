@@ -1,21 +1,26 @@
-import { Button, Group, Modal, NumberInput, Stack, TextInput, Text, Paper, PasswordInput } from '@mantine/core';
+import { Button, Group, Modal, Stack, TextInput, Text, Paper, PasswordInput } from '@mantine/core';
 import { useNavigate } from 'react-router-dom';
 import { paths } from '@/config/paths';
 import { useForm, zodResolver } from '@mantine/form';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useDisclosure } from '@mantine/hooks';
 import { showNotification } from '@/lib/notifications';
 import { useEmployee } from '../api/get-employee';
-import { UpdateEmployeeInput, useUpdateEmployee } from '../api/update-employee';
+import { UpdateEmployeeInput, updateEmployeeInputSchema, useUpdateEmployee } from '../api/update-employee';
 import { useDeleteEmployee } from '../api/delete-employee';
-import { CreateEmployeeInput, createEmployeeInputSchema } from '../api/create-employee';
+import { useAppStore } from '@/lib/app-store';
+import { logoutApplicationUser, useLogoutApplicationUser } from '@/features/application-user/api/logout-application-user';
 
 export const UpdateEmployee = ({ employeeId }: { employeeId: number }) => {
-    const employeeQuery = useEmployee({ employeeId });
+    const employeeQuery = useEmployee({
+        employeeId
+    });
     const navigate = useNavigate();
     const [updatedEmployeeProperties, setUpdatedEmployeeProperties] = useState<UpdateEmployeeInput>({});
     const [isDeleteModelOpen, { open: openDeleteModal, close: closeDeleteModal }] = useDisclosure(false);
-
+    const userId = useAppStore((state) => state.applicationUser?.id);
+    const resetApplicationUser = useAppStore((state) => state.resetApplicationUser);
+    
     const deleteEmployeeMutation = useDeleteEmployee({
         mutationConfig: {
             onSuccess: () => {
@@ -24,7 +29,13 @@ export const UpdateEmployee = ({ employeeId }: { employeeId: number }) => {
                     title: 'Employee deleted successfully.',
                 });
 
-                navigate(paths.businessManagement.employees.getHref());
+                if (employeeId === userId) {
+                    logoutApplicationUser();
+                    resetApplicationUser();
+                    navigate(paths.login.getHref());
+                } else {
+                    navigate(paths.businessManagement.employees.getHref());
+                }
             },
         },
     });
@@ -38,6 +49,8 @@ export const UpdateEmployee = ({ employeeId }: { employeeId: number }) => {
                 });
 
                 setUpdatedEmployeeProperties({});
+
+                navigate(paths.businessManagement.employees.getHref());
             },
         },
     });
@@ -48,7 +61,7 @@ export const UpdateEmployee = ({ employeeId }: { employeeId: number }) => {
         ) as UpdateEmployeeInput;
     };
 
-    const form = useForm<CreateEmployeeInput>({
+    const form = useForm<UpdateEmployeeInput>({
         mode: 'uncontrolled',
         initialValues: {
             firstName: '',
@@ -57,7 +70,7 @@ export const UpdateEmployee = ({ employeeId }: { employeeId: number }) => {
             phoneNumber: '',
             password: '',
         },
-        validate: zodResolver(createEmployeeInputSchema),
+        validate: zodResolver(updateEmployeeInputSchema),
         onValuesChange: (updatedEmployee) => {
             const employee = employeeQuery.data;
             if (!employee) {
@@ -66,11 +79,14 @@ export const UpdateEmployee = ({ employeeId }: { employeeId: number }) => {
             }
 
             setUpdatedEmployeeProperties({
-                firstName: employee.firstName === updatedEmployee.firstName.trim() ? undefined : updatedEmployee.firstName,
-                lastName: employee.lastName === updatedEmployee.lastName.trim() ? undefined : updatedEmployee.lastName,
-                email: employee.email === updatedEmployee.email.trim() ? undefined : updatedEmployee.email,
-                phoneNumber: employee.phoneNumber === updatedEmployee.phoneNumber.trim() ? undefined : updatedEmployee.phoneNumber,
+                firstName: employee.firstName === updatedEmployee.firstName?.trim() ? undefined : updatedEmployee.firstName?.trim() || '',
+                lastName: employee.lastName === updatedEmployee.lastName?.trim() ? undefined : updatedEmployee.lastName?.trim() || '',
+                email: employee.email === updatedEmployee.email?.trim() ? undefined : updatedEmployee.email?.trim() || '',
+                phoneNumber: employee.phoneNumber === updatedEmployee.phoneNumber?.trim()
+                    ? undefined
+                    : updatedEmployee.phoneNumber?.trim() || '',
             });
+
         },
     });
 

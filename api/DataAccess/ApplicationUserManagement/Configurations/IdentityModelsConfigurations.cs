@@ -54,7 +54,7 @@ public class ApplicationUserConfiguration : IEntityTypeConfiguration<Application
             .HasOne(u => u.OwnedBusiness)
             .WithOne(b => b.BusinessOwner)
             .HasForeignKey<Business>(b => b.BusinessOwnerId)
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.Cascade);
         builder.ToTable(TableName);
     }
 }
