@@ -1,20 +1,34 @@
 import { api } from '@/lib/api-client';
 import { useAppStore } from '@/lib/app-store';
 import { QueryConfig } from '@/lib/react-query';
-import { Reservation } from '@/types/api';
+import { Reservation, ReservationStatus } from '@/types/api';
 import { PagedResponse, PaginationFilter } from '@/types/api';
 import { queryOptions, useQuery } from '@tanstack/react-query';
+
+type ReservationFilter = {
+  status: ReservationStatus;
+};
 
 export const getReservations = (
   paginationFilter: PaginationFilter,
   businessId: number,
+  filter?: ReservationFilter,
 ): Promise<PagedResponse<Reservation>> => {
+  let queryParams = { ...paginationFilter, businessId };
+  if (filter) {
+    queryParams = { ...queryParams, ...filter };
+  }
+
   return api.get('/v1/reservations', {
-    params: { ...paginationFilter, businessId },
+    params: queryParams,
   });
 };
 
-export const getReservationsQueryOptions = (paginationFilter: PaginationFilter, businessId: number) => {
+export const getReservationsQueryOptions = (
+  paginationFilter: PaginationFilter,
+  businessId: number,
+  filter?: ReservationFilter,
+) => {
   return queryOptions({
     queryKey: ['reservations', paginationFilter, businessId],
     queryFn: () => getReservations(paginationFilter, businessId),
@@ -23,10 +37,11 @@ export const getReservationsQueryOptions = (paginationFilter: PaginationFilter, 
 
 type UseReservationsOptions = {
   paginationFilter: PaginationFilter;
+  filter?: ReservationFilter;
   queryConfig?: QueryConfig<typeof getReservationsQueryOptions>;
 };
 
-export const useReservations = ({ paginationFilter, queryConfig }: UseReservationsOptions) => {
+export const useReservations = ({ paginationFilter, queryConfig, filter }: UseReservationsOptions) => {
   const businessId = useAppStore((state) => {
     const applicationUser = state.applicationUser;
 
@@ -38,7 +53,7 @@ export const useReservations = ({ paginationFilter, queryConfig }: UseReservatio
   });
 
   return useQuery({
-    ...getReservationsQueryOptions(paginationFilter, businessId),
+    ...getReservationsQueryOptions(paginationFilter, businessId, filter),
     ...queryConfig,
   });
 };

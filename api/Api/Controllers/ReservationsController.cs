@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using PointOfSale.BusinessLogic.OrderManagement.DTOs;
 using PointOfSale.BusinessLogic.OrderManagement.Interfaces;
 using PointOfSale.BusinessLogic.Shared.DTOs;
+using PointOfSale.DataAccess.OrderManagement.Filters;
 
 namespace PointOfSale.Api.Controllers;
 
@@ -37,12 +38,13 @@ public class ReservationsController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<ReservationDTO>> GetReservation(
+    public async Task<ActionResult<ReservationDTO>> GetReservations(
         [FromQuery] int businessId,
-        [FromQuery] PaginationFilterDTO paginationFilterDTO
+        [FromQuery] PaginationFilterDTO paginationFilterDTO,
+        [FromQuery] ReservationFilter? filter = null
     )
     {
-        var reservation = await _reservationService.GetReservations(paginationFilterDTO, businessId);
+        var reservation = await _reservationService.GetReservations(paginationFilterDTO, businessId, filter);
         return Ok(reservation);
     }
 

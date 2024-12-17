@@ -9,6 +9,7 @@ export const updateOrderInputSchema = z.object({
   orderItems: z.array(createOrUpdateOrderItemInputSchema).optional(),
   serviceChargeIds: z.array(z.number()).optional(),
   discounts: z.array(createOrUpdateOrderDiscountInputSchema).optional(),
+  reservationId: z.number().optional(),
 });
 
 export type UpdateOrderInput = z.infer<typeof updateOrderInputSchema>;

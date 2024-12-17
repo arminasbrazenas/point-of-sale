@@ -26,6 +26,7 @@ public class ReservationMappingService : IReservationMappingService
             Customer = reservation.Customer,
             Employee = _serviceMappingService.MapToServiceEmployeeDTO(reservation.Employee),
             ServiceId = reservation.ServiceId,
+            Price = reservation.Price,
         };
     }
 

@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using PointOfSale.DataAccess.OrderManagement.ErrorMessages;
+using PointOfSale.DataAccess.OrderManagement.Filters;
 using PointOfSale.DataAccess.OrderManagement.Interfaces;
 using PointOfSale.DataAccess.Shared.Exceptions;
 using PointOfSale.DataAccess.Shared.Filters;
@@ -29,13 +30,23 @@ public class ReservationRepository : RepositoryBase<Reservation, int>, IReservat
         return reservation;
     }
 
-    public async Task<List<Reservation>> GetPaged(PaginationFilter paginationFilter, int businessId)
+    public async Task<List<Reservation>> GetPaged(
+        PaginationFilter paginationFilter,
+        int businessId,
+        ReservationFilter? filter = null
+    )
     {
         var query = DbSet
             .Where(r => r.BusinessId == businessId)
             .Include(r => r.Employee)
             .OrderBy(s => s.Date.Start)
             .AsQueryable();
+
+        if (filter?.Status is not null)
+        {
+            query = query.Where(r => r.Status == filter.Status);
+        }
+
         return await GetPaged(query, paginationFilter);
     }
 

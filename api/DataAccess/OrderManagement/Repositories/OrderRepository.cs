@@ -25,6 +25,7 @@ public class OrderRepository : RepositoryBase<Order, int>, IOrderRepository
         var order = await DbSet
             .Where(o => o.Id == orderId)
             .Include(o => o.Reservation)
+            .ThenInclude(o => o.Employee)
             .Include(o => o.ServiceCharges)
             .Include(o => o.Discounts)
             .Include(o => o.Items)

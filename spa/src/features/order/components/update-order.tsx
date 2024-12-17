@@ -124,32 +124,62 @@ export const UpdateOrder = ({ orderId }: { orderId: number }) => {
       {receipt && (
         <Paper withBorder p="md">
           <Text fw={600}>Receipt</Text>
-          <Paper withBorder mt="xs">
-            <Table>
-              <Table.Thead>
-                <Table.Tr>
-                  <Table.Th>QTY</Table.Th>
-                  <Table.Th>Description</Table.Th>
-                  <Table.Th>Unit price</Table.Th>
-                  <Table.Th>Discounts</Table.Th>
-                  <Table.Th>Taxes</Table.Th>
-                  <Table.Th>Amount</Table.Th>
-                </Table.Tr>
-              </Table.Thead>
-              <Table.Tbody>
-                {receipt.orderItems.map((x) => (
-                  <Table.Tr key={x.id}>
-                    <Table.Td>{x.quantity}</Table.Td>
-                    <Table.Td>{x.name}</Table.Td>
-                    <Table.Td>{x.unitPrice}€</Table.Td>
-                    <Table.Td>{x.discountsTotal}€</Table.Td>
-                    <Table.Td>{x.taxTotal}€</Table.Td>
-                    <Table.Td>{x.totalPrice}€</Table.Td>
+
+          {receipt.reservation && (
+            <Paper withBorder mt="xs">
+              <Table>
+                <Table.Thead>
+                  <Table.Tr>
+                    <Table.Th>Reservation</Table.Th>
+                    <Table.Th>Customer</Table.Th>
+                    <Table.Th>Employee</Table.Th>
+                    <Table.Th>Price</Table.Th>
+                    <Table.Th>Date</Table.Th>
                   </Table.Tr>
-                ))}
-              </Table.Tbody>
-            </Table>
-          </Paper>
+                </Table.Thead>
+                <Table.Tbody>
+                  <Table.Tr key={crypto.randomUUID()}>
+                    <Table.Td>{receipt.reservation.description}</Table.Td>
+                    <Table.Td>
+                      {receipt.reservation.customer.firstName} {receipt.reservation.customer.lastName}
+                    </Table.Td>
+                    <Table.Td>{receipt.reservation.employee.fullName}</Table.Td>
+                    <Table.Td>{receipt.reservation.price}€</Table.Td>
+                    <Table.Td>{formatDate(receipt.reservation.date.start)}</Table.Td>
+                  </Table.Tr>
+                </Table.Tbody>
+              </Table>
+            </Paper>
+          )}
+
+          {receipt.orderItems.length > 0 && (
+            <Paper withBorder mt="xs">
+              <Table>
+                <Table.Thead>
+                  <Table.Tr>
+                    <Table.Th>QTY</Table.Th>
+                    <Table.Th>Description</Table.Th>
+                    <Table.Th>Unit price</Table.Th>
+                    <Table.Th>Discounts</Table.Th>
+                    <Table.Th>Taxes</Table.Th>
+                    <Table.Th>Amount</Table.Th>
+                  </Table.Tr>
+                </Table.Thead>
+                <Table.Tbody>
+                  {receipt.orderItems.map((x) => (
+                    <Table.Tr key={x.id}>
+                      <Table.Td>{x.quantity}</Table.Td>
+                      <Table.Td>{x.name}</Table.Td>
+                      <Table.Td>{x.unitPrice}€</Table.Td>
+                      <Table.Td>{x.discountsTotal}€</Table.Td>
+                      <Table.Td>{x.taxTotal}€</Table.Td>
+                      <Table.Td>{x.totalPrice}€</Table.Td>
+                    </Table.Tr>
+                  ))}
+                </Table.Tbody>
+              </Table>
+            </Paper>
+          )}
 
           {receipt.discounts.length > 0 && (
             <Paper withBorder mt="xs">
@@ -204,6 +234,7 @@ export const UpdateOrder = ({ orderId }: { orderId: number }) => {
         orderId={order.id}
         selectedServiceCharges={order.serviceCharges.map((c) => c.name)}
         discounts={order.discounts.map((d) => ({ ...d, id: crypto.randomUUID() }))}
+        reservation={order.reservation}
       />
     </Stack>
   );

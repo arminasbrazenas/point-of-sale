@@ -113,6 +113,7 @@ export type Order = Entity<{
   status: OrderStatus;
   serviceCharges: OrderServiceCharge[];
   discounts: OrderDiscount[];
+  reservation?: Reservation;
 }>;
 
 export type OrderReceipt = {
@@ -120,6 +121,7 @@ export type OrderReceipt = {
   orderItems: OrderItem[];
   serviceCharges: OrderServiceCharge[];
   discounts: OrderDiscount[];
+  reservation?: Reservation;
 };
 
 export type Modifier = Entity<{ name: string; priceTaxExcluded: number; price: number; stock: number }>;
@@ -222,4 +224,5 @@ export type Reservation = Entity<{
   status: ReservationStatus;
   employee: ServiceEmployee;
   serviceId: number;
+  price: number;
 }>;
