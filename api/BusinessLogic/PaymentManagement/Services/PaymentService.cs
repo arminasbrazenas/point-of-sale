@@ -125,7 +125,12 @@ public class PaymentService : IPaymentService
             EmployeeId = createPaymentIntentDTO.BusinessId,
         };
 
-        var tip = new Tip { OrderId = order.Id, Amount = createPaymentIntentDTO.TipAmount, EmployeeId = createPaymentIntentDTO.EmployeeId };
+        var tip = new Tip
+        {
+            OrderId = order.Id,
+            Amount = createPaymentIntentDTO.TipAmount,
+            EmployeeId = createPaymentIntentDTO.EmployeeId,
+        };
 
         _paymentRepository.Add(payment);
         _tipRepository.Add(tip);
@@ -198,7 +203,12 @@ public class PaymentService : IPaymentService
         await _orderManagementAuthorizationService.AuthorizeApplicationUser(order.BusinessId);
         ValidateOrderIsCompleted(order);
 
-        var tip = new Tip { OrderId = order.Id, Amount = addTipDTO.TipAmount, EmployeeId = addTipDTO.EmployeeId };
+        var tip = new Tip
+        {
+            OrderId = order.Id,
+            Amount = addTipDTO.TipAmount,
+            EmployeeId = addTipDTO.EmployeeId,
+        };
 
         _tipRepository.Add(tip);
         await _unitOfWork.SaveChanges();

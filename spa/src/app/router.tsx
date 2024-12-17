@@ -7,6 +7,7 @@ import { HomeRoute } from './routes/home';
 import { LoginRoute } from './routes/login';
 import { useAppStore } from '@/lib/app-store';
 import { BusinessManagementRoot } from './routes/business-management/root';
+import { RegisterRoute } from './routes/register';
 
 export const ProtectedRoute: React.FC<{ children: JSX.Element }> = ({ children }) => {
   const isLoggedIn = useAppStore((state) => !!state.applicationUser);
@@ -48,6 +49,14 @@ export const AppRouter = () => {
           element: (
             <RedirectToHomeIfLoggedIn>
               <LoginRoute />
+            </RedirectToHomeIfLoggedIn>
+          ),
+        },
+        {
+          path: paths.register.path,
+          element: (
+            <RedirectToHomeIfLoggedIn>
+              <RegisterRoute />
             </RedirectToHomeIfLoggedIn>
           ),
         },
