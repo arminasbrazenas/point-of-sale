@@ -12,4 +12,5 @@ public interface IModifierRepository : IRepositoryBase<Modifier, int>
         int businessId,
         ModifierFilter? modifierFilter = null
     );
+    Task<int> GetTotalCount(int businessId);
 }

@@ -19,6 +19,7 @@ public class ModifierMappingService : IModifierMappingService
             PriceTaxExcluded = modifier.Price.ToRoundedPrice(),
             Price = modifier.Price.ToRoundedPrice(),
             Stock = modifier.Stock,
+            BusinessId = modifier.BusinessId,
         };
     }
 
@@ -38,6 +39,7 @@ public class ModifierMappingService : IModifierMappingService
             PriceTaxExcluded = grossPrice,
             Price = netPrice,
             Stock = modifier.Stock,
+            BusinessId = modifier.BusinessId,
         };
     }
 
