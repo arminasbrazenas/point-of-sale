@@ -11,4 +11,5 @@ public record DiscountDTO
     public required DateTimeOffset ValidUntil { get; init; }
     public required List<int>? AppliesToProductIds { get; init; }
     public required DiscountTarget Target { get; set; }
+    public required int BusinessId{get;init;}
 }
