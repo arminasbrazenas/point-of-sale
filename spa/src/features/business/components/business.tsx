@@ -1,7 +1,7 @@
 import { useAppStore } from '@/lib/app-store';
 import { useBusiness } from '../api/get-business';
 import { useNavigate } from 'react-router-dom';
-import { Center, Paper, Table, Title } from '@mantine/core';
+import { Center, Paper, Table } from '@mantine/core';
 import { paths } from '@/config/paths';
 
 export const Business = () => {
