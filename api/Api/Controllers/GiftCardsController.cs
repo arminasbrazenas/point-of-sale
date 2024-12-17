@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PointOfSale.BusinessLogic.PaymentManagement.DTOs;
 using PointOfSale.BusinessLogic.PaymentManagement.Interfaces;
@@ -6,6 +7,7 @@ using PointOfSale.BusinessLogic.Shared.DTOs;
 namespace PointOfSale.Api.Controllers;
 
 [ApiController]
+[Authorize(Roles = "BusinessOwner,Employee")]
 [Route("v1/gift-cards")]
 public class GiftCardsController : ControllerBase
 {
@@ -33,10 +35,11 @@ public class GiftCardsController : ControllerBase
 
     [HttpGet]
     public async Task<ActionResult<PagedResponseDTO<GiftCardDTO>>> GetGiftCards(
+        [FromQuery] int businessId,
         [FromQuery] PaginationFilterDTO paginationFilterDTO
     )
     {
-        var giftCards = await _giftCardService.GetGiftCards(paginationFilterDTO);
+        var giftCards = await _giftCardService.GetGiftCards(businessId, paginationFilterDTO);
         return Ok(giftCards);
     }
 

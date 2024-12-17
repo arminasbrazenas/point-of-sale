@@ -8,5 +8,6 @@ public interface IGiftCardRepository : IRepositoryBase<GiftCard, int>
 {
     Task<bool> IsCodeUsed(string code);
     Task<GiftCard> GetByCode(string code);
-    Task<List<GiftCard>> GetWithPagination(PaginationFilter paginationFilter);
+    Task<List<GiftCard>> GetWithPagination(int businessId, PaginationFilter paginationFilter);
+    Task<int> GetTotalCount(int businessId);
 }

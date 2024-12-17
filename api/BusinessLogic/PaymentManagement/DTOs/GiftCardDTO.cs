@@ -7,4 +7,5 @@ public record GiftCardDTO
     public required decimal Amount { get; init; }
     public required DateTimeOffset ExpiresAt { get; init; }
     public required DateTimeOffset? UsedAt { get; init; }
+    public required int BusinessId {get; init;}
 }

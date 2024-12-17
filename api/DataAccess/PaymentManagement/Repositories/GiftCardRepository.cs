@@ -30,14 +30,19 @@ public class GiftCardRepository : RepositoryBase<GiftCard, int>, IGiftCardReposi
         return giftCard;
     }
 
-    public async Task<List<GiftCard>> GetWithPagination(PaginationFilter paginationFilter)
+    public async Task<List<GiftCard>> GetWithPagination(int businessId, PaginationFilter paginationFilter)
     {
-        var query = DbSet.OrderBy(g => g.CreatedAt).AsQueryable();
+        var query = DbSet.Where(g => g.BusinessId == businessId).OrderBy(g => g.CreatedAt).AsQueryable();
         return await GetPaged(query, paginationFilter);
     }
 
     protected override IPointOfSaleErrorMessage GetEntityNotFoundErrorMessage(int id)
     {
         return new GiftCardNotFoundErrorMessage(id);
+    }
+
+    public async Task<int> GetTotalCount(int businessId)
+    {
+        return await DbSet.Where(d => d.BusinessId == businessId).CountAsync();
     }
 }
