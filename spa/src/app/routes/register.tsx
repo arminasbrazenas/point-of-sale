@@ -7,17 +7,19 @@ import {
     PasswordInput,
     Paper,
     Divider,
+    Anchor,
 } from '@mantine/core';
 import { useNavigate } from 'react-router-dom';
 import { useForm, zodResolver } from '@mantine/form';
 import { RegisterApplicationUserInput, registerApplicationUserSchema, useRegisterApplicationUser } from '@/features/application-user/api/register-application-user';
+import { paths } from '@/config/paths';
 
 export const RegisterRoute = () => {
     const navigate = useNavigate();
 
     const form = useForm<RegisterApplicationUserInput>({
         initialValues: {
-            firstName:'',
+            firstName: '',
             lastName: '',
             phoneNumber: '',
             email: '',
@@ -50,7 +52,7 @@ export const RegisterRoute = () => {
             <Paper withBorder shadow="sm" p="lg" mt="lg">
                 <form onSubmit={form.onSubmit(onLRegister)}>
                     <Stack>
-                    <TextInput
+                        <TextInput
                             label="First Name"
                             withAsterisk
                             placeholder="Enter your first name"
