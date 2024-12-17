@@ -42,4 +42,17 @@ export const AppInitializer: React.FC<{ children: React.ReactNode }> = ({ childr
         });
       }, [data, error, setApplicationUser]);
     return <>{children}</>;
+
+    // useEffect(() => {
+    //   setApplicationUser({
+    //     id: 1,
+    //     businessId: 1,
+    //     role: 'Employee',
+    //     // role: 'Admin',
+    //     // role: 'BusinessOwner',
+    //   });
+    // }, [setApplicationUser]);
+    // return <>{children}</>;
+
+
   };

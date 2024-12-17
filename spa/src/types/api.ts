@@ -186,3 +186,19 @@ export type Business = {
   email : string;
   phoneNumber : string;
 };
+export type Reservation = Entity<{
+  customerId: number;
+  serviceId: number;
+  appointmentTime: string;
+  appointmentendTime: string;
+  employee: ApplicationUser;
+  status: ReservationStatus;
+  // service: Service;
+  // customer: Customer;
+}>;
+
+export enum ReservationStatus {
+  Pending = 'Pending',
+  Confirmed = 'Confirmed',
+  Cancelled = 'Cancelled'
+}

@@ -19,6 +19,8 @@ export const EmployeeLayout = (props: EmployeeLayoutProps) => {
       </AppShell.Header>
       <AppShell.Navbar bg="white">
         <NavLink label="Orders" component={Link} to={paths.employee.orders.getHref()} fw={600} />
+        <NavLink label="Reservations" component={Link} to={paths.employee.reservations.getHref()} fw={600} />
+        <NavLink label="Calendar" component={Link} to={paths.employee.calendar.getHref()} fw={600} />
       </AppShell.Navbar>
       <AppShell.Main>
         <Center px="md" py="lg">

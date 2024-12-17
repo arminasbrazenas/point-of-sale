@@ -136,6 +136,34 @@ const createAppRouter = () =>
             return { Component: UpdateOrderEmployeeRoute };
           },
         },
+        {
+          path: paths.employee.reservations.path,
+          lazy: async () => {
+            const { ReservationsRoute } = await import('./routes/employee/reservations/reservations');
+            return { Component: ReservationsRoute };
+          },
+        },
+        {
+          path: paths.employee.newReservation.path,
+          lazy: async () => {
+            const { NewReservationRoute } = await import('./routes/employee/reservations/new-reservation');
+            return { Component: NewReservationRoute };
+          },
+        },
+        {
+          path: paths.employee.updateReservation.path,
+          lazy: async () => {
+            const { UpdateReservationRoute } = await import('./routes/employee/reservations/update-reservation');
+            return { Component: UpdateReservationRoute };
+          },
+        },
+        {
+          path: paths.employee.calendar.path,
+          lazy: async () => {
+            const { CalendarRoute } = await import('./routes/employee/reservations/calendar');
+            return { Component: CalendarRoute };
+          },
+        },
       ],
     },
     {
