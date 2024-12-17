@@ -13,18 +13,21 @@ namespace PointOfSale.DataAccess.Shared.Migrations
             migrationBuilder.DropForeignKey(
                 name: "FK_Businesses_Users_BusinessOwnerId",
                 schema: "Business",
-                table: "Businesses");
+                table: "Businesses"
+            );
 
             migrationBuilder.AddColumn<int>(
                 name: "EmployerBusinessId",
                 table: "Users",
                 type: "integer",
-                nullable: true);
+                nullable: true
+            );
 
             migrationBuilder.CreateIndex(
                 name: "IX_Users_EmployerBusinessId",
                 table: "Users",
-                column: "EmployerBusinessId");
+                column: "EmployerBusinessId"
+            );
 
             migrationBuilder.AddForeignKey(
                 name: "FK_Businesses_Users_BusinessOwnerId",
@@ -33,7 +36,8 @@ namespace PointOfSale.DataAccess.Shared.Migrations
                 column: "BusinessOwnerId",
                 principalTable: "Users",
                 principalColumn: "Id",
-                onDelete: ReferentialAction.Restrict);
+                onDelete: ReferentialAction.Restrict
+            );
 
             migrationBuilder.AddForeignKey(
                 name: "FK_Users_Businesses_EmployerBusinessId",
@@ -42,7 +46,8 @@ namespace PointOfSale.DataAccess.Shared.Migrations
                 principalSchema: "Business",
                 principalTable: "Businesses",
                 principalColumn: "Id",
-                onDelete: ReferentialAction.Restrict);
+                onDelete: ReferentialAction.Restrict
+            );
         }
 
         /// <inheritdoc />
@@ -51,19 +56,14 @@ namespace PointOfSale.DataAccess.Shared.Migrations
             migrationBuilder.DropForeignKey(
                 name: "FK_Businesses_Users_BusinessOwnerId",
                 schema: "Business",
-                table: "Businesses");
+                table: "Businesses"
+            );
 
-            migrationBuilder.DropForeignKey(
-                name: "FK_Users_Businesses_EmployerBusinessId",
-                table: "Users");
+            migrationBuilder.DropForeignKey(name: "FK_Users_Businesses_EmployerBusinessId", table: "Users");
 
-            migrationBuilder.DropIndex(
-                name: "IX_Users_EmployerBusinessId",
-                table: "Users");
+            migrationBuilder.DropIndex(name: "IX_Users_EmployerBusinessId", table: "Users");
 
-            migrationBuilder.DropColumn(
-                name: "EmployerBusinessId",
-                table: "Users");
+            migrationBuilder.DropColumn(name: "EmployerBusinessId", table: "Users");
 
             migrationBuilder.AddForeignKey(
                 name: "FK_Businesses_Users_BusinessOwnerId",
@@ -72,7 +72,8 @@ namespace PointOfSale.DataAccess.Shared.Migrations
                 column: "BusinessOwnerId",
                 principalTable: "Users",
                 principalColumn: "Id",
-                onDelete: ReferentialAction.Cascade);
+                onDelete: ReferentialAction.Cascade
+            );
         }
     }
 }

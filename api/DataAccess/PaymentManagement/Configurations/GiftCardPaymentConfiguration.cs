@@ -1,4 +1,3 @@
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using PointOfSale.Models.PaymentManagement.Entities;
 
@@ -8,8 +7,6 @@ public class GiftCardPaymentConfiguration : EntityBaseConfiguration<GiftCardPaym
 {
     public override void Configure(EntityTypeBuilder<GiftCardPayment> builder)
     {
-        base.Configure(builder);
-
         builder.Property(g => g.GiftCardCode).HasMaxLength(Constants.GiftCardCodeMaxLength);
     }
 }
