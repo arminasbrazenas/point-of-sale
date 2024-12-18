@@ -22,7 +22,7 @@ public abstract class RepositoryBase<TEntity, TKey> : IRepositoryBase<TEntity, T
         DbSet.Add(entity);
     }
 
-    public virtual async Task<TEntity> Get(TKey id)
+    public async Task<TEntity> Get(TKey id)
     {
         var entity = await DbSet.FindAsync(id);
         if (entity is not null)

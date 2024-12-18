@@ -29,7 +29,7 @@ public class BusinessRepository : RepositoryBase<Business, int>, IBusinessReposi
         return await DbSet.Where(b => b.IsActive).CountAsync();
     }
 
-    public override async Task<Business> Get(int id)
+    public async Task<Business> GetActive(int id)
     {
         var entity = await DbSet.FindAsync(id);
         if (entity is not null && entity.IsActive)

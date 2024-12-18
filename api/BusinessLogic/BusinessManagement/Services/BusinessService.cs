@@ -77,7 +77,7 @@ public class BusinessService : IBusinessService
     public async Task<BusinessDTO> GetBusiness(int businessId)
     {
         await _businessAuthorizationService.AuthorizeBusinessViewAction(businessId);
-        var business = await _businessRepository.Get(businessId);
+        var business = await _businessRepository.GetActive(businessId);
         return _businessMappingService.MapToBusinessDTO(business);
     }
 
@@ -108,7 +108,7 @@ public class BusinessService : IBusinessService
     {
         await _businessAuthorizationService.AuthorizeBusinessWriteAction(businessId);
 
-        var business = await _businessRepository.Get(businessId);
+        var business = await _businessRepository.GetActive(businessId);
 
         if (updateBusinessDTO.Name is not null)
         {
