@@ -5,10 +5,12 @@ namespace PointOfSale.Api.BackgroundServices;
 public class PaymentBackgroundService : BackgroundService
 {
     private readonly IServiceScopeFactory _serviceScopeFactory;
+    private readonly ILogger<PaymentBackgroundService> _logger;
 
-    public PaymentBackgroundService(IServiceScopeFactory serviceScopeFactory)
+    public PaymentBackgroundService(IServiceScopeFactory serviceScopeFactory, ILogger<PaymentBackgroundService> logger)
     {
         _serviceScopeFactory = serviceScopeFactory;
+        _logger = logger;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -19,7 +21,7 @@ public class PaymentBackgroundService : BackgroundService
         }
         catch (Exception e)
         {
-            Console.WriteLine(e);
+            _logger.LogError(e.Message);
         }
     }
 
@@ -37,7 +39,7 @@ public class PaymentBackgroundService : BackgroundService
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
+                _logger.LogError(ex.Message);
             }
 
             await Task.Delay(TimeSpan.FromSeconds(15), stoppingToken);

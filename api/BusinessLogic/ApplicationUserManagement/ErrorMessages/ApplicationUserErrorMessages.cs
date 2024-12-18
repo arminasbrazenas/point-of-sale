@@ -74,6 +74,7 @@ public class InvalidEmailErrorMessage : IPointOfSaleErrorMessage
 {
     public string En => "Invalid email.";
 }
+
 public class InvalidPhoneNumberErrorMessage : IPointOfSaleErrorMessage
 {
     public string En => "Invalid phone number.";

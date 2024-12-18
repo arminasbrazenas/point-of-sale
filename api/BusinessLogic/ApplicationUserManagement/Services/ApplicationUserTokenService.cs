@@ -80,7 +80,7 @@ public class ApplicationUserTokenService : IApplicationUserTokenService
     {
         if (refreshToken is null)
         {
-         throw new ApplicationUserAuthenticationException(new InvalidRefreshTokenErrorMessage());   
+            throw new ApplicationUserAuthenticationException(new InvalidRefreshTokenErrorMessage());
         }
         var hashedRefreshToken = HashRefreshToken(refreshToken);
         var token = await _refreshTokenRepository.GetRefreshTokenByHash(hashedRefreshToken);
@@ -102,7 +102,6 @@ public class ApplicationUserTokenService : IApplicationUserTokenService
         await RevokeRefreshToken(token);
 
         return token.ApplicationUser;
-
     }
 
     private string GenerateRefreshToken()
