@@ -3,7 +3,7 @@ import { EnhancedCreateOrderItemInput } from './order-product';
 import { OrderItem } from './order-item';
 import { formatDate, toReadablePricingStrategy, toReadablePricingStrategyAmount } from '@/utilities';
 import { useState } from 'react';
-import { DiscountTarget, DiscountType, PricingStrategy, Reservation, ServiceCharge } from '@/types/api';
+import { DiscountType, PricingStrategy, Reservation, ServiceCharge } from '@/types/api';
 import { CreateOrUpdateDiscountInput, createOrUpdateOrderDiscountInputSchema } from '../api/create-order';
 import { useForm, zodResolver } from '@mantine/form';
 import { EnhancedOrderDiscount } from './order-item-form';
@@ -147,24 +147,9 @@ export const OrderItemList = (props: OrderItemListProps) => {
 
       <SimpleGrid cols={2}>
         <Stack gap="xs">
-          <Text fw={600}>Apply discount</Text>
+          <Text fw={600}>Apply order discount</Text>
           <form onSubmit={discountForm.onSubmit(addOrderDiscount)}>
             <Stack gap="xs">
-              <Select
-                label="Target"
-                placeholder="Target"
-                data={[
-                  { value: DiscountTarget.Order, label: 'Order' },
-                  {
-                    value: DiscountTarget.Product,
-                    label: 'Product',
-                  },
-                ]}
-                value={discountForm.getInputProps('target').defaultValue}
-                allowDeselect={false}
-                onChange={(value) => (value ? discountForm.setFieldValue('target', value) : {})}
-                withAsterisk
-              />
               <Select
                 label="Type"
                 placeholder="Type"
@@ -195,7 +180,7 @@ export const OrderItemList = (props: OrderItemListProps) => {
         </Stack>
 
         <Stack gap="xs">
-          <Text fw={600}>Applied discounts</Text>
+          <Text fw={600}>Order discounts</Text>
           <Stack gap="xs">
             {discounts.map((d) => (
               <Paper withBorder px="md" py="xs" key={d.id}>

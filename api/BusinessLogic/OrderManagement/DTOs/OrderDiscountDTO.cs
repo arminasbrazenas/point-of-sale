@@ -10,4 +10,5 @@ public record OrderDiscountDTO
     public required PricingStrategy PricingStrategy { get; init; }
     public required decimal AppliedAmount { get; init; }
     public required OrderDiscountType Type { get; init; }
+    public required string AppliedBy { get; init; }
 }

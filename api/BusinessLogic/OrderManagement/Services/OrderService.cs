@@ -6,9 +6,12 @@ using PointOfSale.BusinessLogic.Shared.Exceptions;
 using PointOfSale.BusinessLogic.Shared.Factories;
 using PointOfSale.DataAccess.OrderManagement.ErrorMessages;
 using PointOfSale.DataAccess.OrderManagement.Interfaces;
+using PointOfSale.DataAccess.Shared;
 using PointOfSale.DataAccess.Shared.Interfaces;
 using PointOfSale.Models.OrderManagement.Entities;
 using PointOfSale.Models.OrderManagement.Enums;
+using PointOfSale.Models.OrderManagement.Interfaces;
+using PointOfSale.Models.Shared.Enums;
 
 namespace PointOfSale.BusinessLogic.OrderManagement.Services;
 
@@ -67,8 +70,9 @@ public class OrderService : IOrderService
 
             var orderItems = await ReserveOrderItems(createOrderDTO.OrderItems);
             var orderDiscounts = await GetOrderDiscounts(orderItems, createOrderDTO.Discounts, reservation);
-            var serviceCharges = await GetOrderServiceCharges(
-                createOrderDTO.ServiceChargeIds,
+            var serviceCharges = await _serviceChargeRepository.GetMany(createOrderDTO.ServiceChargeIds);
+            var orderServiceCharges = GetOrderServiceCharges(
+                serviceCharges.Cast<IServiceCharge>().ToList(),
                 orderItems,
                 orderDiscounts,
                 reservation
@@ -97,7 +101,7 @@ public class OrderService : IOrderService
                 Items = orderItems,
                 Status = OrderStatus.Open,
                 BusinessId = createOrderDTO.BusinessId,
-                ServiceCharges = serviceCharges,
+                ServiceCharges = orderServiceCharges,
                 Discounts = orderDiscounts,
                 ReservationId = reservation?.Id,
             };
@@ -166,15 +170,8 @@ public class OrderService : IOrderService
             order.Discounts = await GetOrderDiscounts(order.Items, orderDiscounts, order.Reservation);
 
             // Recalculate order service charges
-            var serviceChargesIds = order.ServiceCharges.Select(c => c.Id).ToList();
-
-            foreach (var serviceChargeId in serviceChargesIds)
-            {
-                var serviceCharge = await _serviceChargeRepository.Get(serviceChargeId);
-                await _orderAuthorizationService.AuthorizeApplicationUser(serviceCharge.BusinessId);
-            }
-            order.ServiceCharges = await GetOrderServiceCharges(
-                serviceChargesIds,
+            order.ServiceCharges = GetOrderServiceCharges(
+                order.ServiceCharges.Cast<IServiceCharge>().ToList(),
                 order.Items,
                 order.Discounts,
                 order.Reservation
@@ -188,8 +185,9 @@ public class OrderService : IOrderService
 
         if (updateOrderDTO.ServiceChargeIds is not null)
         {
-            order.ServiceCharges = await GetOrderServiceCharges(
-                updateOrderDTO.ServiceChargeIds,
+            var serviceCharges = await _serviceChargeRepository.GetMany(updateOrderDTO.ServiceChargeIds);
+            order.ServiceCharges = GetOrderServiceCharges(
+                serviceCharges.Cast<IServiceCharge>().ToList(),
                 order.Items,
                 order.Discounts,
                 order.Reservation
@@ -470,8 +468,8 @@ public class OrderService : IOrderService
         return predefinedDiscounts.Concat(flexibleDiscounts).ToList();
     }
 
-    private async Task<List<OrderServiceCharge>> GetOrderServiceCharges(
-        List<int> serviceChargeIds,
+    private static List<OrderServiceCharge> GetOrderServiceCharges(
+        List<IServiceCharge> serviceCharges,
         List<OrderItem> orderItems,
         List<OrderDiscount> orderDiscounts,
         Reservation? reservation
@@ -480,7 +478,6 @@ public class OrderService : IOrderService
         var orderDiscount = orderDiscounts.Sum(d => d.AppliedAmount);
         var price = GetOrderItemsPrice(orderItems, reservation) - orderDiscount;
 
-        var serviceCharges = await _serviceChargeRepository.GetMany(serviceChargeIds);
         return serviceCharges
             .OrderBy(c => c.PricingStrategy)
             .Select(c =>

@@ -44,7 +44,7 @@ export const OrderItem = (props: OrderItemProps) => {
               {props.orderItem.quantity} x {props.orderItem.product.name} ({props.orderItem.product.price}€)
             </Text>
             {props.orderItem.modifiers.map((m) => (
-              <Text opacity={0.5}>
+              <Text opacity={0.5} key={crypto.randomUUID()}>
                 {m.name} (+{m.price}€)
               </Text>
             ))}

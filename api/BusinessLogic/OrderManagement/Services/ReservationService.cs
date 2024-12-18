@@ -230,7 +230,7 @@ public class ReservationService : IReservationService
         foreach (var reservation in reservations)
         {
             var message =
-                $"You have booked an appointment at '{reservation.Business.Name}'.\n"
+                $"You have booked an appointment at {reservation.Business.Name} for {reservation.Name}.\n"
                 + $"Date: {FormatLocalDate(reservation.Date.Start)} - {FormatLocalDate(reservation.Date.End)}\n"
                 + $"Employee: {reservation.Employee.FirstName} {reservation.Employee.LastName}";
 

@@ -1,9 +1,10 @@
+using PointOfSale.Models.OrderManagement.Interfaces;
 using PointOfSale.Models.Shared.Entities;
 using PointOfSale.Models.Shared.Enums;
 
 namespace PointOfSale.Models.OrderManagement.Entities;
 
-public class OrderServiceCharge : EntityBase<int>
+public class OrderServiceCharge : EntityBase<int>, IServiceCharge
 {
     public int OrderId { get; set; }
     public required string Name { get; set; }

@@ -6,7 +6,7 @@ public record ServiceDTO
     public required string Name { get; init; }
     public required decimal Price { get; init; }
     public required int DurationInMinutes { get; init; }
-    public required List<ServiceEmployeeDTO> ProvidedByEmployees { get; set; }
+    public required List<ServiceEmployeeDTO> ProvidedByEmployees { get; init; }
 }
 
 public record ServiceEmployeeDTO

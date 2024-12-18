@@ -1,6 +1,7 @@
 using PointOfSale.BusinessLogic.OrderManagement.DTOs;
 using PointOfSale.BusinessLogic.OrderManagement.Utilities;
 using PointOfSale.Models.OrderManagement.Entities;
+using PointOfSale.Models.OrderManagement.Interfaces;
 using PointOfSale.Models.Shared.Enums;
 
 namespace PointOfSale.BusinessLogic.OrderManagement.Extensions;
@@ -17,7 +18,7 @@ public static class OrderExtensions
     public static decimal GetAmountToApply(this Discount discount, decimal price) =>
         discount.PricingStrategy switch
         {
-            PricingStrategy.FixedAmount => (price - discount.Amount).ToRoundedPrice(),
+            PricingStrategy.FixedAmount => discount.Amount.ToRoundedPrice(),
             PricingStrategy.Percentage => (price * (discount.Amount / 100m)).ToRoundedPrice(),
             _ => throw new ArgumentOutOfRangeException(
                 nameof(discount.PricingStrategy),
@@ -29,7 +30,7 @@ public static class OrderExtensions
     public static decimal GetAmountToApply(this CreateOrderDiscountDTO discount, decimal price) =>
         discount.PricingStrategy switch
         {
-            PricingStrategy.FixedAmount => (price - discount.Amount).ToRoundedPrice(),
+            PricingStrategy.FixedAmount => discount.Amount.ToRoundedPrice(),
             PricingStrategy.Percentage => (price * (discount.Amount / 100m)).ToRoundedPrice(),
             _ => throw new ArgumentOutOfRangeException(
                 nameof(discount.PricingStrategy),
@@ -43,7 +44,7 @@ public static class OrderExtensions
         return taxes.Aggregate(0m, (acc, tax) => acc + tax.GetAmountToApply(price + acc));
     }
 
-    public static decimal GetAmountToApply(this ServiceCharge serviceCharge, decimal price) =>
+    public static decimal GetAmountToApply(this IServiceCharge serviceCharge, decimal price) =>
         serviceCharge.PricingStrategy switch
         {
             PricingStrategy.FixedAmount => serviceCharge.Amount.ToRoundedPrice(),
