@@ -5,21 +5,22 @@ using PointOfSale.BusinessLogic.BusinessManagement.Interfaces;
 using PointOfSale.BusinessLogic.Shared.Exceptions;
 using PointOfSale.DataAccess.ApplicationUserManagement.ErrorMessages;
 using PointOfSale.DataAccess.BusinessManagement.ErrorMessages;
+using PointOfSale.DataAccess.BusinessManagement.Interfaces;
 using PointOfSale.Models.ApplicationUserManagement.Enums;
 
 namespace PointOfSale.BusinessLogic.ApplicationUserManagement.Services;
 
 public class ApplicationUserValidationService : IApplicationUserValidationService
 {
-    private readonly IBusinessService _businessService;
+    private readonly IBusinessRepository _businessRepository;
     private readonly IContactInfoValidationService _contactInfoValidationService;
 
     public ApplicationUserValidationService(
-        IBusinessService businessService,
+        IBusinessRepository businessRepository,
         IContactInfoValidationService contactInfoValidationService
     )
     {
-        _businessService = businessService;
+        _businessRepository = businessRepository;
         _contactInfoValidationService = contactInfoValidationService;
     }
 
@@ -49,7 +50,7 @@ public class ApplicationUserValidationService : IApplicationUserValidationServic
             );
         }
 
-        if (dto.BusinessId is int businessId && await _businessService.GetBusiness(businessId) is null)
+        if (dto.BusinessId is int businessId && await _businessRepository.Get(businessId) is null)
         {
             throw new ValidationException(new InvalidBusinessIdErrorMessage(businessId));
         }

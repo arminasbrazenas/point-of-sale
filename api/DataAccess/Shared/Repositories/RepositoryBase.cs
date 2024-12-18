@@ -22,7 +22,7 @@ public abstract class RepositoryBase<TEntity, TKey> : IRepositoryBase<TEntity, T
         DbSet.Add(entity);
     }
 
-    public async Task<TEntity> Get(TKey id)
+    public virtual async Task<TEntity> Get(TKey id)
     {
         var entity = await DbSet.FindAsync(id);
         if (entity is not null)
@@ -60,7 +60,7 @@ public abstract class RepositoryBase<TEntity, TKey> : IRepositoryBase<TEntity, T
         DbSet.Update(entity);
     }
 
-    public async Task<int> GetTotalCount()
+    public virtual async Task<int> GetTotalCount()
     {
         return await DbSet.CountAsync();
     }

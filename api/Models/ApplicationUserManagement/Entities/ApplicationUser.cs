@@ -10,4 +10,5 @@ public class ApplicationUser : IdentityUser<int>
     public Business? OwnedBusiness { get; set; }
     public int? EmployerBusinessId { get; set; }
     public Business? EmployerBusiness { get; set; }
+    public bool IsActive { get; set; } = true;
 }

@@ -37,7 +37,10 @@ public class ApplicationUserRepository : IApplicationUserRepository
     )
     {
         var query =
-            from user in _context.Users.Include(u => u.OwnedBusiness).Include(u => u.EmployerBusiness)
+            from user in _context
+                .Users.Where(u => u.IsActive)
+                .Include(u => u.OwnedBusiness)
+                .Include(u => u.EmployerBusiness)
             join userRole in _context.UserRoles on user.Id equals userRole.UserId
             join role in _context.Roles on userRole.RoleId equals role.Id
             where
@@ -57,9 +60,22 @@ public class ApplicationUserRepository : IApplicationUserRepository
         return paginatedUsers.Select(x => (x.user, x.RoleName)).ToList();
     }
 
-    public async Task<int> GetTotalCountAsync()
+    public async Task<int> GetTotalCountAsync(int? businessId)
     {
-        return await _context.Users.CountAsync();
+        if (businessId.HasValue)
+        {
+            return await _context
+                .Users.Include(u => u.OwnedBusiness)
+                .Where(u =>
+                    u.IsActive
+                    && (
+                        u.EmployerBusinessId == businessId
+                        || (u.OwnedBusiness != null && u.OwnedBusiness.Id == businessId)
+                    )
+                )
+                .CountAsync();
+        }
+        return await _context.Users.Where(u => u.IsActive).CountAsync();
     }
 
     public async Task<List<ApplicationUser>> GetManyByIdsAsync(List<int> userIds)
@@ -70,6 +86,9 @@ public class ApplicationUserRepository : IApplicationUserRepository
             return [];
         }
 
-        return await _context.Users.Join(distinctIds, e => e.Id, id => id, (e, _) => e).ToListAsync();
+        return await _context
+            .Users.Where(u => u.IsActive)
+            .Join(distinctIds, e => e.Id, id => id, (e, _) => e)
+            .ToListAsync();
     }
 }

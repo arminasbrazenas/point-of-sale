@@ -1,5 +1,7 @@
+using Microsoft.EntityFrameworkCore;
 using PointOfSale.DataAccess.BusinessManagement.ErrorMessages;
 using PointOfSale.DataAccess.BusinessManagement.Interfaces;
+using PointOfSale.DataAccess.Shared.Exceptions;
 using PointOfSale.DataAccess.Shared.Filters;
 using PointOfSale.DataAccess.Shared.Interfaces;
 using PointOfSale.DataAccess.Shared.Repositories;
@@ -19,7 +21,35 @@ public class BusinessRepository : RepositoryBase<Business, int>, IBusinessReposi
 
     public async Task<List<Business>> GetPagedBusiness(PaginationFilter paginationFilter)
     {
-        //return DbSet.ToList();
-        return await GetPaged(DbSet.OrderBy(b => b.Id), paginationFilter);
+        return await GetPaged(DbSet.Where(b => b.IsActive).OrderBy(b => b.Id), paginationFilter);
+    }
+
+    public override async Task<int> GetTotalCount()
+    {
+        return await DbSet.Where(b => b.IsActive).CountAsync();
+    }
+
+    public override async Task<Business> Get(int id)
+    {
+        var entity = await DbSet.FindAsync(id);
+        if (entity is not null && entity.IsActive)
+        {
+            return entity;
+        }
+
+        var errorMessage = GetEntityNotFoundErrorMessage(id);
+        throw new EntityNotFoundException(errorMessage);
+    }
+
+    public async Task<Business> GetWithEmployees(int id)
+    {
+        var entity = await DbSet.Include(b => b.Employees).FirstOrDefaultAsync(b => b.Id == id);
+        if (entity is not null && entity.IsActive)
+        {
+            return entity;
+        }
+
+        var errorMessage = GetEntityNotFoundErrorMessage(id);
+        throw new EntityNotFoundException(errorMessage);
     }
 }

@@ -1,3 +1,4 @@
+import { logoutApplicationUser } from '@/features/application-user/api/logout-application-user';
 import { api } from '@/lib/api-client';
 import { useAppStore } from '@/lib/app-store';
 import { MutationConfig } from '@/lib/react-query';
@@ -21,7 +22,9 @@ export const useDeleteBusiness = ({ mutationConfig }: UseDeleteBusinessOptions) 
   return useMutation({
     onSuccess: (...args) => {
       if (role=='BusinessOwner')
-        updateApplicationUser({'businessId':null})
+        {
+          updateApplicationUser({'businessId':null})
+      }
       queryClient.invalidateQueries({
         queryKey: ['businesses'],
       });
