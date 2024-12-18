@@ -111,4 +111,21 @@ public class ApplicationUserController : ControllerBase
 
         return Ok();
     }
+
+    [HttpPost]
+    [Route("refresh")]
+    public async Task<IActionResult> RefreshAccessToken()
+    {
+        var refreshToken = Request.Cookies["RefreshToken"];
+
+        var newTokens = await _applicationUserService.RefreshApplicationUserTokens(refreshToken);
+
+        Response.Cookies.Delete("AccessToken");
+        Response.Cookies.Delete("RefreshToken");
+
+        Response.Cookies.Append("AccessToken", newTokens.AccessToken);
+        Response.Cookies.Append("RefreshToken", newTokens.RefreshToken);
+
+        return Ok();
+    }
 }
