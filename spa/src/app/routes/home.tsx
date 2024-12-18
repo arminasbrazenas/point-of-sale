@@ -1,4 +1,5 @@
 import { paths } from '@/config/paths';
+import { logoutApplicationUser, useLogoutApplicationUser } from '@/features/application-user/api/logout-application-user';
 import { useAppStore } from '@/lib/app-store';
 import { Roles } from '@/types/api';
 import { Button, Stack } from '@mantine/core';
@@ -13,7 +14,17 @@ export const HomeRoute = () => {
     role === Roles.BusinessOwner || role === Roles.Admin;
 
   const hasAccessToOrderManagement =
-    (role === Roles.BusinessOwner && businessId != null)|| role === Roles.Employee;
+    (role === Roles.BusinessOwner && businessId != null) || role === Roles.Employee;
+
+    const LogoutButton = () => {
+      const { mutate: logout } = useLogoutApplicationUser();
+    
+      return (
+        <Button onClick={() => logout(undefined)}>
+          Logout
+        </Button>
+      );
+    };
 
   return (
     <Stack maw={400} gap="xs" m="md">
@@ -33,6 +44,8 @@ export const HomeRoute = () => {
           Business management portal
         </Button>
       )}
+
+      <LogoutButton />
     </Stack>
   );
-};
+}
