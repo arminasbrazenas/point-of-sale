@@ -10,13 +10,17 @@ export const createBusinessInputSchema = z.object({
   address: z.string(),
   email: z.string(),
   phoneNumber: z.string(),
-  businessOwnerId: z.number()
+  businessOwnerId: z.number(),
+  startHour: z.number().min(0).max(23),
+  startMinute: z.number().min(0).max(59),
+  endMinute: z.number().min(0).max(59),
+  endHour: z.number().min(0).max(23),
 });
 
 export type CreateBusinessInput = z.infer<typeof createBusinessInputSchema>;
 
-export const createBusiness = ({ data }: { data: CreateBusinessInput}): Promise<Business> => {
-    return api.post('/v1/businesses', data);
+export const createBusiness = ({ data }: { data: CreateBusinessInput }): Promise<Business> => {
+  return api.post('/v1/businesses', data);
 };
 
 type UseCreateBusinessOptions = {
@@ -29,11 +33,11 @@ export const useCreateBusiness = ({ mutationConfig }: UseCreateBusinessOptions =
   const role = useAppStore((state) => state.applicationUser?.role || null);
 
   const { onSuccess, ...restConfig } = mutationConfig || {};
-  
+
   return useMutation({
     onSuccess: (data, ...args) => {
       if (role == 'BusinessOwner')
-        updateApplicationUser({"businessId":data.id})
+        updateApplicationUser({ "businessId": data.id })
       queryClient.invalidateQueries({
         queryKey: ['businesses'],
       });
@@ -42,7 +46,7 @@ export const useCreateBusiness = ({ mutationConfig }: UseCreateBusinessOptions =
     },
     ...restConfig,
     mutationFn: async ({ data }: { data: CreateBusinessInput }) => {
-      return createBusiness({ data});
+      return createBusiness({ data });
     },
   });
 };

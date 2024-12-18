@@ -17,6 +17,8 @@ import { useBusiness } from '../api/get-business';
 import { UpdateBusinessInput, useUpdateBusiness, updateBusinessInputSchema } from '../api/update-business';
 import { useDeleteBusiness } from '../api/delete-business';
 import { useAppStore } from '@/lib/app-store';
+import { TimeInput } from '@mantine/dates';
+import { z } from 'zod';
 
 export const UpdateBusiness = ({ businessId }: { businessId: number }) => {
     const role = useAppStore((state) => state.applicationUser?.role);
@@ -24,159 +26,159 @@ export const UpdateBusiness = ({ businessId }: { businessId: number }) => {
     const navigate = useNavigate();
     const [updatedBusinessProperties, setUpdatedBusinessProperties] = useState<Partial<UpdateBusinessInput>>({});
     const [isDeleteModalOpen, { open: openDeleteModal, close: closeDeleteModal }] = useDisclosure(false);
-
+  
     const deleteBusinessMutation = useDeleteBusiness({
-        mutationConfig: {
-            onSuccess: () => {
-                showNotification({
-                    type: 'success',
-                    title: 'Business deleted successfully.',
-                });
-                role === 'Admin' ? navigate(paths.businessManagement.businesses.getHref()) : navigate(paths.login.getHref());
-            },
+      mutationConfig: {
+        onSuccess: () => {
+          showNotification({
+            type: 'success',
+            title: 'Business deleted successfully.',
+          });
+          role === 'Admin'
+            ? navigate(paths.businessManagement.businesses.getHref())
+            : navigate(paths.login.getHref());
         },
+      },
     });
-
+  
     const updateBusinessMutation = useUpdateBusiness({
-        mutationConfig: {
-            onSuccess: () => {
-                showNotification({
-                    type: 'success',
-                    title: 'Business updated successfully.',
-                });
-                setUpdatedBusinessProperties({});
-                role === 'Admin' ? navigate(paths.businessManagement.businesses.getHref()) : navigate(paths.businessManagement.business.getHref());
-            },
+      mutationConfig: {
+        onSuccess: () => {
+          showNotification({
+            type: 'success',
+            title: 'Business updated successfully.',
+          });
+          setUpdatedBusinessProperties({});
+          role === 'Admin'
+            ? navigate(paths.businessManagement.businesses.getHref())
+            : navigate(paths.businessManagement.business.getHref());
         },
+      },
     });
-
-    const filterEmptyFields = (data: UpdateBusinessInput) => {
-        return Object.fromEntries(
-            Object.entries(data).filter(
-                ([_, value]) => value !== undefined && value !== null && value.trim() !== ''
-            )
-        );
-    };
-
-    const form = useForm<UpdateBusinessInput>({
-        mode: 'uncontrolled',
-        initialValues: {
-            name: '',
-            address: '',
-            email: '',
-            phoneNumber: '',
-        },
-        validate: zodResolver(updateBusinessInputSchema),
-        onValuesChange: (updatedValues) => {
-            const business = businessQuery.data;
-            if (!business) return;
-
-            setUpdatedBusinessProperties({
-                name: business.name === updatedValues.name?.trim() ? undefined : updatedValues.name?.trim() || '',
-                address: business.address === updatedValues.address?.trim() ? undefined : updatedValues.address?.trim() || '',
-                email: business.email === updatedValues.email?.trim() ? undefined : updatedValues.email?.trim() || '',
-                phoneNumber:
-                    business.phoneNumber === updatedValues.phoneNumber?.trim()
-                        ? undefined
-                        : updatedValues.phoneNumber?.trim() || '',
-            });
-        },
+  
+    const updateBusinessFormInputSchema = z.object({
+      name: z.string(),
+      address: z.string(),
+      email: z.string(),
+      phoneNumber: z.string(),
+      startTime: z.string().regex(/\d{2}:\d{2}/, 'Invalid time format'),
+      endTime: z.string().regex(/\d{2}:\d{2}/, 'Invalid time format'),
     });
-
+  
+    type UpdateBusinessFormInput = z.infer<typeof updateBusinessFormInputSchema>;
+  
+    const form = useForm<UpdateBusinessFormInput>({
+      initialValues: {
+        name: '',
+        address: '',
+        email: '',
+        phoneNumber: '',
+        startTime: '',
+        endTime: '',
+      },
+      validate: zodResolver(updateBusinessFormInputSchema),
+    });
+  
     useEffect(() => {
-        if (businessQuery.data) {
-            const { name, address, email, phoneNumber } = businessQuery.data;
-            form.setValues({ name, address, email, phoneNumber });
-        }
+      if (businessQuery.data) {
+        const { name, address, email, phoneNumber, startHour, startMinute, endHour, endMinute } = businessQuery.data;
+        form.setValues({
+          name,
+          address,
+          email,
+          phoneNumber,
+          startTime: `${startHour.toString().padStart(2, '0')}:${startMinute.toString().padStart(2, '0')}`,
+          endTime: `${endHour.toString().padStart(2, '0')}:${endMinute.toString().padStart(2, '0')}`,
+        });
+      }
     }, [businessQuery.data]);
-
+  
+    const handleUpdateSubmit = (values: UpdateBusinessFormInput) => {
+      const [startHour, startMinute] = values.startTime.split(':').map(Number);
+      const [endHour, endMinute] = values.endTime.split(':').map(Number);
+  
+      const updateData = {
+        ...values,
+        startHour,
+        startMinute,
+        endHour,
+        endMinute,
+      };
+  
+      updateBusinessMutation.mutate({
+        businessId,
+        data: updateData,
+      });
+    };
+  
+    const deleteBusiness = () => {
+      deleteBusinessMutation.mutate({ businessId });
+    };
+  
     if (businessQuery.isLoading) {
-        return <div>Loading...</div>;
+      return <div>Loading...</div>;
     }
-
+  
     const business = businessQuery.data;
     if (!business) {
-        return <div>Business not found.</div>;
+      return <div>Business not found.</div>;
     }
-
-    const deleteBusiness = () => {
-        deleteBusinessMutation.mutate({ businessId });
-    };
-
-    const updateBusiness = () => {
-        const filteredData = filterEmptyFields(updatedBusinessProperties);
-        updateBusinessMutation.mutate({ businessId, data: filteredData });
-    };
-
+  
     return (
-        <Paper withBorder p="lg">
-            <form onSubmit={form.onSubmit(updateBusiness)}>
-                <Stack>
-                    <TextInput label="Name" placeholder="Name" {...form.getInputProps('name')} />
-                    <TextInput
-                        label="Address"
-                        placeholder="Address"
-                        {...form.getInputProps('address')}
-                    />
-                    <TextInput
-                        label="Email"
-                        placeholder="Email"
-                        {...form.getInputProps('email')}
-                    />
-                    <TextInput
-                        label="Phone Number"
-                        placeholder="PhoneNumber"
-                        {...form.getInputProps('phoneNumber')}
-                    />
-                    <Group justify="space-between" mt="xs">
-                        <Button color="red" variant="light" onClick={openDeleteModal}>
-                            Delete
-                        </Button>
-                        <Group>
-                            <Button
-                                variant="default"
-                                onClick={() =>
-                                    role === 'BusinessOwner'
-                                        ? navigate(paths.businessManagement.business.getHref())
-                                        : navigate(paths.businessManagement.businesses.getHref())
-                                }
-                            >
-                                Cancel
-                            </Button>
-                            <Button type="submit" loading={updateBusinessMutation.isPending}>
-                                Save
-                            </Button>
-                        </Group>
-                    </Group>
-                </Stack>
-            </form>
-
-            <Modal
-                opened={isDeleteModalOpen}
-                onClose={closeDeleteModal}
-                title="Delete business"
+      <Paper withBorder p="lg">
+        <form onSubmit={form.onSubmit(handleUpdateSubmit)}>
+          <Stack>
+            <TextInput label="Name" placeholder="Name" {...form.getInputProps('name')} />
+            <TextInput label="Address" placeholder="Address" {...form.getInputProps('address')} />
+            <TextInput label="Email" placeholder="Email" {...form.getInputProps('email')} />
+            <TextInput label="Phone Number" placeholder="Phone Number" {...form.getInputProps('phoneNumber')} />
+            <TimeInput label="Start Time" placeholder="Start Time" {...form.getInputProps('startTime')} />
+            <TimeInput label="End Time" placeholder="End Time" {...form.getInputProps('endTime')} />
+            <Group justify="space-between" mt="xs">
+              <Button color="red" variant="light" onClick={openDeleteModal}>
+                Delete
+              </Button>
+              <Group>
+                <Button
+                  variant="default"
+                  onClick={() =>
+                    role === 'BusinessOwner'
+                      ? navigate(paths.businessManagement.business.getHref())
+                      : navigate(paths.businessManagement.businesses.getHref())
+                  }
+                >
+                  Cancel
+                </Button>
+                <Button type="submit" loading={updateBusinessMutation.isPending}>
+                  Save
+                </Button>
+              </Group>
+            </Group>
+          </Stack>
+        </form>
+  
+        <Modal opened={isDeleteModalOpen} onClose={closeDeleteModal} title="Delete business">
+          <Text mt="md">
+            Are you sure you want to delete{' '}
+            <Text component="span" fw={600}>
+              {business.name}
+            </Text>
+            ?
+          </Text>
+          <Group mt="lg" justify="flex-end">
+            <Button variant="default" onClick={closeDeleteModal}>
+              Cancel
+            </Button>
+            <Button
+              color="red"
+              variant="light"
+              loading={deleteBusinessMutation.isPending}
+              onClick={deleteBusiness}
             >
-                <Text mt="md">
-                    Are you sure you want to delete{' '}
-                    <Text component="span" fw={600}>
-                        {business.name}
-                    </Text>
-                    ?
-                </Text>
-                <Group mt="lg" justify="flex-end">
-                    <Button variant="default" onClick={closeDeleteModal}>
-                        Cancel
-                    </Button>
-                    <Button
-                        color="red"
-                        variant="light"
-                        loading={deleteBusinessMutation.isPending}
-                        onClick={deleteBusiness}
-                    >
-                        Delete
-                    </Button>
-                </Group>
-            </Modal>
-        </Paper>
+              Delete
+            </Button>
+          </Group>
+        </Modal>
+      </Paper>
     );
-};
+  };

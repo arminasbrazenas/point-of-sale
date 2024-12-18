@@ -3,10 +3,11 @@ import { useForm, zodResolver } from '@mantine/form';
 import { showNotification } from '@/lib/notifications';
 import { useNavigate } from 'react-router-dom';
 import { paths } from '@/config/paths';
-import { useCreateBusiness } from '../api/create-business';
+import { CreateBusinessInput, useCreateBusiness } from '../api/create-business';
 import { useAppStore } from '@/lib/app-store';
 import { z } from 'zod';
 import { useBusinessOwners } from '../api/get-business-owners';
+import { TimeInput } from '@mantine/dates';
 
 export const AddBusiness = () => {
   const navigate = useNavigate();
@@ -21,6 +22,8 @@ export const AddBusiness = () => {
     phoneNumber: z.string().min(1, 'Phone number is required'),
     address: z.string().min(1, 'Address is required'),
     businessOwnerId: z.number().positive('Business Owner is required'),
+    startTime: z.string().regex(/^\d{2}:\d{2}$/, 'Invalid time format'), // HH:mm format
+    endTime: z.string().regex(/^\d{2}:\d{2}$/, 'Invalid time format'), // HH:mm format
   });
 
   type CreateBusinessFormInput = z.infer<typeof createBusinessFormInputSchema>;
@@ -32,6 +35,8 @@ export const AddBusiness = () => {
       phoneNumber: '',
       address: '',
       businessOwnerId: initialBusinessOwnerId,
+      startTime: "08:00",
+      endTime: "17:00",
     },
     validate: zodResolver(createBusinessFormInputSchema),
   });
@@ -47,7 +52,9 @@ export const AddBusiness = () => {
           type: 'success',
           title: 'Business added successfully.',
         });
-        role === 'BusinessOwner' ? navigate(paths.businessManagement.business.getHref()) : navigate(paths.businessManagement.businesses.getHref());
+        role === 'BusinessOwner'
+          ? navigate(paths.businessManagement.business.getHref())
+          : navigate(paths.businessManagement.businesses.getHref());
       },
       onError: (error) => {
         console.error('Error creating business:', error);
@@ -67,8 +74,19 @@ export const AddBusiness = () => {
   const potentialOwners = businessOwnersQuery.data?.items || [];
 
   const handleSubmit = (values: CreateBusinessFormInput) => {
+    const [startHour, startMinute] = values.startTime.split(':').map(Number);
+    const [endHour, endMinute] = values.endTime.split(':').map(Number);
+
+    const mappedValues: CreateBusinessInput = {
+      ...values,
+      startHour,
+      startMinute,
+      endHour,
+      endMinute,
+    };
+
     createBusinessMutation.mutate({
-      data: values,
+      data: mappedValues,
     });
   };
 
@@ -113,6 +131,18 @@ export const AddBusiness = () => {
             placeholder="Phone Number"
             withAsterisk
             {...form.getInputProps('phoneNumber')}
+          />
+          <TimeInput
+            label="Start Time"
+            placeholder="Start Time"
+            withAsterisk
+            {...form.getInputProps('startTime')}
+          />
+          <TimeInput
+            label="End Time"
+            placeholder="End Time"
+            withAsterisk
+            {...form.getInputProps('endTime')}
           />
           <Button type="submit" mt="xs" fullWidth loading={createBusinessMutation.isPending}>
             Add

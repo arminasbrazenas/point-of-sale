@@ -3,6 +3,7 @@ import { useBusinesses } from '../api/get-businesses';
 import { useNavigate } from 'react-router-dom';
 import { Center, Pagination, Paper, Table } from '@mantine/core';
 import { paths } from '@/config/paths';
+import { formatTime } from './business';
 
 export const BusinessList = () => {
   const [page, setPage] = useState<number>(1);
@@ -37,6 +38,8 @@ export const BusinessList = () => {
               <Table.Th>Address</Table.Th>
               <Table.Th>Email</Table.Th>
               <Table.Th>Phone Number</Table.Th>
+              <Table.Th>Start Time</Table.Th>
+              <Table.Th>End Time</Table.Th>
             </Table.Tr>
           </Table.Thead>
           <Table.Tbody>
@@ -50,6 +53,8 @@ export const BusinessList = () => {
                 <Table.Td>{business.address}</Table.Td>
                 <Table.Td>{business.email}</Table.Td>
                 <Table.Td>{business.phoneNumber}</Table.Td>
+                <Table.Td>{formatTime(business.startHour,business.startMinute )}</Table.Td>
+                <Table.Td>{formatTime(business.endHour,business.endMinute )}</Table.Td>
               </Table.Tr>
             ))}
           </Table.Tbody>

@@ -4,6 +4,10 @@ import { useNavigate } from 'react-router-dom';
 import { Center, Paper, Table } from '@mantine/core';
 import { paths } from '@/config/paths';
 
+export const formatTime = (hour:number, minute:number) => {
+  return `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+};
+
 export const Business = () => {
   const businessId = useAppStore((state) => state.applicationUser?.businessId);
   const navigate = useNavigate();
@@ -37,6 +41,8 @@ export const Business = () => {
               <Table.Th>Address</Table.Th>
               <Table.Th>Email</Table.Th>
               <Table.Th>Phone Number</Table.Th>
+              <Table.Th>Start Time</Table.Th>
+              <Table.Th>End Time</Table.Th>
             </Table.Tr>
           </Table.Thead>
           <Table.Tbody>
@@ -49,6 +55,8 @@ export const Business = () => {
                 <Table.Td>{business.address}</Table.Td>
                 <Table.Td>{business.email}</Table.Td>
                 <Table.Td>{business.phoneNumber}</Table.Td>
+                <Table.Td>{formatTime(business.startHour,business.startMinute )}</Table.Td>
+                <Table.Td>{formatTime(business.endHour,business.endMinute )}</Table.Td>
               </Table.Tr>
           </Table.Tbody>
         </Table>
