@@ -78,6 +78,15 @@ export const AppRouter = () => {
               },
             },
             {
+              path: paths.businessManagement.business.path,
+              lazy: async () => {
+                const { BusinessBusinessManagementRoute } = await import(
+                  './routes/business-management/businesses/business'
+                );
+                return { Component: BusinessBusinessManagementRoute };
+              },
+            },
+            {
               path: paths.businessManagement.updateBusiness.path,
               lazy: async () => {
                 const { UpdateBusinessBusinessManagementRoute } = await import(
