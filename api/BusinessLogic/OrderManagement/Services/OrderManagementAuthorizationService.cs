@@ -26,7 +26,7 @@ public class OrderManagementAuthorizationService : IOrderManagementAuthorization
 
         var user = await _applicationUserRepository.GetUserByIdWithBusinessAsync(currentUserId);
 
-        if (user is null)
+        if (user is null || !user.IsActive)
         {
             throw new ApplicationUserAuthenticationException(new ApplicationUserNotFoundErrorMessage(currentUserId));
         }

@@ -35,6 +35,11 @@ public class BusinessAuthorizationService : IBusinessAuthorizationService
 
         var user = await _applicationUserRepository.GetUserByIdWithBusinessAsync(currentUserId);
 
+        if (user is null || !user.IsActive)
+        {
+            throw new ApplicationUserAuthorizationException(new UnauthorizedAccessToBusinessErrorMessage(businessId));
+        }
+
         if (user?.OwnedBusiness == null)
         {
             throw new ApplicationUserAuthorizationException(new UnauthorizedAccessToBusinessErrorMessage(businessId));

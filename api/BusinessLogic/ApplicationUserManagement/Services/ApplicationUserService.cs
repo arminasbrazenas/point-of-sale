@@ -7,11 +7,9 @@ using PointOfSale.BusinessLogic.Shared.Exceptions;
 using PointOfSale.BusinessLogic.Shared.Factories;
 using PointOfSale.DataAccess.ApplicationUserManagement.ErrorMessages;
 using PointOfSale.DataAccess.ApplicationUserManagement.Interfaces;
-using PointOfSale.DataAccess.BusinessManagement.ErrorMessages;
 using PointOfSale.DataAccess.BusinessManagement.Interfaces;
 using PointOfSale.DataAccess.Shared.Exceptions;
 using PointOfSale.Models.ApplicationUserManagement.Entities;
-using PointOfSale.Models.BusinessManagement.Entities;
 
 namespace PointOfSale.BusinessLogic.ApplicationUserManagement.Services;
 
@@ -23,7 +21,6 @@ public class ApplicationUserService : IApplicationUserService
     private readonly IApplicationUserMappingService _applicationUserMappingService;
     private readonly IApplicationUserAuthorizationService _applicationUserAuthorizationService;
     private readonly ICurrentApplicationUserAccessor _currentApplicationUserAccessor;
-    private readonly IBusinessRepository _businessRepository;
     private readonly IApplicationUserTokenService _tokenService;
     private readonly IContactInfoValidationService _contactInfoValidationService;
 
@@ -34,7 +31,6 @@ public class ApplicationUserService : IApplicationUserService
         IApplicationUserAuthorizationService applicationUserAuthorizationService,
         IApplicationUserRepository applicationUserRepository,
         ICurrentApplicationUserAccessor currentApplicationUserAccessor,
-        IBusinessRepository businessRepository,
         IApplicationUserTokenService tokenService,
         IContactInfoValidationService contactInfoValidationService
     )
@@ -45,7 +41,6 @@ public class ApplicationUserService : IApplicationUserService
         _applicationUserAuthorizationService = applicationUserAuthorizationService;
         _applicationUserRepository = applicationUserRepository;
         _currentApplicationUserAccessor = currentApplicationUserAccessor;
-        _businessRepository = businessRepository;
         _tokenService = tokenService;
         _contactInfoValidationService = contactInfoValidationService;
     }
@@ -55,6 +50,7 @@ public class ApplicationUserService : IApplicationUserService
         if (
             await _userManager.FindByEmailAsync(dto.Email) is { } user
             && await _userManager.CheckPasswordAsync(user, dto.Password)
+            && user.IsActive
         )
         {
             var userRole = (await _userManager.GetRolesAsync(user)).FirstOrDefault();
@@ -69,7 +65,7 @@ public class ApplicationUserService : IApplicationUserService
 
     public async Task<ApplicationUserDTO> GetApplicationUserByEmail(string email)
     {
-        if (await _applicationUserRepository.GetUserByEmailWithBusinessAsync(email) is { } user)
+        if (await _applicationUserRepository.GetUserByEmailWithBusinessAsync(email) is { } user && user.IsActive)
         {
             var role = (await _userManager.GetRolesAsync(user)).FirstOrDefault();
             return _applicationUserMappingService.MapApplicationUserDTO(user, role!);
@@ -83,7 +79,7 @@ public class ApplicationUserService : IApplicationUserService
     public async Task<ApplicationUserDTO> GetApplicationUserById(int id)
     {
         await _applicationUserAuthorizationService.AuthorizeApplicationUserAction(id);
-        if (await _applicationUserRepository.GetUserByIdWithBusinessAsync(id) is { } user)
+        if (await _applicationUserRepository.GetUserByIdWithBusinessAsync(id) is { } user && user.IsActive)
         {
             var role = (await _userManager.GetRolesAsync(user)).FirstOrDefault();
 
@@ -137,7 +133,7 @@ public class ApplicationUserService : IApplicationUserService
 
         var users = await _applicationUserRepository.GetAllUsersWithBusinessAsync(businessId, role, paginationFilter);
 
-        var totalCount = await _applicationUserRepository.GetTotalCountAsync();
+        var totalCount = await _applicationUserRepository.GetTotalCountAsync(businessId);
 
         var userDtos = _applicationUserMappingService.MapPagedApplicationUserDTOs(users, paginationFilter, totalCount);
 
@@ -160,7 +156,7 @@ public class ApplicationUserService : IApplicationUserService
         await _applicationUserAuthorizationService.AuthorizeApplicationUserAction(applicationUserId);
         var user = await _userManager.FindByIdAsync(applicationUserId.ToString());
 
-        if (user is null)
+        if (user is null || !user.IsActive)
         {
             throw new PointOfSaleException(new ApplicationUserNotFoundErrorMessage(applicationUserId));
         }
@@ -226,12 +222,18 @@ public class ApplicationUserService : IApplicationUserService
         }
         else
         {
-            var result = await _userManager.DeleteAsync(user);
+            user.Email = $"ANONYMIZED{user.Id}@ANONYMIZED.COM";
+            user.PhoneNumber = "ANONYMIZED";
+            user.FirstName = "ANONYMIZED";
+            user.LastName = "ANONYMIZED";
+            user.UserName = "ANONYMIZED";
+            user.IsActive = false;
 
+            var result = await _userManager.UpdateAsync(user);
             if (!result.Succeeded)
             {
                 var errors = string.Join(", ", result.Errors.Select(e => e.Description));
-                throw new PointOfSaleException(new FailedActionOnApplicationUserErrorMessage(errors));
+                throw new ValidationException(new FailedActionOnApplicationUserErrorMessage(errors));
             }
         }
     }

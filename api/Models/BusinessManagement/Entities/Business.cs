@@ -13,4 +13,5 @@ public class Business : EntityBase<int>
     public required string Email { get; set; }
     public ICollection<ApplicationUser> Employees { get; set; } = new List<ApplicationUser>();
     public required BusinessWorkingHours WorkingHours { get; set; }
+    public bool IsActive { get; set; } = true;
 }

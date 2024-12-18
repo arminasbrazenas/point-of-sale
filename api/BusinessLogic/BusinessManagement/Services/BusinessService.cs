@@ -20,6 +20,7 @@ public class BusinessService : IBusinessService
     private readonly IBusinessAuthorizationService _businessAuthorizationService;
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly IContactInfoValidationService _contactInfoValidationService;
+    private readonly IApplicationUserService _applicationUserService;
 
     public BusinessService(
         IUnitOfWork unitOfWork,
@@ -28,7 +29,8 @@ public class BusinessService : IBusinessService
         IBusinessValidationService businessValidationService,
         IBusinessAuthorizationService businessAuthorizationService,
         UserManager<ApplicationUser> userManager,
-        IContactInfoValidationService contactInfoValidationService
+        IContactInfoValidationService contactInfoValidationService,
+        IApplicationUserService applicationUserService
     )
     {
         _unitOfWork = unitOfWork;
@@ -38,6 +40,7 @@ public class BusinessService : IBusinessService
         _businessAuthorizationService = businessAuthorizationService;
         _userManager = userManager;
         _contactInfoValidationService = contactInfoValidationService;
+        _applicationUserService = applicationUserService;
     }
 
     public async Task<BusinessDTO> CreateBusiness(CreateBusinessDTO createBusinessDTO)
@@ -74,14 +77,22 @@ public class BusinessService : IBusinessService
     public async Task<BusinessDTO> GetBusiness(int businessId)
     {
         await _businessAuthorizationService.AuthorizeBusinessViewAction(businessId);
-        var business = await _businessRepository.Get(businessId);
+        var business = await _businessRepository.GetActive(businessId);
         return _businessMappingService.MapToBusinessDTO(business);
     }
 
     public async Task DeleteBusiness(int businessId)
     {
         await _businessAuthorizationService.AuthorizeBusinessWriteAction(businessId);
-        await _businessRepository.Delete(businessId);
+        var business = await _businessRepository.GetWithEmployees(businessId);
+        business.IsActive = false;
+
+        _businessRepository.Update(business);
+        await _applicationUserService.DeleteApplicationUser(business.BusinessOwnerId);
+        foreach (var employee in business.Employees)
+        {
+            await _applicationUserService.DeleteApplicationUser(employee.Id);
+        }
         await _unitOfWork.SaveChanges();
     }
 
@@ -97,7 +108,7 @@ public class BusinessService : IBusinessService
     {
         await _businessAuthorizationService.AuthorizeBusinessWriteAction(businessId);
 
-        var business = await _businessRepository.Get(businessId);
+        var business = await _businessRepository.GetActive(businessId);
 
         if (updateBusinessDTO.Name is not null)
         {

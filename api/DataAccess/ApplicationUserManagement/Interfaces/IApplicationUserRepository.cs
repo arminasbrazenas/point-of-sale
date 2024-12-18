@@ -12,6 +12,6 @@ public interface IApplicationUserRepository
         string? role,
         PaginationFilter paginationFilter
     );
-    Task<int> GetTotalCountAsync();
+    Task<int> GetTotalCountAsync(int? businessId);
     Task<List<ApplicationUser>> GetManyByIdsAsync(List<int> userIds);
 }

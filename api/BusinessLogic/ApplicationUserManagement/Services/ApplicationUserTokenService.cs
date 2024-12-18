@@ -99,6 +99,11 @@ public class ApplicationUserTokenService : IApplicationUserTokenService
             throw new ApplicationUserAuthenticationException(new InvalidRefreshTokenErrorMessage());
         }
 
+        if (!token.ApplicationUser.IsActive)
+        {
+            throw new ApplicationUserAuthenticationException(new InvalidRefreshTokenErrorMessage());
+        }
+
         await RevokeRefreshToken(token);
 
         return token.ApplicationUser;

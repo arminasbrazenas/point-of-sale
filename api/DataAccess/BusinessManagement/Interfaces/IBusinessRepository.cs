@@ -7,4 +7,6 @@ namespace PointOfSale.DataAccess.BusinessManagement.Interfaces;
 public interface IBusinessRepository : IRepositoryBase<Business, int>
 {
     Task<List<Business>> GetPagedBusiness(PaginationFilter paginationFilter);
+    Task<Business> GetWithEmployees(int id);
+    Task<Business> GetActive(int id);
 }
