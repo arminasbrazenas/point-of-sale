@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PointOfSale.BusinessLogic.OrderManagement.DTOs;
 using PointOfSale.BusinessLogic.OrderManagement.Interfaces;
@@ -7,6 +8,7 @@ using PointOfSale.DataAccess.OrderManagement.Filters;
 namespace PointOfSale.Api.Controllers;
 
 [ApiController]
+[Authorize(Roles = "BusinessOwner,Employee")]
 [Route("v1/reservations")]
 public class ReservationsController : ControllerBase
 {
