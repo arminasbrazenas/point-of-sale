@@ -1,3 +1,4 @@
+using PhoneNumbers;
 using PointOfSale.BusinessLogic.OrderManagement.Interfaces;
 using PointOfSale.BusinessLogic.Shared.Exceptions;
 using PointOfSale.DataAccess.OrderManagement;
@@ -13,8 +14,10 @@ public class ReservationValidationService : IReservationValidationService
         {
             throw new ValidationException(new ReservationDateStartErrorMessage());
         }
+
         return date;
     }
+
     public string ValidateFirstName(string firstName)
     {
         if (string.IsNullOrWhiteSpace(firstName))
@@ -45,5 +48,55 @@ public class ReservationValidationService : IReservationValidationService
         }
 
         return lastName;
+    }
+
+    public string ValidatePhoneNumber(string phoneNumber)
+    {
+        if (string.IsNullOrWhiteSpace(phoneNumber))
+        {
+            throw new ValidationException(new CustomerPhoneNumberEmptyErrorMessage());
+        }
+
+        var phoneNumberUtil = PhoneNumberUtil.GetInstance();
+        try
+        {
+            phoneNumberUtil.Parse(phoneNumber, defaultRegion: null);
+        }
+        catch (NumberParseException)
+        {
+            throw new ValidationException(new InvalidPhoneNumberErrorMessage());
+        }
+
+        return phoneNumber;
+    }
+    public void ValidateWorkHours(TimeOnly workStart, TimeOnly workEnd,
+        DateTimeOffset reservationStart, DateTimeOffset reservationEnd)
+    {
+        bool isWithinWorkingHours;
+        TimeOnly startTime = TimeOnly.FromDateTime(reservationStart.DateTime);
+        TimeOnly endTime = TimeOnly.FromDateTime(reservationEnd.DateTime);
+        
+        if (workStart == workEnd)
+        {
+            return;
+        }
+        
+        if (workStart <= workEnd)
+        {
+            isWithinWorkingHours = (startTime >= workStart && startTime <= workEnd) &&
+                                   (endTime >= workStart && endTime <= workEnd);
+        }
+        else
+        {
+            isWithinWorkingHours = ((startTime >= workStart || startTime <= workEnd) &&
+                                    (endTime >= workStart || endTime <= workEnd)) &&
+                                   !(startTime > workEnd && endTime < workStart);
+        }
+
+        if (!isWithinWorkingHours)
+        {
+            throw new ValidationException(new ReservationNotWithinWorkHoursErrorMessage());
+        }
+        
     }
 }

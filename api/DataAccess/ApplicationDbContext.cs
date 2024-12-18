@@ -8,6 +8,7 @@ using PointOfSale.Models.ApplicationUserManagement.Entities;
 using PointOfSale.Models.BusinessManagement.Entities;
 using PointOfSale.Models.OrderManagement.Entities;
 using PointOfSale.Models.PaymentManagement.Entities;
+using PointOfSale.Models.PaymentManagement.Enums;
 
 namespace PointOfSale.DataAccess;
 
@@ -32,6 +33,8 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, IdentityR
     public DbSet<Payment> Payments { get; set; }
     public DbSet<GiftCard> GiftCards { get; set; }
     public DbSet<Tip> Tips { get; set; }
+    public DbSet<Service> Services { get; set; }
+    public DbSet<Reservation> Reservations { get; set; }
 
     public ApplicationDbContext(
         DbContextOptions<ApplicationDbContext> options,

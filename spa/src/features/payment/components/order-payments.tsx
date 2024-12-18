@@ -22,6 +22,7 @@ import { stripePromise } from '@/lib/stripe-client';
 import { StripeCheckout } from './stripe-checkout';
 import { useConfirmPaymentIntent } from '../api/confirm-payment-intent';
 import { useAppStore } from '@/lib/app-store';
+import { useRefundOrderPayments } from '../api/refund-order-payments';
 
 type OrderPaymentsProps = {
   orderId: number;
@@ -114,6 +115,17 @@ export const OrderPayments = (props: OrderPaymentsProps) => {
     },
   });
 
+  const refundOrderPaymentsMutation = useRefundOrderPayments({
+    mutationConfig: {
+      onSuccess: () => {
+        showNotification({
+          type: 'success',
+          title: 'Order payments refunded successfully.',
+        });
+      },
+    },
+  });
+
   const payByCashForm = useForm<PayByCashInput>({
     mode: 'uncontrolled',
     initialValues: {
@@ -141,7 +153,7 @@ export const OrderPayments = (props: OrderPaymentsProps) => {
     initialValues: {
       orderId: props.orderId,
       tipAmount: 0,
-      employeeId: userId
+      employeeId: userId,
     },
     validate: zodResolver(addTipInputSchema),
   });
@@ -186,6 +198,10 @@ export const OrderPayments = (props: OrderPaymentsProps) => {
     confirmPaymentIntent.mutate({ paymentIntentId: paymentIntent.paymentIntentId });
     setPaymentIntent(null);
     closeCreateModal();
+  };
+
+  const refundOrder = () => {
+    refundOrderPaymentsMutation.mutate({ data: { orderId: props.orderId } });
   };
 
   const onCardPaymentFailure = (error: string) => {
@@ -330,14 +346,19 @@ export const OrderPayments = (props: OrderPaymentsProps) => {
         </List>
 
         <Button fullWidth mt="xs" onClick={openTipModal}>
-          Add tip
+          Add cash tip
         </Button>
 
         <Divider my="md" />
 
-        <Button fullWidth color="teal" variant="light" onClick={completePayments}>
-          Complete payments
-        </Button>
+        <Stack gap="xs">
+          <Button color="teal" variant="light" onClick={completePayments}>
+            Complete payments
+          </Button>
+          <Button color="yellow" variant="light" onClick={refundOrder}>
+            Refund all payments
+          </Button>
+        </Stack>
       </Paper>
     </>
   );

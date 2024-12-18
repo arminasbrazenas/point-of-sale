@@ -1,3 +1,4 @@
+using PointOfSale.BusinessLogic.OrderManagement.DTOs;
 using PointOfSale.BusinessLogic.PaymentManagement.DTOs;
 using PointOfSale.BusinessLogic.PaymentManagement.Interfaces;
 using PointOfSale.BusinessLogic.Shared.ErrorMessages;
@@ -10,10 +11,12 @@ namespace PointOfSale.BusinessLogic.PaymentManagement.Services;
 public class StripeService : IStripeService
 {
     private readonly PaymentIntentService _paymentIntentService;
+    private readonly RefundService _refundService;
 
     public StripeService()
     {
         _paymentIntentService = new PaymentIntentService();
+        _refundService = new RefundService();
     }
 
     public async Task<PaymentIntentDTO> CreatePaymentIntent(CreatePaymentIntentDTO paymentIntentDTO)
@@ -23,7 +26,8 @@ public class StripeService : IStripeService
             Amount = (long)((paymentIntentDTO.PaymentAmount + paymentIntentDTO.TipAmount) * 100m),
             Currency = "eur",
             PaymentMethodTypes = ["card"],
-            Description = $"Payment for order #{paymentIntentDTO.OrderId}",
+            Description =
+                $"Payment for order #{paymentIntentDTO.OrderId} ({paymentIntentDTO.PaymentAmount}€ + {paymentIntentDTO.TipAmount}€ tip)",
         };
 
         try
@@ -56,5 +60,20 @@ public class StripeService : IStripeService
     public async Task CancelPaymentIntent(string paymentId)
     {
         await _paymentIntentService.CancelAsync(paymentId);
+    }
+
+    public async Task RefundPayment(RefundPaymentDTO refundPaymentDTO)
+    {
+        var refundOptions = new RefundCreateOptions
+        {
+            PaymentIntent = refundPaymentDTO.PaymentIntentId,
+            Amount = (long)(refundPaymentDTO.Amount * 100m),
+        };
+
+        try
+        {
+            await _refundService.CreateAsync(refundOptions);
+        }
+        catch (StripeException ex) when (ex.StripeError.Code == "charge_already_refunded") { }
     }
 }

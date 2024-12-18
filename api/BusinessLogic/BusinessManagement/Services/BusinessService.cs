@@ -51,9 +51,9 @@ public class BusinessService : IBusinessService
             TelephoneNumber = createBusinessDTO.PhoneNumber,
             WorkingHours = new BusinessWorkingHours
             {
-                Start = new TimeOnly(8, 0),
-                End = new TimeOnly(18, 0)
-            }
+                Start = new TimeOnly(createBusinessDTO.StartHour, createBusinessDTO.StartMinute),
+                End = new TimeOnly(createBusinessDTO.EndHour, createBusinessDTO.EndMinute),
+            },
         };
 
         _businessRepository.Add(business);

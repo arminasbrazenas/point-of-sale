@@ -1337,11 +1337,33 @@ namespace PointOfSale.DataAccess.Shared.Migrations
                         .HasForeignKey("ModifiedById")
                         .OnDelete(DeleteBehavior.SetNull);
 
+                    b.OwnsOne("PointOfSale.Models.BusinessManagement.Entities.BusinessWorkingHours", "WorkingHours", b1 =>
+                        {
+                            b1.Property<int>("BusinessId")
+                                .HasColumnType("integer");
+
+                            b1.Property<TimeOnly>("End")
+                                .HasColumnType("time without time zone");
+
+                            b1.Property<TimeOnly>("Start")
+                                .HasColumnType("time without time zone");
+
+                            b1.HasKey("BusinessId");
+
+                            b1.ToTable("Businesses", "Business");
+
+                            b1.WithOwner()
+                                .HasForeignKey("BusinessId");
+                        });
+
                     b.Navigation("BusinessOwner");
 
                     b.Navigation("CreatedBy");
 
                     b.Navigation("ModifiedBy");
+
+                    b.Navigation("WorkingHours")
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("PointOfSale.Models.OrderManagement.Entities.Discount", b =>
@@ -1641,6 +1663,10 @@ namespace PointOfSale.DataAccess.Shared.Migrations
                                 .HasMaxLength(50)
                                 .HasColumnType("character varying(50)");
 
+                            b1.Property<string>("PhoneNumber")
+                                .IsRequired()
+                                .HasColumnType("text");
+
                             b1.HasKey("ReservationId");
 
                             b1.ToTable("Reservations", "Order");
@@ -1668,6 +1694,25 @@ namespace PointOfSale.DataAccess.Shared.Migrations
                                 .HasForeignKey("ReservationId");
                         });
 
+                    b.OwnsOne("PointOfSale.Models.OrderManagement.ValueObjects.ReservationNotification", "Notification", b1 =>
+                        {
+                            b1.Property<int>("ReservationId")
+                                .HasColumnType("integer");
+
+                            b1.Property<Guid>("IdempotencyKey")
+                                .HasColumnType("uuid");
+
+                            b1.Property<DateTimeOffset?>("SentAt")
+                                .HasColumnType("timestamp with time zone");
+
+                            b1.HasKey("ReservationId");
+
+                            b1.ToTable("Reservations", "Order");
+
+                            b1.WithOwner()
+                                .HasForeignKey("ReservationId");
+                        });
+
                     b.Navigation("Business");
 
                     b.Navigation("CreatedBy");
@@ -1681,6 +1726,9 @@ namespace PointOfSale.DataAccess.Shared.Migrations
                     b.Navigation("Employee");
 
                     b.Navigation("ModifiedBy");
+
+                    b.Navigation("Notification")
+                        .IsRequired();
 
                     b.Navigation("Service");
                 });

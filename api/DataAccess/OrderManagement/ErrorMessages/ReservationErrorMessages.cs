@@ -23,6 +23,16 @@ public class UpdatePassedReservationErrorMessage : IPointOfSaleErrorMessage
     public string En => "This reservation can not be updated as its time has already passed.";
 }
 
+public class NoFreeEmployeeErrorMessage : IPointOfSaleErrorMessage
+{
+    public string En => "There are not enough free employees to fulfill this reservation.";
+}
+
+public class ReservationNotWithinWorkHoursErrorMessage : IPointOfSaleErrorMessage
+{
+    public string En => "This reservation can not be fulfilled as it is not within work hours.";
+}
+
 public class ReservationNotFoundErrorMessage : IPointOfSaleErrorMessage
 {
     private readonly int _reservationId;
@@ -33,4 +43,14 @@ public class ReservationNotFoundErrorMessage : IPointOfSaleErrorMessage
     }
 
     public string En => $"Reservation with id '{_reservationId}' not found.";
+}
+
+public class ReservationAlreadyInProgressErrorMessage : IPointOfSaleErrorMessage
+{
+    public string En => "Reservation is already in progress.";
+}
+
+public class ReservationIsNotInProgressErrorMessage : IPointOfSaleErrorMessage
+{
+    public string En => "Reservation is not in progress.";
 }

@@ -13,5 +13,6 @@ public record ReservationDTO
     public required int? ServiceId { get; init; }
     public required ReservationStatus Status { get; init; }
     public required decimal Price { get; init; }
+    public required DateTimeOffset BookedAt { get; init; }
     public required int BusinessId { get; init; }
 }

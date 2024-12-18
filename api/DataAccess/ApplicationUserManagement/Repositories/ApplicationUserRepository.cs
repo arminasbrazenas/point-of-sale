@@ -61,4 +61,22 @@ public class ApplicationUserRepository : IApplicationUserRepository
     {
         return await _context.Users.CountAsync();
     }
+
+    public async Task<List<ApplicationUser>> GetManyByIdsAsync(List<int> userIds)
+    {
+        var distinctIds = userIds.Distinct().ToList();
+        if (distinctIds.Count == 0)
+        {
+            return [];
+        }
+
+        return await _context.Users.Join(distinctIds, e => e.Id, id => id, (e, _) => e).ToListAsync();
+    }
+
+    public async Task<List<int>> GetAllEmployeeUserIdsByBusiness(int businessId, PaginationFilter paginationFilter)
+    {
+        var userWithRoles = await GetAllUsersWithBusinessAsync(businessId, "Employee", paginationFilter);
+        
+        return  userWithRoles.Select(u => u.User.Id).ToList();
+    }
 }

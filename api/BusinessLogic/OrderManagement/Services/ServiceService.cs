@@ -42,21 +42,19 @@ public class ServiceService : IServiceService
         await _orderManagementAuthorizationService.AuthorizeApplicationUser(createServiceDto.BusinessId);
 
         var name = await _serviceValidationService.ValidateName(createServiceDto.Name, createServiceDto.BusinessId);
-        var duration = createServiceDto.Duration;
+        var durationInMinutes = _serviceValidationService.ValidateDurationInMinutes(createServiceDto.DurationInMinutes);
         var price = _serviceValidationService.ValidatePrice(createServiceDto.Price.ToRoundedPrice());
-        var providedByEmployees = await _applicationUserRepository.GetAllUsersWithBusinessAsync(
-            createServiceDto.BusinessId,
-            "Employee",
-            new PaginationFilter { ItemsPerPage = 50, Page = 1 }
+        var providedByEmployees = await _applicationUserRepository.GetManyByIdsAsync(
+            createServiceDto.ProvidedByEmployeesWithId
         );
 
         var service = new Service
         {
             Name = name,
-            Duration = duration,
+            Duration = TimeSpan.FromMinutes(durationInMinutes),
             Price = price,
             BusinessId = createServiceDto.BusinessId,
-            ProvidedByEmployees = providedByEmployees.Select(x => x.User).ToList(),
+            ProvidedByEmployees = providedByEmployees,
         };
 
         _serviceRepository.Add(service);
@@ -86,10 +84,17 @@ public class ServiceService : IServiceService
         {
             service.Price = _serviceValidationService.ValidatePrice(updateServiceDto.Price.Value.ToRoundedPrice());
         }
-        
+
+        if (updateServiceDto.ProvidedByEmployeesWithId is not null)
+        {
+            service.ProvidedByEmployees = await _applicationUserRepository.GetManyByIdsAsync(
+                updateServiceDto.ProvidedByEmployeesWithId
+            );
+        }
+
         _serviceRepository.Update(service);
         await _unitOfWork.SaveChanges();
-        
+
         return _serviceMappingService.MapToServiceDTO(service);
     }
 

@@ -12,4 +12,5 @@ public record OrderItemDTO
     public required decimal TotalPrice { get; init; }
     public required List<OrderItemModifierDTO> Modifiers { get; init; }
     public required List<OrderDiscountDTO> Discounts { get; init; }
+    public required List<OrderItemTaxDTO> Taxes { get; init; }
 }

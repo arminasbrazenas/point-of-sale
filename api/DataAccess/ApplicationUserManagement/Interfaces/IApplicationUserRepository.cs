@@ -13,4 +13,6 @@ public interface IApplicationUserRepository
         PaginationFilter paginationFilter
     );
     Task<int> GetTotalCountAsync();
+    Task<List<ApplicationUser>> GetManyByIdsAsync(List<int> userIds);
+    Task<List<int>> GetAllEmployeeUserIdsByBusiness(int businessId, PaginationFilter paginationFilter);
 }

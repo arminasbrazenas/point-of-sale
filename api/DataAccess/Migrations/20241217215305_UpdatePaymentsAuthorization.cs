@@ -13,32 +13,30 @@ namespace PointOfSale.DataAccess.Shared.Migrations
             migrationBuilder.DropForeignKey(
                 name: "FK_GiftCards_Users_CreatedById",
                 schema: "Payment",
-                table: "GiftCards");
+                table: "GiftCards"
+            );
 
             migrationBuilder.DropForeignKey(
                 name: "FK_GiftCards_Users_ModifiedById",
                 schema: "Payment",
-                table: "GiftCards");
+                table: "GiftCards"
+            );
 
             migrationBuilder.DropForeignKey(
                 name: "FK_OrderPayments_Users_CreatedById",
                 schema: "Payment",
-                table: "OrderPayments");
+                table: "OrderPayments"
+            );
 
             migrationBuilder.DropForeignKey(
                 name: "FK_OrderPayments_Users_ModifiedById",
                 schema: "Payment",
-                table: "OrderPayments");
+                table: "OrderPayments"
+            );
 
-            migrationBuilder.DropForeignKey(
-                name: "FK_Tips_Users_CreatedById",
-                schema: "Payment",
-                table: "Tips");
+            migrationBuilder.DropForeignKey(name: "FK_Tips_Users_CreatedById", schema: "Payment", table: "Tips");
 
-            migrationBuilder.DropForeignKey(
-                name: "FK_Tips_Users_ModifiedById",
-                schema: "Payment",
-                table: "Tips");
+            migrationBuilder.DropForeignKey(name: "FK_Tips_Users_ModifiedById", schema: "Payment", table: "Tips");
 
             migrationBuilder.AddColumn<int>(
                 name: "EmployeeId",
@@ -46,7 +44,8 @@ namespace PointOfSale.DataAccess.Shared.Migrations
                 table: "Tips",
                 type: "integer",
                 nullable: false,
-                defaultValue: 0);
+                defaultValue: 0
+            );
 
             migrationBuilder.AddColumn<int>(
                 name: "BusinessId",
@@ -54,7 +53,8 @@ namespace PointOfSale.DataAccess.Shared.Migrations
                 table: "OrderPayments",
                 type: "integer",
                 nullable: false,
-                defaultValue: 0);
+                defaultValue: 0
+            );
 
             migrationBuilder.AddColumn<int>(
                 name: "EmployeeId",
@@ -62,7 +62,8 @@ namespace PointOfSale.DataAccess.Shared.Migrations
                 table: "OrderPayments",
                 type: "integer",
                 nullable: false,
-                defaultValue: 0);
+                defaultValue: 0
+            );
 
             migrationBuilder.AddColumn<int>(
                 name: "BusinessId",
@@ -70,31 +71,36 @@ namespace PointOfSale.DataAccess.Shared.Migrations
                 table: "GiftCards",
                 type: "integer",
                 nullable: false,
-                defaultValue: 0);
+                defaultValue: 0
+            );
 
             migrationBuilder.CreateIndex(
                 name: "IX_Tips_EmployeeId",
                 schema: "Payment",
                 table: "Tips",
-                column: "EmployeeId");
+                column: "EmployeeId"
+            );
 
             migrationBuilder.CreateIndex(
                 name: "IX_OrderPayments_BusinessId",
                 schema: "Payment",
                 table: "OrderPayments",
-                column: "BusinessId");
+                column: "BusinessId"
+            );
 
             migrationBuilder.CreateIndex(
                 name: "IX_OrderPayments_EmployeeId",
                 schema: "Payment",
                 table: "OrderPayments",
-                column: "EmployeeId");
+                column: "EmployeeId"
+            );
 
             migrationBuilder.CreateIndex(
                 name: "IX_GiftCards_BusinessId",
                 schema: "Payment",
                 table: "GiftCards",
-                column: "BusinessId");
+                column: "BusinessId"
+            );
 
             migrationBuilder.AddForeignKey(
                 name: "FK_GiftCards_Businesses_BusinessId",
@@ -104,7 +110,8 @@ namespace PointOfSale.DataAccess.Shared.Migrations
                 principalSchema: "Business",
                 principalTable: "Businesses",
                 principalColumn: "Id",
-                onDelete: ReferentialAction.Cascade);
+                onDelete: ReferentialAction.Cascade
+            );
 
             migrationBuilder.AddForeignKey(
                 name: "FK_GiftCards_Users_CreatedById",
@@ -113,7 +120,8 @@ namespace PointOfSale.DataAccess.Shared.Migrations
                 column: "CreatedById",
                 principalTable: "Users",
                 principalColumn: "Id",
-                onDelete: ReferentialAction.SetNull);
+                onDelete: ReferentialAction.SetNull
+            );
 
             migrationBuilder.AddForeignKey(
                 name: "FK_GiftCards_Users_ModifiedById",
@@ -122,7 +130,8 @@ namespace PointOfSale.DataAccess.Shared.Migrations
                 column: "ModifiedById",
                 principalTable: "Users",
                 principalColumn: "Id",
-                onDelete: ReferentialAction.SetNull);
+                onDelete: ReferentialAction.SetNull
+            );
 
             migrationBuilder.AddForeignKey(
                 name: "FK_OrderPayments_Businesses_BusinessId",
@@ -132,7 +141,8 @@ namespace PointOfSale.DataAccess.Shared.Migrations
                 principalSchema: "Business",
                 principalTable: "Businesses",
                 principalColumn: "Id",
-                onDelete: ReferentialAction.SetNull);
+                onDelete: ReferentialAction.SetNull
+            );
 
             migrationBuilder.AddForeignKey(
                 name: "FK_OrderPayments_Users_CreatedById",
@@ -141,7 +151,8 @@ namespace PointOfSale.DataAccess.Shared.Migrations
                 column: "CreatedById",
                 principalTable: "Users",
                 principalColumn: "Id",
-                onDelete: ReferentialAction.SetNull);
+                onDelete: ReferentialAction.SetNull
+            );
 
             migrationBuilder.AddForeignKey(
                 name: "FK_OrderPayments_Users_EmployeeId",
@@ -150,7 +161,8 @@ namespace PointOfSale.DataAccess.Shared.Migrations
                 column: "EmployeeId",
                 principalTable: "Users",
                 principalColumn: "Id",
-                onDelete: ReferentialAction.SetNull);
+                onDelete: ReferentialAction.SetNull
+            );
 
             migrationBuilder.AddForeignKey(
                 name: "FK_OrderPayments_Users_ModifiedById",
@@ -159,7 +171,8 @@ namespace PointOfSale.DataAccess.Shared.Migrations
                 column: "ModifiedById",
                 principalTable: "Users",
                 principalColumn: "Id",
-                onDelete: ReferentialAction.SetNull);
+                onDelete: ReferentialAction.SetNull
+            );
 
             migrationBuilder.AddForeignKey(
                 name: "FK_Tips_Users_CreatedById",
@@ -168,7 +181,8 @@ namespace PointOfSale.DataAccess.Shared.Migrations
                 column: "CreatedById",
                 principalTable: "Users",
                 principalColumn: "Id",
-                onDelete: ReferentialAction.SetNull);
+                onDelete: ReferentialAction.SetNull
+            );
 
             migrationBuilder.AddForeignKey(
                 name: "FK_Tips_Users_EmployeeId",
@@ -177,7 +191,8 @@ namespace PointOfSale.DataAccess.Shared.Migrations
                 column: "EmployeeId",
                 principalTable: "Users",
                 principalColumn: "Id",
-                onDelete: ReferentialAction.Cascade);
+                onDelete: ReferentialAction.Cascade
+            );
 
             migrationBuilder.AddForeignKey(
                 name: "FK_Tips_Users_ModifiedById",
@@ -186,7 +201,8 @@ namespace PointOfSale.DataAccess.Shared.Migrations
                 column: "ModifiedById",
                 principalTable: "Users",
                 principalColumn: "Id",
-                onDelete: ReferentialAction.SetNull);
+                onDelete: ReferentialAction.SetNull
+            );
         }
 
         /// <inheritdoc />
@@ -195,92 +211,66 @@ namespace PointOfSale.DataAccess.Shared.Migrations
             migrationBuilder.DropForeignKey(
                 name: "FK_GiftCards_Businesses_BusinessId",
                 schema: "Payment",
-                table: "GiftCards");
+                table: "GiftCards"
+            );
 
             migrationBuilder.DropForeignKey(
                 name: "FK_GiftCards_Users_CreatedById",
                 schema: "Payment",
-                table: "GiftCards");
+                table: "GiftCards"
+            );
 
             migrationBuilder.DropForeignKey(
                 name: "FK_GiftCards_Users_ModifiedById",
                 schema: "Payment",
-                table: "GiftCards");
+                table: "GiftCards"
+            );
 
             migrationBuilder.DropForeignKey(
                 name: "FK_OrderPayments_Businesses_BusinessId",
                 schema: "Payment",
-                table: "OrderPayments");
+                table: "OrderPayments"
+            );
 
             migrationBuilder.DropForeignKey(
                 name: "FK_OrderPayments_Users_CreatedById",
                 schema: "Payment",
-                table: "OrderPayments");
+                table: "OrderPayments"
+            );
 
             migrationBuilder.DropForeignKey(
                 name: "FK_OrderPayments_Users_EmployeeId",
                 schema: "Payment",
-                table: "OrderPayments");
+                table: "OrderPayments"
+            );
 
             migrationBuilder.DropForeignKey(
                 name: "FK_OrderPayments_Users_ModifiedById",
                 schema: "Payment",
-                table: "OrderPayments");
+                table: "OrderPayments"
+            );
 
-            migrationBuilder.DropForeignKey(
-                name: "FK_Tips_Users_CreatedById",
-                schema: "Payment",
-                table: "Tips");
+            migrationBuilder.DropForeignKey(name: "FK_Tips_Users_CreatedById", schema: "Payment", table: "Tips");
 
-            migrationBuilder.DropForeignKey(
-                name: "FK_Tips_Users_EmployeeId",
-                schema: "Payment",
-                table: "Tips");
+            migrationBuilder.DropForeignKey(name: "FK_Tips_Users_EmployeeId", schema: "Payment", table: "Tips");
 
-            migrationBuilder.DropForeignKey(
-                name: "FK_Tips_Users_ModifiedById",
-                schema: "Payment",
-                table: "Tips");
+            migrationBuilder.DropForeignKey(name: "FK_Tips_Users_ModifiedById", schema: "Payment", table: "Tips");
 
-            migrationBuilder.DropIndex(
-                name: "IX_Tips_EmployeeId",
-                schema: "Payment",
-                table: "Tips");
+            migrationBuilder.DropIndex(name: "IX_Tips_EmployeeId", schema: "Payment", table: "Tips");
 
-            migrationBuilder.DropIndex(
-                name: "IX_OrderPayments_BusinessId",
-                schema: "Payment",
-                table: "OrderPayments");
+            migrationBuilder.DropIndex(name: "IX_OrderPayments_BusinessId", schema: "Payment", table: "OrderPayments");
 
-            migrationBuilder.DropIndex(
-                name: "IX_OrderPayments_EmployeeId",
-                schema: "Payment",
-                table: "OrderPayments");
+            migrationBuilder.DropIndex(name: "IX_OrderPayments_EmployeeId", schema: "Payment", table: "OrderPayments");
 
-            migrationBuilder.DropIndex(
-                name: "IX_GiftCards_BusinessId",
-                schema: "Payment",
-                table: "GiftCards");
+            migrationBuilder.DropIndex(name: "IX_GiftCards_BusinessId", schema: "Payment", table: "GiftCards");
 
-            migrationBuilder.DropColumn(
-                name: "EmployeeId",
-                schema: "Payment",
-                table: "Tips");
+            migrationBuilder.DropColumn(name: "EmployeeId", schema: "Payment", table: "Tips");
 
-            migrationBuilder.DropColumn(
-                name: "BusinessId",
-                schema: "Payment",
-                table: "OrderPayments");
+            migrationBuilder.DropColumn(name: "BusinessId", schema: "Payment", table: "OrderPayments");
 
-            migrationBuilder.DropColumn(
-                name: "EmployeeId",
-                schema: "Payment",
-                table: "OrderPayments");
+            migrationBuilder.DropColumn(name: "EmployeeId", schema: "Payment", table: "OrderPayments");
 
-            migrationBuilder.DropColumn(
-                name: "BusinessId",
-                schema: "Payment",
-                table: "GiftCards");
+            migrationBuilder.DropColumn(name: "BusinessId", schema: "Payment", table: "GiftCards");
 
             migrationBuilder.AddForeignKey(
                 name: "FK_GiftCards_Users_CreatedById",
@@ -288,7 +278,8 @@ namespace PointOfSale.DataAccess.Shared.Migrations
                 table: "GiftCards",
                 column: "CreatedById",
                 principalTable: "Users",
-                principalColumn: "Id");
+                principalColumn: "Id"
+            );
 
             migrationBuilder.AddForeignKey(
                 name: "FK_GiftCards_Users_ModifiedById",
@@ -296,7 +287,8 @@ namespace PointOfSale.DataAccess.Shared.Migrations
                 table: "GiftCards",
                 column: "ModifiedById",
                 principalTable: "Users",
-                principalColumn: "Id");
+                principalColumn: "Id"
+            );
 
             migrationBuilder.AddForeignKey(
                 name: "FK_OrderPayments_Users_CreatedById",
@@ -304,7 +296,8 @@ namespace PointOfSale.DataAccess.Shared.Migrations
                 table: "OrderPayments",
                 column: "CreatedById",
                 principalTable: "Users",
-                principalColumn: "Id");
+                principalColumn: "Id"
+            );
 
             migrationBuilder.AddForeignKey(
                 name: "FK_OrderPayments_Users_ModifiedById",
@@ -312,7 +305,8 @@ namespace PointOfSale.DataAccess.Shared.Migrations
                 table: "OrderPayments",
                 column: "ModifiedById",
                 principalTable: "Users",
-                principalColumn: "Id");
+                principalColumn: "Id"
+            );
 
             migrationBuilder.AddForeignKey(
                 name: "FK_Tips_Users_CreatedById",
@@ -320,7 +314,8 @@ namespace PointOfSale.DataAccess.Shared.Migrations
                 table: "Tips",
                 column: "CreatedById",
                 principalTable: "Users",
-                principalColumn: "Id");
+                principalColumn: "Id"
+            );
 
             migrationBuilder.AddForeignKey(
                 name: "FK_Tips_Users_ModifiedById",
@@ -328,7 +323,8 @@ namespace PointOfSale.DataAccess.Shared.Migrations
                 table: "Tips",
                 column: "ModifiedById",
                 principalTable: "Users",
-                principalColumn: "Id");
+                principalColumn: "Id"
+            );
         }
     }
 }

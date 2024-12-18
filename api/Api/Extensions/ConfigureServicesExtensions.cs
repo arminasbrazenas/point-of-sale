@@ -1,7 +1,11 @@
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Amazon;
+using Amazon.Runtime;
+using Amazon.SimpleNotificationService;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -106,6 +110,20 @@ public static class ConfigureServicesExtensions
         services.AddScoped<IServiceService, ServiceService>();
         services.AddScoped<IReservationService, ReservationService>();
 
+        services.AddSingleton<ISmsMessageService, AwsSnsService>(_ =>
+        {
+            var awsCredentials = new BasicAWSCredentials(
+                Environment.GetEnvironmentVariable("AWS_SNS_ACCESS_KEY"),
+                Environment.GetEnvironmentVariable("AWS_SNS_SECRET_ACCESS_KEY")
+            );
+            var snsConfig = new AmazonSimpleNotificationServiceConfig { RegionEndpoint = RegionEndpoint.EUCentral1 };
+
+            var snsClient = new AmazonSimpleNotificationServiceClient(awsCredentials, snsConfig);
+            return new AwsSnsService(snsClient);
+        });
+
+        services.AddHostedService<ReservationNotificationsBackgroundService>();
+
         return services;
     }
 
@@ -127,6 +145,7 @@ public static class ConfigureServicesExtensions
         StripeConfiguration.ApiKey = Environment.GetEnvironmentVariable("STRIPE_SECRET_KEY");
         services.AddScoped<IStripeService, StripeService>();
         services.AddHostedService<PaymentBackgroundService>();
+        services.AddHostedService<RefundsBackgroundService>();
 
         return services;
     }

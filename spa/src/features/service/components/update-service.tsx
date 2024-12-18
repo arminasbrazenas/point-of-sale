@@ -1,4 +1,4 @@
-import { Button, Group, Modal, NumberInput, Stack, TextInput, Text, Paper } from '@mantine/core';
+import { Button, Group, Modal, NumberInput, Stack, TextInput, Text, Paper, MultiSelect } from '@mantine/core';
 import { useNavigate } from 'react-router-dom';
 import { paths } from '@/config/paths';
 import { useForm, zodResolver } from '@mantine/form';
@@ -9,9 +9,12 @@ import { useService } from '../api/get-service';
 import { UpdateServiceInput, useUpdateService } from '../api/update-service';
 import { useDeleteService } from '../api/delete-service';
 import { CreateServiceInput, createServiceInputSchema } from '../api/create-service';
+import { useEmployees } from '@/features/employee/api/get-employees';
+import { isSameNumberSet } from '@/utilities';
 
 export const UpdateService = ({ serviceId }: { serviceId: number }) => {
   const serviceQuery = useService({ serviceId });
+  const employeesQuery = useEmployees({ paginationFilter: { page: 1, itemsPerPage: 50 } });
   const navigate = useNavigate();
   const [updatedServiceProperties, setUpdatedServiceProperties] = useState<UpdateServiceInput>({});
   const [isDeleteModelOpen, { open: openDeleteModal, close: closeDeleteModal }] = useDisclosure(false);
@@ -48,6 +51,7 @@ export const UpdateService = ({ serviceId }: { serviceId: number }) => {
       name: '',
       price: 0,
       durationInMinutes: 0,
+      providedByEmployeesWithId: [],
     },
     validate: zodResolver(createServiceInputSchema),
     onValuesChange: (updatedService) => {
@@ -62,6 +66,12 @@ export const UpdateService = ({ serviceId }: { serviceId: number }) => {
         price: service.price === updatedService.price ? undefined : updatedService.price,
         durationInMinutes:
           service.durationInMinutes === updatedService.durationInMinutes ? undefined : updatedService.durationInMinutes,
+        providedByEmployeesWithId: isSameNumberSet(
+          updatedService.providedByEmployeesWithId,
+          service.providedByEmployees.map((s) => s.id),
+        )
+          ? undefined
+          : updatedService.providedByEmployeesWithId,
       });
     },
   });
@@ -75,6 +85,10 @@ export const UpdateService = ({ serviceId }: { serviceId: number }) => {
     form.setFieldValue('name', service.name);
     form.setFieldValue('price', service.price);
     form.setFieldValue('durationInMinutes', service.durationInMinutes);
+    form.setFieldValue(
+      'providedByEmployeesWithId',
+      service.providedByEmployees.map((e) => e.id),
+    );
   }, [serviceQuery.data]);
 
   const isAnyServicePropertyChanged = useMemo(
@@ -82,12 +96,13 @@ export const UpdateService = ({ serviceId }: { serviceId: number }) => {
     [updatedServiceProperties],
   );
 
-  if (serviceQuery.isLoading) {
+  if (serviceQuery.isLoading || employeesQuery.isLoading) {
     return <div>loading...</div>;
   }
 
   const service = serviceQuery.data;
-  if (!service) {
+  const employees = employeesQuery.data?.items;
+  if (!service || !employees) {
     return null;
   }
 
@@ -123,6 +138,16 @@ export const UpdateService = ({ serviceId }: { serviceId: number }) => {
             withAsterisk
             key={form.key('durationInMinutes')}
             {...form.getInputProps('durationInMinutes')}
+          />
+          <MultiSelect
+            label="Provided by employees"
+            placeholder="Select employees"
+            data={employees.map((e) => ({ value: e.id.toString(), label: `${e.firstName} ${e.lastName}` }))}
+            value={form.getInputProps('providedByEmployeesWithId').defaultValue.map((id: number) => id.toString())}
+            onChange={(values) => {
+              const ids = values.map((v) => parseInt(v));
+              form.setFieldValue('providedByEmployeesWithId', ids);
+            }}
           />
 
           <Group justify="space-between" mt="xs">

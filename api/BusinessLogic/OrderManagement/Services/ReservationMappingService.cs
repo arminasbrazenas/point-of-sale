@@ -28,6 +28,7 @@ public class ReservationMappingService : IReservationMappingService
             ServiceId = reservation.ServiceId,
             Price = reservation.Price,
             BusinessId = reservation.BusinessId,
+            BookedAt = reservation.CreatedAt,
         };
     }
 

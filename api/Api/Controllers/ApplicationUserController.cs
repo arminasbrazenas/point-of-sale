@@ -22,7 +22,7 @@ public class ApplicationUserController : ControllerBase
         {
             HttpOnly = true,
             Secure = true,
-            SameSite = SameSiteMode.Lax,
+            SameSite = SameSiteMode.None,
             Expires = DateTime.UtcNow.AddMinutes(int.Parse(_configuration["Jwt:CookieExpirationTime"]!)),
         };
     }

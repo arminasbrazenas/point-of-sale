@@ -9,6 +9,7 @@ export const createServiceInputSchema = z.object({
   name: z.string(),
   price: z.coerce.number(),
   durationInMinutes: z.coerce.number(),
+  providedByEmployeesWithId: z.array(z.number()),
 });
 
 export type CreateServiceInput = z.infer<typeof createServiceInputSchema>;

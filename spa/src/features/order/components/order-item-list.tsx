@@ -3,7 +3,7 @@ import { EnhancedCreateOrderItemInput } from './order-product';
 import { OrderItem } from './order-item';
 import { formatDate, toReadablePricingStrategy, toReadablePricingStrategyAmount } from '@/utilities';
 import { useState } from 'react';
-import { DiscountTarget, DiscountType, PricingStrategy, Reservation, ServiceCharge } from '@/types/api';
+import { DiscountType, PricingStrategy, Reservation, ServiceCharge } from '@/types/api';
 import { CreateOrUpdateDiscountInput, createOrUpdateOrderDiscountInputSchema } from '../api/create-order';
 import { useForm, zodResolver } from '@mantine/form';
 import { EnhancedOrderDiscount } from './order-item-form';
@@ -22,7 +22,7 @@ export type OrderItemListProps = {
   serviceCharges: ServiceCharge[];
   selectedServiceCharges: string[];
   discounts: CreateOrUpdateDiscountInput[];
-  reservations: Reservation[];
+  reservations?: Reservation[];
   reservation?: Reservation;
 };
 
@@ -71,45 +71,61 @@ export const OrderItemList = (props: OrderItemListProps) => {
     setDiscounts((prev) => prev.filter((d) => d.id != id));
   };
 
+  const formatReservationLabel = (r: Reservation) =>
+    `${r.customer.firstName} ${r.customer.lastName} (${r.description} at ${formatDate(r.date.start)} by ${
+      r.employee.fullName
+    })`;
+
   return (
     <Card withBorder>
-      <Select
-        label="Reservation"
-        data={props.reservations.map((r) => ({
-          label: `${r.customer.firstName} ${r.customer.lastName} (${r.description} at ${formatDate(r.date.start)})`,
-          value: r.id.toString(),
-        }))}
-        value={selectedReservationId ? selectedReservationId.toString() : null}
-        onChange={(value) => {
-          if (!value) {
-            setSelectedReservationId(undefined);
-          } else {
-            setSelectedReservationId(parseInt(value));
-          }
-        }}
-      />
+      {props.reservation && (
+        <>
+          <Text fw={600}>Reservation</Text>
+          <Text mb="sm">{formatReservationLabel(props.reservation)}</Text>
+        </>
+      )}
+
+      {props.reservations && (
+        <Select
+          label="Reservation"
+          data={props.reservations.map((r) => ({
+            label: formatReservationLabel(r),
+            value: r.id.toString(),
+          }))}
+          value={selectedReservationId ? selectedReservationId.toString() : null}
+          onChange={(value) => {
+            if (!value) {
+              setSelectedReservationId(undefined);
+            } else {
+              setSelectedReservationId(parseInt(value));
+            }
+          }}
+          nothingFoundMessage="No active reservations..."
+          mb="sm"
+        />
+      )}
 
       {props.orderItems.length > 0 && (
-        <Text fw={600} mt="md">
-          Order items
-        </Text>
+        <>
+          <Text fw={600}>Order items</Text>
+          <Stack gap="xs" mt="xs" mb="sm">
+            {props.orderItems.map((orderItem, idx) => (
+              <OrderItem
+                update={props.updateOrderItem}
+                remove={props.removeOrderItem}
+                orderItem={orderItem}
+                key={idx}
+                orderItemId={idx + 1}
+              />
+            ))}
+          </Stack>
+        </>
       )}
-      <Stack gap="xs" mt="xs" mb="md">
-        {props.orderItems.map((orderItem, idx) => (
-          <OrderItem
-            update={props.updateOrderItem}
-            remove={props.removeOrderItem}
-            orderItem={orderItem}
-            key={idx}
-            orderItemId={idx + 1}
-          />
-        ))}
-      </Stack>
 
       {props.serviceCharges.length > 0 && (
         <>
           <Text fw={600}>Service charges</Text>
-          <Stack gap="xs" mt="xs">
+          <Stack gap="xs" my="xs">
             {props.serviceCharges.map((c, idx) => (
               <Checkbox
                 label={
@@ -129,26 +145,11 @@ export const OrderItemList = (props: OrderItemListProps) => {
         </>
       )}
 
-      <SimpleGrid cols={2} mt="md">
+      <SimpleGrid cols={2}>
         <Stack gap="xs">
-          <Text fw={600}>Apply discount</Text>
+          <Text fw={600}>Apply order discount</Text>
           <form onSubmit={discountForm.onSubmit(addOrderDiscount)}>
             <Stack gap="xs">
-              <Select
-                label="Target"
-                placeholder="Target"
-                data={[
-                  { value: DiscountTarget.Order, label: 'Order' },
-                  {
-                    value: DiscountTarget.Product,
-                    label: 'Product',
-                  },
-                ]}
-                value={discountForm.getInputProps('target').defaultValue}
-                allowDeselect={false}
-                onChange={(value) => (value ? discountForm.setFieldValue('target', value) : {})}
-                withAsterisk
-              />
               <Select
                 label="Type"
                 placeholder="Type"
@@ -179,7 +180,7 @@ export const OrderItemList = (props: OrderItemListProps) => {
         </Stack>
 
         <Stack gap="xs">
-          <Text fw={600}>Applied discounts</Text>
+          <Text fw={600}>Order discounts</Text>
           <Stack gap="xs">
             {discounts.map((d) => (
               <Paper withBorder px="md" py="xs" key={d.id}>

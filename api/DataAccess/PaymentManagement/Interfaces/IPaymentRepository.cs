@@ -9,4 +9,5 @@ public interface IPaymentRepository : IRepositoryBase<Payment, int>
     Task<List<OnlinePayment>> GetPendingOnlinePayments();
     Task<List<OnlinePayment>> GetPendingOnlinePaymentsOlderThan(TimeSpan olderThan);
     Task<OnlinePayment> GetOnlinePaymentByExternalId(string externalId);
+    Task<List<OnlinePayment>> GetInitiatedOnlineRefunds();
 }

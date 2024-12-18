@@ -50,6 +50,25 @@ public class ReservationRepository : RepositoryBase<Reservation, int>, IReservat
         return await GetPaged(query, paginationFilter);
     }
 
+    public List<int> GetBusyEmployeeIdsByTime(int businessId, DateTimeOffset startDate, DateTimeOffset endDate)
+    {
+        return DbSet.Where(r => r.Date.Start < endDate && r.Date.End > startDate )
+            .Where(r => r.BusinessId == businessId)
+            .Select(e => e.EmployeeId)
+            .ToList();
+    }
+    
+
+    /*public override async Task<int> GetTotalCount(int? businessId = null)
+    {
+        if (businessId.HasValue)
+        {
+            return await DbSet.Where(o => o.BusinessId == businessId).CountAsync();
+        }
+
+        return await base.GetTotalCount(businessId);
+    }*/
+
     protected override IPointOfSaleErrorMessage GetEntityNotFoundErrorMessage(int id)
     {
         return new ReservationNotFoundErrorMessage(id);
@@ -58,5 +77,14 @@ public class ReservationRepository : RepositoryBase<Reservation, int>, IReservat
     public async Task<int> GetTotalCount(int businessId)
     {
         return await DbSet.Where(s => s.BusinessId == businessId).CountAsync();
+    }
+
+    public async Task<List<Reservation>> GetWithUnsentNotifications()
+    {
+        return await DbSet
+            .Where(r => r.Notification.SentAt == null)
+            .Include(r => r.Business)
+            .Include(r => r.Employee)
+            .ToListAsync();
     }
 }

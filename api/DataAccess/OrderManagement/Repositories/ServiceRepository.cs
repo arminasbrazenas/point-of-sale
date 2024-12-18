@@ -51,16 +51,6 @@ public class ServiceRepository : RepositoryBase<Service, int>, IServiceRepositor
         var query = DbSet.OrderBy(s => s.CreatedAt).AsQueryable();
         return await GetPaged(query, paginationFilter);
     }
-    
-    public override async Task<int> GetTotalCount(int? businessId = null)
-    {
-        if (businessId.HasValue)
-        {
-            return await DbSet.Where(s => s.BusinessId == businessId).CountAsync();
-        }
-
-        return await base.GetTotalCount(businessId);
-    }
 
     protected override IPointOfSaleErrorMessage GetEntityNotFoundErrorMessage(int id)
     {

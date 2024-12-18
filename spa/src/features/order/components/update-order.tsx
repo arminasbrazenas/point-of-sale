@@ -1,4 +1,4 @@
-import { Button, List, Paper, SimpleGrid, Stack, Table, Text } from '@mantine/core';
+import { Button, Paper, SimpleGrid, Stack, Table, Text } from '@mantine/core';
 import { useOrder } from '../api/get-order';
 import { useCancelOrder } from '../api/cancel-order';
 import { showNotification } from '@/lib/notifications';
@@ -134,7 +134,8 @@ export const UpdateOrder = ({ orderId }: { orderId: number }) => {
                     <Table.Th>Customer</Table.Th>
                     <Table.Th>Employee</Table.Th>
                     <Table.Th>Price</Table.Th>
-                    <Table.Th>Date</Table.Th>
+                    <Table.Th>Appointment time</Table.Th>
+                    <Table.Th>Booked at</Table.Th>
                   </Table.Tr>
                 </Table.Thead>
                 <Table.Tbody>
@@ -145,7 +146,10 @@ export const UpdateOrder = ({ orderId }: { orderId: number }) => {
                     </Table.Td>
                     <Table.Td>{receipt.reservation.employee.fullName}</Table.Td>
                     <Table.Td>{receipt.reservation.price}€</Table.Td>
-                    <Table.Td>{formatDate(receipt.reservation.date.start)}</Table.Td>
+                    <Table.Td>
+                      {formatDate(receipt.reservation.date.start)} - {formatDate(receipt.reservation.date.end)}
+                    </Table.Td>
+                    <Table.Td>{formatDate(receipt.reservation.bookedAt)}</Table.Td>
                   </Table.Tr>
                 </Table.Tbody>
               </Table>
@@ -167,12 +171,41 @@ export const UpdateOrder = ({ orderId }: { orderId: number }) => {
                 </Table.Thead>
                 <Table.Tbody>
                   {receipt.orderItems.map((x) => (
-                    <Table.Tr key={x.id}>
+                    <Table.Tr key={crypto.randomUUID()}>
                       <Table.Td>{x.quantity}</Table.Td>
-                      <Table.Td>{x.name}</Table.Td>
+                      <Table.Td>
+                        <Stack gap="0">
+                          <Text size="sm">{x.name}</Text>
+                          {x.modifiers.map((m) => (
+                            <Text key={crypto.randomUUID()} size="sm" opacity={0.5}>
+                              + {m.name}
+                            </Text>
+                          ))}
+                        </Stack>
+                      </Table.Td>
                       <Table.Td>{x.unitPrice}€</Table.Td>
-                      <Table.Td>{x.discountsTotal}€</Table.Td>
-                      <Table.Td>{x.taxTotal}€</Table.Td>
+                      <Table.Td>
+                        <Stack gap="0">
+                          <Text size="sm">{x.discountsTotal}€</Text>
+                          {x.discounts.map((d) => (
+                            <Text key={crypto.randomUUID()} size="sm" opacity={0.5}>
+                              {toReadablePricingStrategyAmount(d.amount, d.pricingStrategy)} by {d.appliedBy}
+                            </Text>
+                          ))}
+                        </Stack>
+                      </Table.Td>
+                      <Table.Td>
+                        <Stack gap="0">
+                          <Stack gap="0">
+                            <Text size="sm">{x.taxTotal}€</Text>
+                            {x.taxes.map((t) => (
+                              <Text key={crypto.randomUUID()} size="sm" opacity={0.5}>
+                                {t.name} {t.ratePercentage}% ({t.appliedAmount})
+                              </Text>
+                            ))}
+                          </Stack>
+                        </Stack>
+                      </Table.Td>
                       <Table.Td>{x.totalPrice}€</Table.Td>
                     </Table.Tr>
                   ))}
@@ -186,15 +219,17 @@ export const UpdateOrder = ({ orderId }: { orderId: number }) => {
               <Table>
                 <Table.Thead>
                   <Table.Tr>
-                    <Table.Th>Discount</Table.Th>
+                    <Table.Th>Order discount</Table.Th>
                     <Table.Th>Amount</Table.Th>
+                    <Table.Th>Applied by</Table.Th>
                   </Table.Tr>
                 </Table.Thead>
                 <Table.Tbody>
                   {receipt.discounts.map((d) => (
-                    <Table.Tr>
+                    <Table.Tr key={crypto.randomUUID()}>
                       <Table.Td>{toReadablePricingStrategyAmount(d.amount, d.pricingStrategy)}</Table.Td>
                       <Table.Td>{d.appliedAmount}€</Table.Td>
+                      <Table.Td>{d.appliedBy}</Table.Td>
                     </Table.Tr>
                   ))}
                 </Table.Tbody>
@@ -209,13 +244,17 @@ export const UpdateOrder = ({ orderId }: { orderId: number }) => {
                   <Table.Tr>
                     <Table.Th>Service charge</Table.Th>
                     <Table.Th>Amount</Table.Th>
+                    <Table.Th>Price</Table.Th>
+                    <Table.Th>Applied by</Table.Th>
                   </Table.Tr>
                 </Table.Thead>
                 <Table.Tbody>
                   {receipt.serviceCharges.map((s) => (
-                    <Table.Tr>
+                    <Table.Tr key={crypto.randomUUID()}>
+                      <Table.Td>{s.name}</Table.Td>
                       <Table.Td>{toReadablePricingStrategyAmount(s.amount, s.pricingStrategy)}</Table.Td>
                       <Table.Td>{s.appliedAmount}€</Table.Td>
+                      <Table.Td>{s.appliedBy}</Table.Td>
                     </Table.Tr>
                   ))}
                 </Table.Tbody>

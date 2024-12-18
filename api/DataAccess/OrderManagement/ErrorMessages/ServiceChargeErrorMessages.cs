@@ -35,6 +35,16 @@ public class CustomerLastNameEmptyErrorMessage : IPointOfSaleErrorMessage
     public string En => "The customer's last name cannot be empty.";
 }
 
+public class CustomerPhoneNumberEmptyErrorMessage : IPointOfSaleErrorMessage
+{
+    public string En => "The customer's phone number cannot be empty.";
+}
+
+public class InvalidPhoneNumberErrorMessage : IPointOfSaleErrorMessage
+{
+    public string En => "Phone number is invalid.";
+}
+
 public class CustomerLastNameLengthErrorMessage : IPointOfSaleErrorMessage
 {
     private readonly int _maxLength;

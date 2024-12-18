@@ -1,4 +1,4 @@
-import { Card, Center, Pagination, Paper, Select, SimpleGrid, Stack } from '@mantine/core';
+import { Center, Pagination, SimpleGrid, Stack } from '@mantine/core';
 import { useProducts } from '../../product/api/get-products';
 import { useMemo, useState } from 'react';
 import { EnhancedCreateOrderItemInput, OrderProduct } from './order-product';
@@ -11,11 +11,11 @@ import { useUpdateOrder } from '../api/update-order';
 import { useServiceCharges } from '@/features/service-charge/api/get-service-charges';
 import { DiscountType, Reservation, ReservationStatus } from '@/types/api';
 import { useAppStore } from '@/lib/app-store';
-import { useReservations } from '@/features/reservation/api/get-reservations';
 
 type OrderProductsProps = {
   orderId?: number;
   reservation?: Reservation;
+  activeReservations?: Reservation[];
   orderItems?: EnhancedCreateOrderItemInput[];
   selectedServiceCharges?: string[];
   discounts?: CreateOrUpdateDiscountInput[];
@@ -26,10 +26,7 @@ export const OrderProducts = (props: OrderProductsProps) => {
   const productsQuery = useProducts({ paginationFilter: { page, itemsPerPage: 50 } });
   const [orderItems, setOrderItems] = useState<EnhancedCreateOrderItemInput[]>(props.orderItems ?? []);
   const serviceChargesQuery = useServiceCharges({ paginationFilter: { page: 1, itemsPerPage: 50 } });
-  const activeReservationsQuery = useReservations({
-    paginationFilter: { itemsPerPage: 50, page: 1 },
-    filter: { status: ReservationStatus.Active },
-  });
+
   const navigate = useNavigate();
   const businessId = useAppStore((state) => state.applicationUser?.businessId);
   if (!businessId) {
@@ -118,14 +115,13 @@ export const OrderProducts = (props: OrderProductsProps) => {
     }
   };
 
-  if (productsQuery.isLoading || serviceChargesQuery.isLoading || activeReservationsQuery.isLoading) {
+  if (productsQuery.isLoading || serviceChargesQuery.isLoading) {
     return <div>loading..</div>;
   }
 
   const products = productsQuery.data?.items;
   const serviceCharges = serviceChargesQuery.data?.items;
-  const activeReservations = activeReservationsQuery.data?.items;
-  if (!products || !serviceCharges || !activeReservations) {
+  if (!products || !serviceCharges) {
     return null;
   }
 
@@ -141,7 +137,7 @@ export const OrderProducts = (props: OrderProductsProps) => {
         serviceCharges={serviceCharges}
         selectedServiceCharges={props.selectedServiceCharges ?? []}
         discounts={props.discounts ?? []}
-        reservations={activeReservations}
+        reservations={props.activeReservations}
         reservation={props.reservation}
       />
 

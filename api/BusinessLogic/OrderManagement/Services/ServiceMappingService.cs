@@ -15,7 +15,7 @@ public class ServiceMappingService : IServiceMappingService
         {
             Id = service.Id,
             Name = service.Name,
-            Duration = service.Duration,
+            DurationInMinutes = (int)service.Duration.TotalMinutes,
             Price = service.Price,
             ProvidedByEmployees = service.ProvidedByEmployees.Select(MapToServiceEmployeeDTO).ToList(),
         };

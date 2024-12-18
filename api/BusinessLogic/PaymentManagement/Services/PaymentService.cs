@@ -168,7 +168,7 @@ public class PaymentService : IPaymentService
 
     public async Task CancelPendingOutdatedOnlinePayments()
     {
-        var olderThan = TimeSpan.FromMinutes(5);
+        var olderThan = TimeSpan.FromMinutes(15);
         var outdatedPayments = await _paymentRepository.GetPendingOnlinePaymentsOlderThan(olderThan);
         foreach (var outdatedPayment in outdatedPayments)
         {
@@ -201,7 +201,6 @@ public class PaymentService : IPaymentService
     {
         var order = await _orderService.GetOrderMinimal(addTipDTO.OrderId);
         await _orderManagementAuthorizationService.AuthorizeApplicationUser(order.BusinessId);
-        ValidateOrderIsCompleted(order);
 
         var tip = new Tip
         {
@@ -220,6 +219,52 @@ public class PaymentService : IPaymentService
     {
         var tips = await _tipRepository.GetOrderTips(orderId);
         return _paymentMappingService.MapToTipDTOs(tips);
+    }
+
+    public async Task RefundOrderPayments(RefundOrderPaymentsDTO refundOrderPaymentsDTO)
+    {
+        await _unitOfWork.ExecuteInTransaction(async () =>
+        {
+            var payments = await _paymentRepository.GetOrderPayments(refundOrderPaymentsDTO.OrderId);
+            if (payments.Any(p => p.Method == PaymentMethod.GiftCard))
+            {
+                throw new ValidationException(new CannotRefundGiftCardPaymentErrorMessage());
+            }
+
+            foreach (var payment in payments)
+            {
+                payment.Status = payment.Method switch
+                {
+                    PaymentMethod.Cash => PaymentStatus.Refunded,
+                    PaymentMethod.Online => PaymentStatus.RefundInitiated,
+                    _ => throw new NotImplementedException(
+                        $"Refunding for method '{payment.Method}' is not implemented."
+                    ),
+                };
+            }
+
+            await _orderService.MarkRefunded(refundOrderPaymentsDTO.OrderId);
+            await _unitOfWork.SaveChanges();
+        });
+    }
+
+    public async Task CompletePendingRefunds()
+    {
+        var initiatedRefunds = await _paymentRepository.GetInitiatedOnlineRefunds();
+
+        foreach (var payment in initiatedRefunds)
+        {
+            var completeRefundDTO = new RefundPaymentDTO
+            {
+                Amount = payment.Amount,
+                PaymentIntentId = payment.ExternalId,
+            };
+
+            await _stripeService.RefundPayment(completeRefundDTO);
+
+            payment.Status = PaymentStatus.Refunded;
+            await _unitOfWork.SaveChanges();
+        }
     }
 
     private async Task<OrderPaymentsDTO> GetOrderPayments(OrderDTO order)

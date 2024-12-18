@@ -3,6 +3,7 @@ using PointOfSale.BusinessLogic.OrderManagement.DTOs;
 using PointOfSale.BusinessLogic.OrderManagement.Interfaces;
 using PointOfSale.BusinessLogic.Shared.DTOs;
 using PointOfSale.DataAccess.OrderManagement.Filters;
+using PointOfSale.DataAccess.Shared.Filters;
 
 namespace PointOfSale.Api.Controllers;
 
@@ -19,10 +20,11 @@ public class ReservationsController : ControllerBase
 
     [HttpPost]
     public async Task<ActionResult<ReservationDTO>> CreateReservation(
-        [FromBody] CreateReservationDTO createReservationDto
+        [FromBody] CreateReservationDTO createReservationDto,
+        [FromQuery] PaginationFilter paginationFilter
     )
     {
-        var reservation = await _reservationService.CreateReservation(createReservationDto);
+        var reservation = await _reservationService.CreateReservation(createReservationDto, paginationFilter);
         return Ok(reservation);
     }
 
@@ -30,10 +32,11 @@ public class ReservationsController : ControllerBase
     [Route("{reservationId:int}")]
     public async Task<ActionResult<ReservationDTO>> UpdateReservation(
         [FromRoute] int reservationId,
-        [FromBody] UpdateReservationDTO updateReservationDto
+        [FromBody] UpdateReservationDTO updateReservationDto,
+        [FromQuery] PaginationFilter paginationFilter
     )
     {
-        var reservation = await _reservationService.UpdateReservation(reservationId, updateReservationDto);
+        var reservation = await _reservationService.UpdateReservation(reservationId, updateReservationDto, paginationFilter);
         return Ok(reservation);
     }
 

@@ -1,8 +1,10 @@
 using PointOfSale.BusinessLogic.OrderManagement.DTOs;
 using PointOfSale.BusinessLogic.OrderManagement.Interfaces;
+using PointOfSale.BusinessLogic.OrderManagement.Utilities;
 using PointOfSale.BusinessLogic.Shared.DTOs;
 using PointOfSale.DataAccess.Shared.Filters;
 using PointOfSale.Models.OrderManagement.Entities;
+using PointOfSale.Models.OrderManagement.Enums;
 
 namespace PointOfSale.BusinessLogic.OrderManagement.Services;
 
@@ -109,6 +111,7 @@ public class OrderMappingService : IOrderMappingService
             TotalPrice = totalPrice,
             Modifiers = orderItem.Modifiers.Select(MapToOrderItemModifierDTO).ToList(),
             Discounts = orderItem.Discounts.Select(MapToOrderDiscountDTO).ToList(),
+            Taxes = orderItem.Taxes.Select(MapToOrderItemTaxDTO).ToList(),
         };
     }
 
@@ -130,6 +133,7 @@ public class OrderMappingService : IOrderMappingService
             Amount = serviceCharge.Amount,
             PricingStrategy = serviceCharge.PricingStrategy,
             AppliedAmount = serviceCharge.AppliedAmount,
+            AppliedBy = $"{serviceCharge.ModifiedBy.FirstName} {serviceCharge.ModifiedBy.LastName}",
         };
     }
 
@@ -142,6 +146,10 @@ public class OrderMappingService : IOrderMappingService
             PricingStrategy = orderDiscount.PricingStrategy,
             AppliedAmount = orderDiscount.AppliedAmount,
             Type = orderDiscount.Type,
+            AppliedBy =
+                orderDiscount.Type == OrderDiscountType.Predefined
+                    ? "System"
+                    : $"{orderDiscount.ModifiedBy.FirstName} {orderDiscount.ModifiedBy.LastName}",
         };
     }
 
@@ -154,6 +162,20 @@ public class OrderMappingService : IOrderMappingService
             PricingStrategy = orderItemDiscount.PricingStrategy,
             AppliedAmount = orderItemDiscount.AppliedAmount,
             Type = orderItemDiscount.Type,
+            AppliedBy =
+                orderItemDiscount.Type == OrderDiscountType.Predefined
+                    ? "System"
+                    : $"{orderItemDiscount.ModifiedBy.FirstName} {orderItemDiscount.ModifiedBy.LastName}",
+        };
+    }
+
+    private static OrderItemTaxDTO MapToOrderItemTaxDTO(OrderItemTax orderItemTax)
+    {
+        return new OrderItemTaxDTO
+        {
+            AppliedAmount = orderItemTax.AppliedAmount,
+            Name = orderItemTax.Name,
+            RatePercentage = (orderItemTax.Rate * 100m).ToRoundedPrice(),
         };
     }
 }

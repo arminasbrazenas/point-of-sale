@@ -14,4 +14,6 @@ public interface IReservationRepository : IRepositoryBase<Reservation, int>
         ReservationFilter? filter = null
     );
     Task<int> GetTotalCount(int businessId);
+    List<int> GetBusyEmployeeIdsByTime(int businessId, DateTimeOffset startDate, DateTimeOffset endDate);
+    Task<List<Reservation>> GetWithUnsentNotifications();
 }
