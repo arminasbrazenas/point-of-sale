@@ -14,4 +14,5 @@ public interface IOrderService
     Task<OrderReceiptDTO> GetOrderReceipt(int orderId);
     Task CompleteOrder(int orderId);
     Task CloseOrder(int orderId);
+    Task MarkRefunded(int orderId);
 }

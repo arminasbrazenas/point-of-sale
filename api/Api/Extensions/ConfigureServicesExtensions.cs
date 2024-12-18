@@ -127,6 +127,7 @@ public static class ConfigureServicesExtensions
         StripeConfiguration.ApiKey = Environment.GetEnvironmentVariable("STRIPE_SECRET_KEY");
         services.AddScoped<IStripeService, StripeService>();
         services.AddHostedService<PaymentBackgroundService>();
+        services.AddHostedService<RefundsBackgroundService>();
 
         return services;
     }

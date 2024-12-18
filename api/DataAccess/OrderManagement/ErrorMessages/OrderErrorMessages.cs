@@ -24,6 +24,11 @@ public class CannotCompleteNonOpenOrderErrorMessage : IPointOfSaleErrorMessage
     public string En => "Non-open order cannot be completed.";
 }
 
+public class NonClosedOrderCannotBeRefundedErrorMessage : IPointOfSaleErrorMessage
+{
+    public string En => "Non-closed order cannot be refunded.";
+}
+
 public class CannotCloseNonCompletedOrderErrorMessage : IPointOfSaleErrorMessage
 {
     public string En => "Non-completed order cannot be closed.";

@@ -141,7 +141,7 @@ export const OrderPayments = (props: OrderPaymentsProps) => {
     initialValues: {
       orderId: props.orderId,
       tipAmount: 0,
-      employeeId: userId
+      employeeId: userId,
     },
     validate: zodResolver(addTipInputSchema),
   });
@@ -330,7 +330,7 @@ export const OrderPayments = (props: OrderPaymentsProps) => {
         </List>
 
         <Button fullWidth mt="xs" onClick={openTipModal}>
-          Add tip
+          Add cash tip
         </Button>
 
         <Divider my="md" />

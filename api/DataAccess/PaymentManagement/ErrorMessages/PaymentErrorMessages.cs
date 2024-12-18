@@ -17,6 +17,16 @@ public class CannotPayForNonCompletedOrderErrorMessage : IPointOfSaleErrorMessag
     public string En => "Cannot pay for order which is not completed.";
 }
 
+public class CannotRefundNonClosedOrderErrorMessage : IPointOfSaleErrorMessage
+{
+    public string En => "Cannot refund order which is not closed.";
+}
+
+public class CannotRefundGiftCardPaymentErrorMessage : IPointOfSaleErrorMessage
+{
+    public string En => "Cannot refund gift card payment.";
+}
+
 public class OrderIsNotFullyPaidErrorMessage : IPointOfSaleErrorMessage
 {
     public string En => "Order is not fully paid.";
