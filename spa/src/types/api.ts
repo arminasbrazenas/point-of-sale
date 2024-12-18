@@ -204,6 +204,10 @@ export type Business = {
   address: string;
   email: string;
   phoneNumber: string;
+  startHour: number;
+  startMinute: number;
+  endHour: number;
+  endMinute: number;
 };
 
 export type ServiceEmployee = {

@@ -16,11 +16,11 @@ export const UpdateEmployee = ({ employeeId }: { employeeId: number }) => {
         employeeId
     });
     const navigate = useNavigate();
-    const [updatedEmployeeProperties, setUpdatedEmployeeProperties] = useState<UpdateEmployeeInput>({});
+    const [updatedEmployeeProperties, setUpdatedEmployeeProperties] = useState<Partial<UpdateEmployeeInput>>({});
     const [isDeleteModelOpen, { open: openDeleteModal, close: closeDeleteModal }] = useDisclosure(false);
     const userId = useAppStore((state) => state.applicationUser?.id);
     const resetApplicationUser = useAppStore((state) => state.resetApplicationUser);
-    
+
     const deleteEmployeeMutation = useDeleteEmployee({
         mutationConfig: {
             onSuccess: () => {
@@ -85,6 +85,7 @@ export const UpdateEmployee = ({ employeeId }: { employeeId: number }) => {
                 phoneNumber: employee.phoneNumber === updatedEmployee.phoneNumber?.trim()
                     ? undefined
                     : updatedEmployee.phoneNumber?.trim() || '',
+                password: updatedEmployee.password?.trim() || '',
             });
 
         },
@@ -95,10 +96,12 @@ export const UpdateEmployee = ({ employeeId }: { employeeId: number }) => {
             return;
         }
 
-        form.setFieldValue('firstName', employeeQuery.data.firstName);
-        form.setFieldValue('lastName', employeeQuery.data.lastName);
-        form.setFieldValue('email', employeeQuery.data.email);
-        form.setFieldValue('phoneNumber', employeeQuery.data.phoneNumber);
+        const { firstName, lastName, email, phoneNumber } = employeeQuery.data;
+
+        form.setFieldValue('firstName', firstName);
+        form.setFieldValue('lastName', lastName);
+        form.setFieldValue('email', email);
+        form.setFieldValue('phoneNumber', phoneNumber);
     }, [employeeQuery.data]);
 
     if (employeeQuery.isLoading) {

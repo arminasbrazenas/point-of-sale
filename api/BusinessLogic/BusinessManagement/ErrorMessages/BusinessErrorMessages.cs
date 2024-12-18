@@ -42,3 +42,8 @@ public class ApplicationUserCannotOwnMultipleBusinessesErrorMessage : IPointOfSa
 
     public string En => $"Business owner with {_id} cannot own multiple businesses.";
 }
+
+public class InvalidWorkingHoursErrorMessage : IPointOfSaleErrorMessage
+{
+    public string En => $"Provided working hours are invalid.";
+}
