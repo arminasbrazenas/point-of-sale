@@ -37,7 +37,6 @@ public class DiscountService : IDiscountService
     public async Task<DiscountDTO> CreateDiscount(CreateDiscountDTO createDiscountDTO)
     {
         await _orderManagementAuthorizationService.AuthorizeApplicationUser(createDiscountDTO.BusinessId);
-        var products = await _productRepository.GetMany(createDiscountDTO.AppliesToProductIds);
 
         switch (createDiscountDTO)
         {
@@ -47,21 +46,21 @@ public class DiscountService : IDiscountService
                 throw new ValidationException(new EverythingDiscountCannotBeAppliedToProductsErrorMessage());
         }
 
+        List<Product> appliesToProducts = [];
         if (createDiscountDTO.AppliesToProductIds is not null)
         {
-            products = await _productRepository.GetMany(createDiscountDTO.AppliesToProductIds);
-        }
-
-        foreach (Product product in products)
-        {
-            await _orderManagementAuthorizationService.AuthorizeApplicationUser(product.BusinessId);
+            appliesToProducts = await _productRepository.GetMany(createDiscountDTO.AppliesToProductIds);
+            foreach (var product in appliesToProducts)
+            {
+                await _orderManagementAuthorizationService.AuthorizeApplicationUser(product.BusinessId);
+            }
         }
 
         var discount = new Discount
         {
             Amount = createDiscountDTO.Amount,
             PricingStrategy = createDiscountDTO.PricingStrategy,
-            AppliesTo = products,
+            AppliesTo = appliesToProducts,
             ValidUntil = createDiscountDTO.ValidUntil,
             BusinessId = createDiscountDTO.BusinessId,
             Target = createDiscountDTO.Target,

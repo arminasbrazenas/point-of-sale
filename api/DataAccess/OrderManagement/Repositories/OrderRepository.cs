@@ -27,13 +27,16 @@ public class OrderRepository : RepositoryBase<Order, int>, IOrderRepository
             .Include(o => o.Reservation)
             .ThenInclude(o => o.Employee)
             .Include(o => o.ServiceCharges)
+            .ThenInclude(c => c.ModifiedBy)
             .Include(o => o.Discounts)
+            .ThenInclude(d => d.ModifiedBy)
             .Include(o => o.Items)
             .ThenInclude(i => i.Modifiers)
             .Include(o => o.Items)
             .ThenInclude(i => i.Taxes)
             .Include(o => o.Items)
             .ThenInclude(i => i.Discounts)
+            .ThenInclude(d => d.ModifiedBy)
             .FirstOrDefaultAsync();
 
         return order ?? throw new EntityNotFoundException(GetEntityNotFoundErrorMessage(orderId));

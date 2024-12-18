@@ -88,6 +88,7 @@ export type OrderDiscount = Entity<{
   pricingStrategy: PricingStrategy;
   appliedAmount: number;
   type: DiscountType;
+  appliedBy: string;
 }>;
 
 export type OrderItem = Entity<{
@@ -100,13 +101,21 @@ export type OrderItem = Entity<{
   discounts: OrderDiscount[];
   discountsTotal: number;
   taxTotal: number;
+  taxes: OrderItemTax[];
 }>;
+
+export type OrderItemTax = {
+  name: string;
+  appliedAmount: number;
+  ratePercentage: number;
+};
 
 export type OrderServiceCharge = Entity<{
   name: string;
   amount: number;
   pricingStrategy: PricingStrategy;
   appliedAmount: number;
+  appliedBy: string;
 }>;
 
 export type Order = Entity<{
@@ -228,4 +237,5 @@ export type Reservation = Entity<{
   employee: ServiceEmployee;
   serviceId: number;
   price: number;
+  bookedAt: string;
 }>;
