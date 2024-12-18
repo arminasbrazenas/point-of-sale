@@ -20,8 +20,6 @@ public class GiftCardConfiguration : EntityBaseConfiguration<GiftCard, int>
             .HasPrecision(SharedConstants.MoneyPrecision, SharedConstants.MoneyScale)
             .IsRequired();
 
-        builder.HasIndex(g => g.Code).IsUnique();
-
         builder.HasOne(o => o.Business).WithMany().HasForeignKey(o => o.BusinessId).IsRequired();
 
         builder.ToTable("GiftCards", Constants.SchemaName);

@@ -10,6 +10,6 @@ public interface IGiftCardService
     Task<PagedResponseDTO<GiftCardDTO>> GetGiftCards(int businessId, PaginationFilterDTO paginationFilterDTO);
     Task<GiftCardDTO> UpdateGiftCard(int giftCardId, UpdateGiftCardDTO updateGiftCardDTO);
     Task DeleteGiftCard(int giftCardId);
-    Task<GiftCardDTO> GetUsableGiftCardByCode(string code);
+    Task<GiftCardDTO> GetUsableGiftCardByCode(string code, int businessId);
     Task MarkGiftCardAsUsed(int giftCardId);
 }

@@ -15,20 +15,19 @@ public class TaxValidationService : ITaxValidationService
         _taxRepository = taxRepository;
     }
 
-    public async Task<string> ValidateName(string name)
+    public async Task<string> ValidateName(string name, int businessId)
     {
         if (string.IsNullOrWhiteSpace(name))
         {
             throw new ValidationException(new TaxNameEmptyErrorMessage());
         }
 
-        name = name.Trim();
         if (name.Length > Constants.TaxNameMaxLength)
         {
             throw new ValidationException(new TaxNameTooLongErrorMessage(Constants.TaxNameMaxLength));
         }
 
-        var existingTax = await _taxRepository.GetByNameOptional(name);
+        var existingTax = await _taxRepository.GetByNameOptional(name, businessId);
         if (existingTax is not null)
         {
             throw new ValidationException(new TaxNameConflictErrorMessage(name));

@@ -15,29 +15,38 @@ public class ModifierService : IModifierService
     private readonly IModifierRepository _modifierRepository;
     private readonly IModifierMappingService _modifierMappingService;
     private readonly IOrderManagementAuthorizationService _orderManagementAuthorizationService;
+    private readonly IModifierValidationService _modifierValidationService;
 
     public ModifierService(
         IUnitOfWork unitOfWork,
         IModifierRepository modifierRepository,
         IModifierMappingService modifierMappingService,
-        IOrderManagementAuthorizationService orderManagementAuthorizationService
+        IOrderManagementAuthorizationService orderManagementAuthorizationService,
+        IModifierValidationService modifierValidationService
     )
     {
         _unitOfWork = unitOfWork;
         _modifierRepository = modifierRepository;
         _modifierMappingService = modifierMappingService;
         _orderManagementAuthorizationService = orderManagementAuthorizationService;
+        _modifierValidationService = modifierValidationService;
     }
 
     public async Task<ModifierDTO> CreateModifier(CreateModifierDTO createModifierDTO)
     {
         await _orderManagementAuthorizationService.AuthorizeApplicationUser(createModifierDTO.BusinessId);
 
+        var name = await _modifierValidationService.ValidateName(
+            createModifierDTO.Name.Trim(),
+            createModifierDTO.BusinessId
+        );
+        var stock = _modifierValidationService.ValidateStock(createModifierDTO.Stock);
+
         var modifier = new Modifier
         {
-            Name = createModifierDTO.Name,
+            Name = name,
             Price = createModifierDTO.Price.ToRoundedPrice(),
-            Stock = createModifierDTO.Stock,
+            Stock = stock,
             Products = [],
             BusinessId = createModifierDTO.BusinessId,
         };

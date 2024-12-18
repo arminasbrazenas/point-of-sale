@@ -78,11 +78,9 @@ public class PaymentService : IPaymentService
 
         var order = await _orderService.GetOrder(payByGiftCardDTO.OrderId);
 
-        await _orderManagementAuthorizationService.AuthorizeApplicationUser(order.BusinessId);
-
         ValidateOrderIsCompleted(order);
 
-        var giftCard = await _giftCardService.GetUsableGiftCardByCode(payByGiftCardDTO.GiftCardCode);
+        var giftCard = await _giftCardService.GetUsableGiftCardByCode(payByGiftCardDTO.GiftCardCode, order.BusinessId);
         var payment = new GiftCardPayment
         {
             OrderId = payByGiftCardDTO.OrderId,
@@ -107,8 +105,9 @@ public class PaymentService : IPaymentService
     public async Task<PaymentIntentDTO> CreateOnlinePaymentIntent(CreatePaymentIntentDTO createPaymentIntentDTO)
     {
         await _orderManagementAuthorizationService.AuthorizeApplicationUser(createPaymentIntentDTO.BusinessId);
+
         var order = await _orderService.GetOrder(createPaymentIntentDTO.OrderId);
-        await _orderManagementAuthorizationService.AuthorizeApplicationUser(order.BusinessId);
+
         ValidateOrderIsCompleted(order);
         await ValidatePaymentAmount(order, createPaymentIntentDTO.PaymentAmount);
 
@@ -142,7 +141,9 @@ public class PaymentService : IPaymentService
     public async Task ConfirmOnlinePayment(string paymentIntentId)
     {
         var payment = await _paymentRepository.GetOnlinePaymentByExternalId(paymentIntentId);
+
         await _orderManagementAuthorizationService.AuthorizeApplicationUser(payment.BusinessId);
+
         var stripePaymentStatus = await _stripeService.GetPaymentIntentStatus(paymentIntentId);
         if (stripePaymentStatus == PaymentStatus.Succeeded)
         {
@@ -154,6 +155,7 @@ public class PaymentService : IPaymentService
     public async Task ProcessPendingOnlinePayments()
     {
         var pendingPayments = await _paymentRepository.GetPendingOnlinePayments();
+
         foreach (var pendingPayment in pendingPayments)
         {
             var stripePaymentStatus = await _stripeService.GetPaymentIntentStatus(pendingPayment.ExternalId);
@@ -170,6 +172,7 @@ public class PaymentService : IPaymentService
     {
         var olderThan = TimeSpan.FromMinutes(15);
         var outdatedPayments = await _paymentRepository.GetPendingOnlinePaymentsOlderThan(olderThan);
+
         foreach (var outdatedPayment in outdatedPayments)
         {
             await _stripeService.CancelPaymentIntent(outdatedPayment.ExternalId);
@@ -189,7 +192,6 @@ public class PaymentService : IPaymentService
     public async Task CompleteOrderPayments(CompleteOrderPaymentsDTO completeOrderPaymentsDTO)
     {
         var order = await _orderService.GetOrder(completeOrderPaymentsDTO.OrderId);
-        await _orderManagementAuthorizationService.AuthorizeApplicationUser(order.BusinessId);
 
         ValidateOrderIsCompleted(order);
         await ValidateOrderIsFullyPaid(order);
@@ -200,7 +202,6 @@ public class PaymentService : IPaymentService
     public async Task<TipDTO> AddTip(AddTipDTO addTipDTO)
     {
         var order = await _orderService.GetOrderMinimal(addTipDTO.OrderId);
-        await _orderManagementAuthorizationService.AuthorizeApplicationUser(order.BusinessId);
 
         var tip = new Tip
         {

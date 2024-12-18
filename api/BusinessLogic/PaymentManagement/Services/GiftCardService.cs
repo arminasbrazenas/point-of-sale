@@ -19,41 +19,42 @@ public class GiftCardService : IGiftCardService
     private readonly IGiftCardRepository _giftCardRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IGiftCardMappingService _giftCardMappingService;
-    private readonly ICurrentApplicationUserAccessor _currentUserAccessor;
     private readonly IOrderManagementAuthorizationService _orderManagementAuthorizationService;
-    private readonly IBusinessRepository _businessRepository;
+    private readonly IGiftCardValidationService _giftCardValidationService;
 
     public GiftCardService(
         IGiftCardRepository giftCardRepository,
         IUnitOfWork unitOfWork,
         IGiftCardMappingService giftCardMappingService,
-        IBusinessRepository businessRepository,
-        ICurrentApplicationUserAccessor currentUserAccessor,
-        IOrderManagementAuthorizationService orderManagementAuthorizationService
+        IOrderManagementAuthorizationService orderManagementAuthorizationService,
+        IGiftCardValidationService giftCardValidationService
     )
     {
         _giftCardRepository = giftCardRepository;
         _unitOfWork = unitOfWork;
         _giftCardMappingService = giftCardMappingService;
-        _businessRepository = businessRepository;
-        _currentUserAccessor = currentUserAccessor;
         _orderManagementAuthorizationService = orderManagementAuthorizationService;
+        _giftCardValidationService = giftCardValidationService;
     }
 
     public async Task<GiftCardDTO> CreateGiftCard(CreateGiftCardDTO createGiftCardDTO)
     {
         await _orderManagementAuthorizationService.AuthorizeApplicationUser(createGiftCardDTO.BusinessId);
-        await ValidateGiftCardCodeIsUnique(createGiftCardDTO.Code);
 
-        var business = await _businessRepository.Get(createGiftCardDTO.BusinessId);
+        var code = await _giftCardValidationService.ValidateCode(
+            createGiftCardDTO.Code.ToUpper(),
+            createGiftCardDTO.BusinessId
+        );
+        var amount = _giftCardValidationService.ValidateAmount(createGiftCardDTO.Amount.ToRoundedPrice());
+        var expiresAt = _giftCardValidationService.ValidateExpiration(createGiftCardDTO.ExpiresAt);
 
         var giftCard = new GiftCard
         {
-            Code = createGiftCardDTO.Code.ToUpper(),
-            Amount = createGiftCardDTO.Amount.ToRoundedPrice(),
-            ExpiresAt = createGiftCardDTO.ExpiresAt,
+            Code = code,
+            Amount = amount,
+            ExpiresAt = expiresAt,
             UsedAt = null,
-            BusinessId = business.Id,
+            BusinessId = createGiftCardDTO.BusinessId,
         };
 
         _giftCardRepository.Add(giftCard);
@@ -97,18 +98,22 @@ public class GiftCardService : IGiftCardService
 
         if (updateGiftCardDTO.Code is not null)
         {
-            await ValidateGiftCardCodeIsUnique(updateGiftCardDTO.Code);
-            giftCard.Code = updateGiftCardDTO.Code.ToUpper();
+            giftCard.Code = await _giftCardValidationService.ValidateCode(
+                updateGiftCardDTO.Code.ToUpper(),
+                giftCard.BusinessId
+            );
         }
 
         if (updateGiftCardDTO.Amount.HasValue)
         {
-            giftCard.Amount = updateGiftCardDTO.Amount.Value.ToRoundedPrice();
+            giftCard.Amount = _giftCardValidationService.ValidateAmount(
+                updateGiftCardDTO.Amount.Value.ToRoundedPrice()
+            );
         }
 
         if (updateGiftCardDTO.ExpiresAt.HasValue)
         {
-            giftCard.ExpiresAt = updateGiftCardDTO.ExpiresAt.Value;
+            giftCard.ExpiresAt = _giftCardValidationService.ValidateExpiration(updateGiftCardDTO.ExpiresAt.Value);
         }
 
         await _unitOfWork.SaveChanges();
@@ -125,9 +130,9 @@ public class GiftCardService : IGiftCardService
         await _giftCardRepository.Delete(giftCardId);
     }
 
-    public async Task<GiftCardDTO> GetUsableGiftCardByCode(string code)
+    public async Task<GiftCardDTO> GetUsableGiftCardByCode(string code, int businessId)
     {
-        var giftCard = await _giftCardRepository.GetByCode(code);
+        var giftCard = await _giftCardRepository.GetByCode(code.ToUpper(), businessId);
 
         await _orderManagementAuthorizationService.AuthorizeApplicationUser(giftCard.BusinessId);
 
@@ -152,14 +157,5 @@ public class GiftCardService : IGiftCardService
 
         giftCard.UsedAt = DateTimeOffset.UtcNow;
         await _unitOfWork.SaveChanges();
-    }
-
-    private async Task ValidateGiftCardCodeIsUnique(string code)
-    {
-        var isCodeUsed = await _giftCardRepository.IsCodeUsed(code);
-        if (isCodeUsed)
-        {
-            throw new ValidationException(new DuplicateGiftCardCodeErrorMessage(code));
-        }
     }
 }

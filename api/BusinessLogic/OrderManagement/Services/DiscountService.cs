@@ -1,4 +1,5 @@
 using PointOfSale.BusinessLogic.OrderManagement.DTOs;
+using PointOfSale.BusinessLogic.OrderManagement.Extensions;
 using PointOfSale.BusinessLogic.OrderManagement.Interfaces;
 using PointOfSale.BusinessLogic.Shared.DTOs;
 using PointOfSale.BusinessLogic.Shared.Exceptions;
@@ -18,13 +19,15 @@ public class DiscountService : IDiscountService
     private readonly IUnitOfWork _unitOfWork;
     private readonly IDiscountMappingService _discountMappingService;
     private readonly IOrderManagementAuthorizationService _orderManagementAuthorizationService;
+    private readonly IDiscountValidationService _discountValidationService;
 
     public DiscountService(
         IProductRepository productRepository,
         IDiscountRepository discountRepository,
         IUnitOfWork unitOfWork,
         IDiscountMappingService discountMappingService,
-        IOrderManagementAuthorizationService orderManagementAuthorizationService
+        IOrderManagementAuthorizationService orderManagementAuthorizationService,
+        IDiscountValidationService discountValidationService
     )
     {
         _productRepository = productRepository;
@@ -32,18 +35,24 @@ public class DiscountService : IDiscountService
         _unitOfWork = unitOfWork;
         _discountMappingService = discountMappingService;
         _orderManagementAuthorizationService = orderManagementAuthorizationService;
+        _discountValidationService = discountValidationService;
     }
 
     public async Task<DiscountDTO> CreateDiscount(CreateDiscountDTO createDiscountDTO)
     {
         await _orderManagementAuthorizationService.AuthorizeApplicationUser(createDiscountDTO.BusinessId);
 
+        var amount = _discountValidationService.ValidateAmount(
+            createDiscountDTO.Amount.RoundIfFixed(createDiscountDTO.PricingStrategy),
+            createDiscountDTO.PricingStrategy
+        );
+
         switch (createDiscountDTO)
         {
             case { Target: DiscountTarget.Product, AppliesToProductIds: null }:
                 throw new ValidationException(new EntitledDiscountMustHaveProductsErrorMessage());
             case { Target: DiscountTarget.Order, AppliesToProductIds: not null }:
-                throw new ValidationException(new EverythingDiscountCannotBeAppliedToProductsErrorMessage());
+                throw new ValidationException(new OrderDiscountCannotBeAppliedToProductsErrorMessage());
         }
 
         List<Product> appliesToProducts = [];
@@ -58,7 +67,7 @@ public class DiscountService : IDiscountService
 
         var discount = new Discount
         {
-            Amount = createDiscountDTO.Amount,
+            Amount = amount,
             PricingStrategy = createDiscountDTO.PricingStrategy,
             AppliesTo = appliesToProducts,
             ValidUntil = createDiscountDTO.ValidUntil,
@@ -100,7 +109,11 @@ public class DiscountService : IDiscountService
 
         if (updateDiscountDTO.Amount.HasValue)
         {
-            discount.Amount = updateDiscountDTO.Amount.Value;
+            var pricingStrategy = updateDiscountDTO.PricingStrategy ?? discount.PricingStrategy;
+            discount.Amount = _discountValidationService.ValidateAmount(
+                updateDiscountDTO.Amount.Value.RoundIfFixed(pricingStrategy),
+                pricingStrategy
+            );
         }
 
         if (updateDiscountDTO.PricingStrategy.HasValue)
@@ -117,7 +130,7 @@ public class DiscountService : IDiscountService
         {
             if (discount.Target == DiscountTarget.Order)
             {
-                throw new ValidationException(new EverythingDiscountCannotBeAppliedToProductsErrorMessage());
+                throw new ValidationException(new OrderDiscountCannotBeAppliedToProductsErrorMessage());
             }
 
             var products = await _productRepository.GetMany(updateDiscountDTO.AppliesToProductIds);

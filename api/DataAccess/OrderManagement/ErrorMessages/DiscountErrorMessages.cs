@@ -19,7 +19,17 @@ public class EntitledDiscountMustHaveProductsErrorMessage : IPointOfSaleErrorMes
     public string En => "Entitled discount must have products.";
 }
 
-public class EverythingDiscountCannotBeAppliedToProductsErrorMessage : IPointOfSaleErrorMessage
+public class OrderDiscountCannotBeAppliedToProductsErrorMessage : IPointOfSaleErrorMessage
 {
-    public string En => "Everything discount cannot be applied to products.";
+    public string En => "Order discount cannot be applied to products.";
+}
+
+public class DiscountAmountMustBePositiveErrorMessage : IPointOfSaleErrorMessage
+{
+    public string En => "Discount amount must be positive.";
+}
+
+public class DiscountPercentageInvalidErrorMessage : IPointOfSaleErrorMessage
+{
+    public string En => "Discount percentage must be between 0 and 100.";
 }
