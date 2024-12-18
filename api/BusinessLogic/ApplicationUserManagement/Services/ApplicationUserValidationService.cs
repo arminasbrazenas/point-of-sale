@@ -1,3 +1,4 @@
+using System.Text.RegularExpressions;
 using PointOfSale.BusinessLogic.ApplicationUserManagement.DTOs;
 using PointOfSale.BusinessLogic.ApplicationUserManagement.Interfaces;
 using PointOfSale.BusinessLogic.BusinessManagement.Interfaces;
@@ -11,10 +12,12 @@ namespace PointOfSale.BusinessLogic.ApplicationUserManagement.Services;
 public class ApplicationUserValidationService : IApplicationUserValidationService
 {
     private readonly IBusinessService _businessService;
+    private readonly IContactInfoValidationService _contactInfoValidationService;
 
-    public ApplicationUserValidationService(IBusinessService businessService)
+    public ApplicationUserValidationService(IBusinessService businessService, IContactInfoValidationService contactInfoValidationService)
     {
         _businessService = businessService;
+        _contactInfoValidationService = contactInfoValidationService;
     }
 
     public void ValidateApplicationUserRole(string role)
@@ -27,6 +30,8 @@ public class ApplicationUserValidationService : IApplicationUserValidationServic
 
     public async Task ValidateRegisterApplicationUserDTO(RegisterApplicationUserDTO dto)
     {
+        _contactInfoValidationService.ValidateEmail(dto.Email);
+        _contactInfoValidationService.ValidatePhoneNumber(dto.PhoneNumber);
         if (dto.BusinessId is not null && dto.Role == "BusinessOwner")
         {
             throw new ValidationException(

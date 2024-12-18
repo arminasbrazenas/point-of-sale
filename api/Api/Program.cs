@@ -44,8 +44,9 @@ app.UseHttpsRedirection();
 
 app.UseCors();
 
-app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.UseMiddleware<HTTPLoggingMiddleware>();
+app.UseMiddleware<ExceptionHandlingMiddleware>();
+
 
 app.UseAuthentication();
 app.UseAuthorization();

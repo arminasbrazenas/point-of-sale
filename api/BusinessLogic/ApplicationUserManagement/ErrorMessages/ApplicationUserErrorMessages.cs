@@ -69,3 +69,17 @@ public class FailedActionOnApplicationUserErrorMessage : IPointOfSaleErrorMessag
 
     public string En => $"Action on ApplicationUser failed with errors: {_errors}";
 }
+
+public class InvalidEmailErrorMessage : IPointOfSaleErrorMessage
+{
+    public string En => "Invalid email.";
+}
+public class InvalidPhoneNumberErrorMessage : IPointOfSaleErrorMessage
+{
+    public string En => "Invalid phone number.";
+}
+
+public class InvalidRefreshTokenErrorMessage : IPointOfSaleErrorMessage
+{
+    public string En => "Invalid refresh token";
+}

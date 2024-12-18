@@ -4,7 +4,9 @@ using System.Security.Cryptography;
 using System.Text;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using PointOfSale.BusinessLogic.ApplicationUserManagement.Exceptions;
 using PointOfSale.BusinessLogic.ApplicationUserManagement.Interfaces;
+using PointOfSale.DataAccess.ApplicationUserManagement.ErrorMessages;
 using PointOfSale.DataAccess.ApplicationUserManagement.Interfaces;
 using PointOfSale.DataAccess.Shared.Interfaces;
 using PointOfSale.Models.ApplicationUserManagement.Entities;
@@ -74,14 +76,37 @@ public class ApplicationUserTokenService : IApplicationUserTokenService
         return refreshTokenValue;
     }
 
-    public Task<string> RevokeApplicationUserRefreshToken(ApplicationUser user, string role, string refreshToken)
+    public async Task<ApplicationUser> UseApplicationUserRefreshToken(string? refreshToken)
     {
-        throw new NotImplementedException();
+        if (refreshToken is null)
+        {
+         throw new ApplicationUserAuthenticationException(new InvalidRefreshTokenErrorMessage());   
+        }
+        var hashedRefreshToken = HashRefreshToken(refreshToken);
+        var token = await _refreshTokenRepository.GetRefreshTokenByHash(hashedRefreshToken);
+        if (token is null)
+        {
+            throw new ApplicationUserAuthenticationException(new InvalidRefreshTokenErrorMessage());
+        }
+
+        if (token.IsRevoked)
+        {
+            throw new ApplicationUserAuthenticationException(new InvalidRefreshTokenErrorMessage());
+        }
+
+        if (token.ExpiryDate < DateTime.UtcNow)
+        {
+            throw new ApplicationUserAuthenticationException(new InvalidRefreshTokenErrorMessage());
+        }
+
+        await RevokeRefreshToken(token);
+
+        return token.ApplicationUser;
+
     }
 
     private string GenerateRefreshToken()
     {
-        // TODO sign with HMAC512
         var randomNumber = new byte[32];
         using (var rng = RandomNumberGenerator.Create())
         {

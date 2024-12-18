@@ -20,4 +20,5 @@ public interface IApplicationUserService
         UpdateApplicationUserDTO updateApplicationUserDTO
     );
     Task DeleteApplicationUser(int applicationUserId);
+    Task<TokensDTO> RefreshApplicationUserTokens(string? refreshToken);
 }
