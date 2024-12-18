@@ -52,9 +52,7 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-var lifetimeLogger = app.Services.GetRequiredService<ILoggerFactory>()
-    .CreateLogger("ApplicationLifecycle");
-
+var lifetimeLogger = app.Services.GetRequiredService<ILoggerFactory>().CreateLogger("ApplicationLifecycle");
 
 var lifetime = app.Services.GetRequiredService<IHostApplicationLifetime>();
 

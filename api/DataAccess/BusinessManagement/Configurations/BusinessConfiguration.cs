@@ -24,6 +24,8 @@ public class BusinessConfiguration : EntityBaseConfiguration<Business, int>
             .HasForeignKey(u => u.EmployerBusinessId)
             .OnDelete(DeleteBehavior.Cascade);
 
+        builder.OwnsOne(b => b.WorkingHours);
+
         builder.ToTable(TableName, Constants.SchemaName);
     }
 }
