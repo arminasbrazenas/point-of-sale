@@ -1,4 +1,4 @@
-import { Button, List, Paper, SimpleGrid, Stack, Table, Text } from '@mantine/core';
+import { Button, Paper, SimpleGrid, Stack, Table, Text } from '@mantine/core';
 import { useOrder } from '../api/get-order';
 import { useCancelOrder } from '../api/cancel-order';
 import { showNotification } from '@/lib/notifications';
@@ -11,7 +11,6 @@ import { formatDate, toReadablePricingStrategyAmount } from '@/utilities';
 import { useOrderReceipt } from '../api/get-order-receipt';
 import { OrderPayments } from '@/features/payment/components/order-payments';
 import { useCompleteOrder } from '../api/complete-order';
-import { useRefundOrderPayments } from '@/features/payment/api/refund-order-payments';
 
 export const UpdateOrder = ({ orderId }: { orderId: number }) => {
   const [receipt, setReceipt] = useState<OrderReceipt | undefined>(undefined);
@@ -36,17 +35,6 @@ export const UpdateOrder = ({ orderId }: { orderId: number }) => {
         showNotification({
           type: 'success',
           title: 'Order completed successfully.',
-        });
-      },
-    },
-  });
-
-  const refundOrderPaymentsMutation = useRefundOrderPayments({
-    mutationConfig: {
-      onSuccess: () => {
-        showNotification({
-          type: 'success',
-          title: 'Order refunded successfully.',
         });
       },
     },
@@ -109,10 +97,6 @@ export const UpdateOrder = ({ orderId }: { orderId: number }) => {
     receiptQuery.refetch();
   };
 
-  const refundOrder = () => {
-    refundOrderPaymentsMutation.mutate({ data: { orderId } });
-  };
-
   return (
     <Stack>
       <SimpleGrid cols={2}>
@@ -130,9 +114,6 @@ export const UpdateOrder = ({ orderId }: { orderId: number }) => {
             </Button>
             <Button color="red" variant="light" onClick={cancelOrder}>
               Cancel order
-            </Button>
-            <Button color="red" variant="light" onClick={refundOrder}>
-              Refund order
             </Button>
           </Stack>
         </Paper>
