@@ -6,4 +6,5 @@ public record CreateServiceDTO
     public required decimal Price { get; init; }
     public required int DurationInMinutes { get; init; }
     public required int BusinessId { get; init; }
+    public required List<int> ProvidedByEmployeesWithId { get; init; }
 }

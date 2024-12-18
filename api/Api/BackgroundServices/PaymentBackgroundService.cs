@@ -27,7 +27,7 @@ public class PaymentBackgroundService : BackgroundService
             {
                 Console.WriteLine(ex);
             }
-            
+
             await Task.Delay(TimeSpan.FromSeconds(15), stoppingToken);
         }
     }

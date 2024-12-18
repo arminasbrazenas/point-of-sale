@@ -55,9 +55,7 @@ public class PaymentRepository : RepositoryBase<Payment, int>, IPaymentRepositor
     public async Task<List<OnlinePayment>> GetInitiatedOnlineRefunds()
     {
         return await DbSet
-            .Where(p =>
-                p.Method == PaymentMethod.Online && p.Status == PaymentStatus.RefundInitiated
-            )
+            .Where(p => p.Method == PaymentMethod.Online && p.Status == PaymentStatus.RefundInitiated)
             .Select(p => (OnlinePayment)p)
             .ToListAsync();
     }

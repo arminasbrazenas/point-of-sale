@@ -13,4 +13,5 @@ public interface IApplicationUserRepository
         PaginationFilter paginationFilter
     );
     Task<int> GetTotalCountAsync();
+    Task<List<ApplicationUser>> GetManyByIdsAsync(List<int> userIds);
 }

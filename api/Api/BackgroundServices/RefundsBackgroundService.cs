@@ -26,7 +26,7 @@ public class RefundsBackgroundService : BackgroundService
             {
                 Console.WriteLine(ex);
             }
-            
+
             await Task.Delay(TimeSpan.FromSeconds(5), stoppingToken);
         }
     }

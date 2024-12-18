@@ -84,11 +84,10 @@ public class PaymentsController : ControllerBase
         var orderPayments = await _paymentService.GetOrderPayments(orderId);
         return Ok(orderPayments);
     }
-    
+
     [HttpPost]
     [Route("refund")]
-    public async Task<IActionResult> RefundOrderPayments(
-        [FromBody] RefundOrderPaymentsDTO refundOrderPaymentsDTO)
+    public async Task<IActionResult> RefundOrderPayments([FromBody] RefundOrderPaymentsDTO refundOrderPaymentsDTO)
     {
         await _paymentService.RefundOrderPayments(refundOrderPaymentsDTO);
         return Accepted();

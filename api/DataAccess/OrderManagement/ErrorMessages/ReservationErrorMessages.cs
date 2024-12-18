@@ -28,3 +28,13 @@ public class ReservationNotFoundErrorMessage : IPointOfSaleErrorMessage
 
     public string En => $"Reservation with id '{_reservationId}' not found.";
 }
+
+public class ReservationAlreadyInProgressErrorMessage : IPointOfSaleErrorMessage
+{
+    public string En => "Reservation is already in progress.";
+}
+
+public class ReservationIsNotInProgressErrorMessage : IPointOfSaleErrorMessage
+{
+    public string En => "Reservation is not in progress.";
+}
