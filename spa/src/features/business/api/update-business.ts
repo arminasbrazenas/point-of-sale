@@ -6,10 +6,14 @@ import { z } from 'zod';
 import { getBusinessQueryOptions } from '../api/get-business';
 
 export const updateBusinessInputSchema = z.object({
-    name: z.string().optional(),
-    address: z.string().optional(),
-    email: z.string().optional(),
-    phoneNumber: z.string().optional(),
+  name: z.string().optional(),
+  address: z.string().optional(),
+  email: z.string().optional(),
+  phoneNumber: z.string().optional(),
+  startHour: z.number().min(0).max(23).optional(),
+  startMinute: z.number().min(0).max(59).optional(),
+  endMinute: z.number().min(0).max(59).optional(),
+  endHour: z.number().min(0).max(23).optional(),
 });
 
 export type UpdateBusinessInput = z.infer<typeof updateBusinessInputSchema>;
@@ -37,6 +41,9 @@ export const useUpdateBusiness = ({ mutationConfig }: UseUpdateBusinessOptions) 
     onSuccess: (business, ...args) => {
       queryClient.invalidateQueries({
         queryKey: ['businesses'],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['business'],
       });
       queryClient.setQueryData(getBusinessQueryOptions(business.id).queryKey, () => business);
       onSuccess?.(business, ...args);

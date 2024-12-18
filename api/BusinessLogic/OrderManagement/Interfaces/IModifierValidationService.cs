@@ -1,7 +1,7 @@
 namespace PointOfSale.BusinessLogic.OrderManagement.Interfaces;
 
-public interface ITaxValidationService
+public interface IModifierValidationService
 {
     Task<string> ValidateName(string name, int businessId);
-    decimal ValidateRate(decimal rate);
+    int ValidateStock(int stock);
 }

@@ -183,7 +183,6 @@ public class ReservationService : IReservationService
             reservation.Notification = new ReservationNotification { IdempotencyKey = Guid.NewGuid(), SentAt = null };
         }
         
-        
         if (dateOrServiceChanged)
         {
             var business = await _businessRepository.Get(reservation.BusinessId);

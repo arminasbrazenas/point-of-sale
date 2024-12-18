@@ -37,8 +37,11 @@ public class ProductService : IProductService
     {
         await _orderManagementAuthorizationService.AuthorizeApplicationUser(createProductDTO.BusinessId);
 
-        var name = await _productValidationService.ValidateName(createProductDTO.Name);
-        var price = _productValidationService.ValidatePrice(createProductDTO.Price).ToRoundedPrice();
+        var name = await _productValidationService.ValidateName(
+            createProductDTO.Name.Trim(),
+            createProductDTO.BusinessId
+        );
+        var price = _productValidationService.ValidatePrice(createProductDTO.Price.ToRoundedPrice());
         var stock = _productValidationService.ValidateStock(createProductDTO.Stock);
         var taxes = await _productValidationService.ValidateTaxes(createProductDTO.TaxIds);
 
@@ -79,12 +82,15 @@ public class ProductService : IProductService
 
         if (updateProductDTO.Name is not null)
         {
-            product.Name = await _productValidationService.ValidateName(updateProductDTO.Name);
+            product.Name = await _productValidationService.ValidateName(
+                updateProductDTO.Name.Trim(),
+                product.BusinessId
+            );
         }
 
         if (updateProductDTO.Price.HasValue)
         {
-            product.Price = _productValidationService.ValidatePrice(updateProductDTO.Price.Value).ToRoundedPrice();
+            product.Price = _productValidationService.ValidatePrice(updateProductDTO.Price.Value.ToRoundedPrice());
         }
 
         if (updateProductDTO.Stock.HasValue)

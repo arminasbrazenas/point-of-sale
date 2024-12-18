@@ -45,5 +45,35 @@ public class BusinessValidationService : IBusinessValidationService
                 new ApplicationUserCannotOwnMultipleBusinessesErrorMessage(dto.BusinessOwnerId)
             );
         }
+
+        ValidateTime(dto.StartHour, dto.StartMinute, dto.EndHour, dto.EndMinute);
+    }
+
+    public void ValidateTime(int startHour, int startMinute, int endHour, int endMinute)
+    {
+        if (startMinute < 0 || startMinute > 59)
+        {
+            throw new ValidationException(new InvalidWorkingHoursErrorMessage());
+        }
+
+        if (endMinute < 0 || endMinute > 59)
+        {
+            throw new ValidationException(new InvalidWorkingHoursErrorMessage());
+        }
+
+        if (startHour < 0 || startHour > 24)
+        {
+            throw new ValidationException(new InvalidWorkingHoursErrorMessage());
+        }
+
+        if (endHour < 0 || endHour > 23)
+        {
+            throw new ValidationException(new InvalidWorkingHoursErrorMessage());
+        }
+
+        if (startHour * 60 + startMinute > endHour * 60 + endMinute)
+        {
+            throw new ValidationException(new InvalidWorkingHoursErrorMessage());
+        }
     }
 }

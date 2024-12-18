@@ -275,6 +275,8 @@ public class OrderService : IOrderService
     public async Task MarkRefunded(int orderId)
     {
         var order = await _orderRepository.Get(orderId);
+        await _orderAuthorizationService.AuthorizeApplicationUser(order.BusinessId);
+
         if (order.Status != OrderStatus.Closed)
         {
             throw new ValidationException(new NonClosedOrderCannotBeRefundedErrorMessage());
@@ -477,7 +479,7 @@ public class OrderService : IOrderService
     {
         var orderDiscount = orderDiscounts.Sum(d => d.AppliedAmount);
         var price = GetOrderItemsPrice(orderItems, reservation) - orderDiscount;
-
+        
         return serviceCharges
             .OrderBy(c => c.PricingStrategy)
             .Select(c =>

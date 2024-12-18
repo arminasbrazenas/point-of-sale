@@ -35,7 +35,7 @@ public class TaxService : ITaxService
     {
         await _orderManagementAuthorizationService.AuthorizeApplicationUser(createTaxDTO.BusinessId);
 
-        var name = await _taxValidationService.ValidateName(createTaxDTO.Name);
+        var name = await _taxValidationService.ValidateName(createTaxDTO.Name.Trim(), createTaxDTO.BusinessId);
         var rate = _taxValidationService.ValidateRate(createTaxDTO.Rate);
 
         var tax = new Tax
@@ -59,7 +59,7 @@ public class TaxService : ITaxService
 
         if (updateTaxDTO.Name is not null)
         {
-            tax.Name = await _taxValidationService.ValidateName(updateTaxDTO.Name);
+            tax.Name = await _taxValidationService.ValidateName(updateTaxDTO.Name.Trim(), tax.BusinessId);
         }
 
         if (updateTaxDTO.Rate.HasValue)

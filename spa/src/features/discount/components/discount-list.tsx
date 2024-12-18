@@ -33,6 +33,7 @@ export const DiscountList = () => {
         <Table striped stickyHeader highlightOnHover>
           <Table.Thead>
             <Table.Tr>
+              <Table.Th>Target</Table.Th>
               <Table.Th>Type</Table.Th>
               <Table.Th>Amount</Table.Th>
               <Table.Th>Valid until</Table.Th>
@@ -44,6 +45,7 @@ export const DiscountList = () => {
                 key={discount.id}
                 onClick={() => navigate(paths.management.updateDiscount.getHref(discount.id))}
               >
+                <Table.Td>{discount.target}</Table.Td>
                 <Table.Td>{toReadablePricingStrategy(discount.pricingStrategy)}</Table.Td>
                 <Table.Td>{toReadablePricingStrategyAmount(discount.amount, discount.pricingStrategy)}</Table.Td>
                 <Table.Td>{formatDate(discount.validUntil)}</Table.Td>

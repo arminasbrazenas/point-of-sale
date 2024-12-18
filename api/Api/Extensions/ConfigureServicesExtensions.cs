@@ -98,8 +98,11 @@ public static class ConfigureServicesExtensions
 
         services.AddScoped<ITaxValidationService, TaxValidationService>();
         services.AddScoped<IProductValidationService, ProductValidationService>();
+        services.AddScoped<IModifierValidationService, ModifierValidationService>();
+        services.AddScoped<IServiceChargeValidationService, ServiceChargeValidationService>();
         services.AddScoped<IServiceValidationService, ServiceValidationService>();
         services.AddScoped<IReservationValidationService, ReservationValidationService>();
+        services.AddScoped<IDiscountValidationService, DiscountValidationService>();
 
         services.AddScoped<ITaxService, TaxService>();
         services.AddScoped<IProductService, ProductService>();
@@ -135,6 +138,8 @@ public static class ConfigureServicesExtensions
         services.AddScoped<IPaymentRepository, PaymentRepository>();
         services.AddScoped<IGiftCardRepository, GiftCardRepository>();
         services.AddScoped<ITipRepository, TipRepository>();
+
+        services.AddScoped<IGiftCardValidationService, GiftCardValidationService>();
 
         services.AddScoped<IPaymentMappingService, PaymentMappingService>();
         services.AddScoped<IGiftCardMappingService, GiftCardMappingService>();

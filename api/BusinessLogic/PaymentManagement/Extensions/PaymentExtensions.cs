@@ -8,7 +8,7 @@ public static class PaymentExtensions
 {
     public static decimal GetPaidAmount(this List<Payment> payments)
     {
-        return payments.Where(p => p.Status == PaymentStatus.Succeeded).Sum(p => p.Amount);
+        return payments.Where(p => p.Status is PaymentStatus.Succeeded or PaymentStatus.Refunded).Sum(p => p.Amount);
     }
 
     public static decimal GetUnpaidAmount(this List<Payment> payments, OrderDTO orderDTO)

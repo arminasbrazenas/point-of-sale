@@ -14,6 +14,31 @@ public class ServiceChargeNotFoundErrorMessage : IPointOfSaleErrorMessage
     public string En => $"Service charge with id '{_serviceChargeId}' not found.";
 }
 
+public class ServiceChargeNameEmptyErrorMessage : IPointOfSaleErrorMessage
+{
+    public string En => "Service charge name must not be empty.";
+}
+
+public class ServiceChargeNameTooLongErrorMessage : IPointOfSaleErrorMessage
+{
+    public string En => "Service charge name is too long.";
+}
+
+public class ServiceChargeNameConflictErrorMessage : IPointOfSaleErrorMessage
+{
+    public string En => "Service charge with such name already exists.";
+}
+
+public class ServiceChargeAmountNegativeErrorMessage : IPointOfSaleErrorMessage
+{
+    public string En => "Service charge amount cannot be negative.";
+}
+
+public class ServiceChargeInvalidPercentageErrorMessage : IPointOfSaleErrorMessage
+{
+    public string En => "Service charge percentage must be between 0 and 100.";
+}
+
 public class CustomerFirstNameEmptyErrorMessage : IPointOfSaleErrorMessage
 {
     public string En => "The customer's first name cannot be empty";

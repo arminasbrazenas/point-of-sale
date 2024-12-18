@@ -14,17 +14,17 @@ public class GiftCardRepository : RepositoryBase<GiftCard, int>, IGiftCardReposi
     public GiftCardRepository(ApplicationDbContext dbContext)
         : base(dbContext) { }
 
-    public async Task<bool> IsCodeUsed(string code)
+    public async Task<bool> IsCodeUsed(string code, int businessId)
     {
-        return await DbSet.AnyAsync(g => g.Code == code.ToUpper());
+        return await DbSet.AnyAsync(g => g.Code == code && g.BusinessId == businessId);
     }
 
-    public async Task<GiftCard> GetByCode(string code)
+    public async Task<GiftCard> GetByCode(string code, int businessId)
     {
-        var giftCard = await DbSet.FirstOrDefaultAsync(g => g.Code == code.ToUpper());
+        var giftCard = await DbSet.FirstOrDefaultAsync(g => g.Code == code && g.BusinessId == businessId);
         if (giftCard is null)
         {
-            throw new EntityNotFoundException(new GiftCardWithCodeNotFoundErrorMessage(code.ToUpper()));
+            throw new EntityNotFoundException(new GiftCardWithCodeNotFoundErrorMessage(code));
         }
 
         return giftCard;

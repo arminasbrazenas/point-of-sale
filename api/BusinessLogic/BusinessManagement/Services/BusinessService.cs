@@ -110,6 +110,34 @@ public class BusinessService : IBusinessService
             business.TelephoneNumber = updateBusinessDTO.PhoneNumber;
         }
 
+        var startHour = business.WorkingHours.Start.Hour;
+        var startMinute = business.WorkingHours.Start.Minute;
+
+        var endHour = business.WorkingHours.End.Hour;
+        var endMinute = business.WorkingHours.End.Minute;
+
+        if (updateBusinessDTO.StartHour.HasValue)
+        {
+            startHour = updateBusinessDTO.StartHour.Value;
+        }
+
+        if (updateBusinessDTO.StartMinute.HasValue)
+        {
+            startMinute = updateBusinessDTO.StartMinute.Value;
+        }
+
+        if (updateBusinessDTO.EndHour.HasValue)
+        {
+            endHour = updateBusinessDTO.EndHour.Value;
+        }
+
+        if (updateBusinessDTO.EndMinute.HasValue)
+        {
+            endMinute = updateBusinessDTO.EndMinute.Value;
+        }
+
+        _businessValidationService.ValidateTime(startHour, startMinute, endHour, endMinute);
+
         await _unitOfWork.SaveChanges();
 
         return _businessMappingService.MapToBusinessDTO(business);

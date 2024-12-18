@@ -1,4 +1,5 @@
 using PointOfSale.BusinessLogic.OrderManagement.DTOs;
+using PointOfSale.BusinessLogic.OrderManagement.Extensions;
 using PointOfSale.BusinessLogic.OrderManagement.Interfaces;
 using PointOfSale.BusinessLogic.Shared.DTOs;
 using PointOfSale.BusinessLogic.Shared.Factories;
@@ -14,29 +15,41 @@ public class ServiceChargeService : IServiceChargeService
     private readonly IServiceChargeRepository _serviceChargeRepository;
     private readonly IServiceChargeMappingService _serviceChargeMappingService;
     private readonly IOrderManagementAuthorizationService _orderManagementAuthorizationService;
+    private readonly IServiceChargeValidationService _serviceChargeValidationService;
 
     public ServiceChargeService(
         IUnitOfWork unitOfWork,
         IServiceChargeRepository serviceChargeRepository,
         IServiceChargeMappingService serviceChargeMappingService,
-        IOrderManagementAuthorizationService orderManagementAuthorizationService
+        IOrderManagementAuthorizationService orderManagementAuthorizationService,
+        IServiceChargeValidationService serviceChargeValidationService
     )
     {
         _unitOfWork = unitOfWork;
         _serviceChargeRepository = serviceChargeRepository;
         _serviceChargeMappingService = serviceChargeMappingService;
         _orderManagementAuthorizationService = orderManagementAuthorizationService;
+        _serviceChargeValidationService = serviceChargeValidationService;
     }
 
     public async Task<ServiceChargeDTO> CreateServiceCharge(CreateServiceChargeDTO serviceChargeDTO)
     {
         await _orderManagementAuthorizationService.AuthorizeApplicationUser(serviceChargeDTO.BusinessId);
 
+        var name = await _serviceChargeValidationService.ValidateName(
+            serviceChargeDTO.Name.Trim(),
+            serviceChargeDTO.BusinessId
+        );
+        var amount = _serviceChargeValidationService.ValidateAmount(
+            serviceChargeDTO.Amount.RoundIfFixed(serviceChargeDTO.PricingStrategy),
+            serviceChargeDTO.PricingStrategy
+        );
+
         var serviceCharge = new ServiceCharge
         {
-            Name = serviceChargeDTO.Name,
+            Name = name,
             PricingStrategy = serviceChargeDTO.PricingStrategy,
-            Amount = serviceChargeDTO.Amount,
+            Amount = amount,
             BusinessId = serviceChargeDTO.BusinessId,
         };
 
@@ -78,12 +91,19 @@ public class ServiceChargeService : IServiceChargeService
 
         if (updateServiceChargeDTO.Name is not null)
         {
-            serviceCharge.Name = updateServiceChargeDTO.Name;
+            serviceCharge.Name = await _serviceChargeValidationService.ValidateName(
+                updateServiceChargeDTO.Name.Trim(),
+                serviceCharge.BusinessId
+            );
         }
 
         if (updateServiceChargeDTO.Amount.HasValue)
         {
-            serviceCharge.Amount = updateServiceChargeDTO.Amount.Value;
+            var pricingStrategy = updateServiceChargeDTO.PricingStrategy ?? serviceCharge.PricingStrategy;
+            serviceCharge.Amount = _serviceChargeValidationService.ValidateAmount(
+                updateServiceChargeDTO.Amount.Value.RoundIfFixed(pricingStrategy),
+                pricingStrategy
+            );
         }
 
         if (updateServiceChargeDTO.PricingStrategy.HasValue)
