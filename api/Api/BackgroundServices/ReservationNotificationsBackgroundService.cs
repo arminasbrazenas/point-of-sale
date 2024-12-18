@@ -5,10 +5,15 @@ namespace PointOfSale.Api.BackgroundServices;
 public class ReservationNotificationsBackgroundService : BackgroundService
 {
     private readonly IServiceScopeFactory _serviceScopeFactory;
+    private readonly ILogger<ReservationNotificationsBackgroundService> _logger;
 
-    public ReservationNotificationsBackgroundService(IServiceScopeFactory serviceScopeFactory)
+    public ReservationNotificationsBackgroundService(
+        IServiceScopeFactory serviceScopeFactory,
+        ILogger<ReservationNotificationsBackgroundService> logger
+    )
     {
         _serviceScopeFactory = serviceScopeFactory;
+        _logger = logger;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -19,7 +24,7 @@ public class ReservationNotificationsBackgroundService : BackgroundService
         }
         catch (Exception e)
         {
-            Console.WriteLine(e);
+            _logger.LogError(e.Message);
         }
     }
 
@@ -36,7 +41,7 @@ public class ReservationNotificationsBackgroundService : BackgroundService
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
+                _logger.LogError(ex.Message);
             }
 
             await Task.Delay(TimeSpan.FromSeconds(10), stoppingToken);

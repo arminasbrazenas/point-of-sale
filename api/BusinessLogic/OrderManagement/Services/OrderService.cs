@@ -77,25 +77,7 @@ public class OrderService : IOrderService
                 orderDiscounts,
                 reservation
             );
-
-            foreach (var orderItem in orderItems)
-            {
-                if (orderItem.Product is not null)
-                    await _orderAuthorizationService.AuthorizeApplicationUser(orderItem.Product.BusinessId);
-
-                foreach (var orderItemModifier in orderItem.Modifiers)
-                {
-                    var modifier = await _modifierRepository.Get(orderItemModifier.Id);
-                    await _orderAuthorizationService.AuthorizeApplicationUser(modifier.BusinessId);
-                }
-            }
-
-            foreach (var serviceChargeId in createOrderDTO.ServiceChargeIds)
-            {
-                var serviceCharge = await _serviceChargeRepository.Get(serviceChargeId);
-                await _orderAuthorizationService.AuthorizeApplicationUser(serviceCharge.BusinessId);
-            }
-
+            
             var order = new Order
             {
                 Items = orderItems,

@@ -113,7 +113,7 @@ public static class ConfigureServicesExtensions
         services.AddScoped<IServiceService, ServiceService>();
         services.AddScoped<IReservationService, ReservationService>();
 
-        services.AddSingleton<ISmsMessageService, AwsSnsService>(_ =>
+        services.AddSingleton<ISmsMessageService, AwsSnsService>(serviceProvider =>
         {
             var awsCredentials = new BasicAWSCredentials(
                 Environment.GetEnvironmentVariable("AWS_SNS_ACCESS_KEY"),
@@ -122,7 +122,9 @@ public static class ConfigureServicesExtensions
             var snsConfig = new AmazonSimpleNotificationServiceConfig { RegionEndpoint = RegionEndpoint.EUCentral1 };
 
             var snsClient = new AmazonSimpleNotificationServiceClient(awsCredentials, snsConfig);
-            return new AwsSnsService(snsClient);
+            var logger = serviceProvider.GetRequiredService<ILogger<AwsSnsService>>();
+
+            return new AwsSnsService(snsClient, logger);
         });
 
         services.AddHostedService<ReservationNotificationsBackgroundService>();

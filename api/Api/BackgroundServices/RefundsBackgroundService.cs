@@ -5,10 +5,12 @@ namespace PointOfSale.Api.BackgroundServices;
 public class RefundsBackgroundService : BackgroundService
 {
     private readonly IServiceScopeFactory _serviceScopeFactory;
+    private readonly ILogger<RefundsBackgroundService> _logger;
 
-    public RefundsBackgroundService(IServiceScopeFactory serviceScopeFactory)
+    public RefundsBackgroundService(IServiceScopeFactory serviceScopeFactory, ILogger<RefundsBackgroundService> logger)
     {
         _serviceScopeFactory = serviceScopeFactory;
+        _logger = logger;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -19,7 +21,7 @@ public class RefundsBackgroundService : BackgroundService
         }
         catch (Exception e)
         {
-            Console.WriteLine(e);
+            _logger.LogError(e.Message);
         }
     }
 
@@ -36,7 +38,7 @@ public class RefundsBackgroundService : BackgroundService
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
+                _logger.LogError(ex.Message);
             }
 
             await Task.Delay(TimeSpan.FromSeconds(5), stoppingToken);

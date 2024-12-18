@@ -209,7 +209,7 @@ public class ApplicationUserService : IApplicationUserService
     public async Task<TokensDTO> RefreshApplicationUserTokens(string? refreshToken)
     {
         var user = await _tokenService.UseApplicationUserRefreshToken(refreshToken);
-        var role =(await _userManager.GetRolesAsync(user)).FirstOrDefault();
+        var role = (await _userManager.GetRolesAsync(user)).FirstOrDefault();
         var accessToken = _tokenService.GetApplicationUserAccessToken(user, role!);
         var newRefreshToken = await _tokenService.GetApplicationUserRefreshToken(user, role!);
         return new TokensDTO(accessToken, newRefreshToken);

@@ -3,7 +3,7 @@ using PointOfSale.BusinessLogic.ApplicationUserManagement.Interfaces;
 using PointOfSale.BusinessLogic.Shared.Exceptions;
 using PointOfSale.DataAccess.ApplicationUserManagement.ErrorMessages;
 
-public class ContactInfoValidationService :IContactInfoValidationService
+public class ContactInfoValidationService : IContactInfoValidationService
 {
     public void ValidateEmail(string email)
     {
@@ -17,7 +17,9 @@ public class ContactInfoValidationService :IContactInfoValidationService
             throw new ValidationException(new InvalidApplicationUserCredentialsErrorMessage());
         }
     }
-    public void ValidatePhoneNumber(string phoneNumber){
+
+    public void ValidatePhoneNumber(string phoneNumber)
+    {
         if (string.IsNullOrWhiteSpace(phoneNumber))
             throw new ValidationException(new InvalidPhoneNumberErrorMessage());
 

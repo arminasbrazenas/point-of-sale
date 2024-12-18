@@ -14,7 +14,10 @@ public class ApplicationUserValidationService : IApplicationUserValidationServic
     private readonly IBusinessService _businessService;
     private readonly IContactInfoValidationService _contactInfoValidationService;
 
-    public ApplicationUserValidationService(IBusinessService businessService, IContactInfoValidationService contactInfoValidationService)
+    public ApplicationUserValidationService(
+        IBusinessService businessService,
+        IContactInfoValidationService contactInfoValidationService
+    )
     {
         _businessService = businessService;
         _contactInfoValidationService = contactInfoValidationService;

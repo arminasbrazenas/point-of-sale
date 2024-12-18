@@ -149,8 +149,8 @@ public class BusinessService : IBusinessService
 
         _businessValidationService.ValidateTime(startHour, startMinute, endHour, endMinute);
 
-        business.WorkingHours.Start = new TimeOnly(startHour,startMinute);
-        business.WorkingHours.End = new TimeOnly(endHour,endMinute);
+        business.WorkingHours.Start = new TimeOnly(startHour, startMinute);
+        business.WorkingHours.End = new TimeOnly(endHour, endMinute);
 
         await _unitOfWork.SaveChanges();
 
