@@ -22,7 +22,7 @@ export type OrderItemListProps = {
   serviceCharges: ServiceCharge[];
   selectedServiceCharges: string[];
   discounts: CreateOrUpdateDiscountInput[];
-  reservations: Reservation[];
+  reservations?: Reservation[];
   reservation?: Reservation;
 };
 
@@ -78,12 +78,14 @@ export const OrderItemList = (props: OrderItemListProps) => {
 
   return (
     <Card withBorder>
-      {props.reservation ? (
+      {props.reservation && (
         <>
           <Text fw={600}>Reservation</Text>
-          <Text>{formatReservationLabel(props.reservation)}</Text>
+          <Text mb="sm">{formatReservationLabel(props.reservation)}</Text>
         </>
-      ) : (
+      )}
+
+      {props.reservations && (
         <Select
           label="Reservation"
           data={props.reservations.map((r) => ({
@@ -99,30 +101,31 @@ export const OrderItemList = (props: OrderItemListProps) => {
             }
           }}
           nothingFoundMessage="No active reservations..."
+          mb="sm"
         />
       )}
 
       {props.orderItems.length > 0 && (
-        <Text fw={600} mt="md">
-          Order items
-        </Text>
+        <>
+          <Text fw={600}>Order items</Text>
+          <Stack gap="xs" mt="xs" mb="sm">
+            {props.orderItems.map((orderItem, idx) => (
+              <OrderItem
+                update={props.updateOrderItem}
+                remove={props.removeOrderItem}
+                orderItem={orderItem}
+                key={idx}
+                orderItemId={idx + 1}
+              />
+            ))}
+          </Stack>
+        </>
       )}
-      <Stack gap="xs" mt="xs" mb="md">
-        {props.orderItems.map((orderItem, idx) => (
-          <OrderItem
-            update={props.updateOrderItem}
-            remove={props.removeOrderItem}
-            orderItem={orderItem}
-            key={idx}
-            orderItemId={idx + 1}
-          />
-        ))}
-      </Stack>
 
       {props.serviceCharges.length > 0 && (
         <>
           <Text fw={600}>Service charges</Text>
-          <Stack gap="xs" mt="xs">
+          <Stack gap="xs" my="xs">
             {props.serviceCharges.map((c, idx) => (
               <Checkbox
                 label={
@@ -142,7 +145,7 @@ export const OrderItemList = (props: OrderItemListProps) => {
         </>
       )}
 
-      <SimpleGrid cols={2} mt="md">
+      <SimpleGrid cols={2}>
         <Stack gap="xs">
           <Text fw={600}>Apply discount</Text>
           <form onSubmit={discountForm.onSubmit(addOrderDiscount)}>
