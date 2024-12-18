@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Identity;
+using PointOfSale.BusinessLogic.ApplicationUserManagement.Interfaces;
 using PointOfSale.BusinessLogic.BusinessManagement.DTOs;
 using PointOfSale.BusinessLogic.BusinessManagement.Interfaces;
 using PointOfSale.BusinessLogic.Shared.Exceptions;
@@ -13,18 +14,23 @@ public class BusinessValidationService : IBusinessValidationService
 {
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly IApplicationUserRepository _applicationUserRepository;
+    private readonly IContactInfoValidationService _contactInfoValidationService;
 
     public BusinessValidationService(
         UserManager<ApplicationUser> userManager,
-        IApplicationUserRepository applicationUserRepository
+        IApplicationUserRepository applicationUserRepository,
+        IContactInfoValidationService contactInfoValidationService
     )
     {
         _userManager = userManager;
         _applicationUserRepository = applicationUserRepository;
+        _contactInfoValidationService = contactInfoValidationService;
     }
 
     public async Task ValidateCreateBusinessDTO(CreateBusinessDTO dto)
     {
+        _contactInfoValidationService.ValidatePhoneNumber(dto.PhoneNumber);
+        _contactInfoValidationService.ValidateEmail(dto.Email);
         var owner = await _applicationUserRepository.GetUserByIdWithBusinessAsync(dto.BusinessOwnerId);
 
         if (owner is null)

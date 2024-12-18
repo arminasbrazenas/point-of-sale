@@ -25,6 +25,7 @@ public class ApplicationUserService : IApplicationUserService
     private readonly ICurrentApplicationUserAccessor _currentApplicationUserAccessor;
     private readonly IBusinessRepository _businessRepository;
     private readonly IApplicationUserTokenService _tokenService;
+    private readonly IContactInfoValidationService _contactInfoValidationService;
 
     public ApplicationUserService(
         UserManager<ApplicationUser> userManager,
@@ -34,7 +35,8 @@ public class ApplicationUserService : IApplicationUserService
         IApplicationUserRepository applicationUserRepository,
         ICurrentApplicationUserAccessor currentApplicationUserAccessor,
         IBusinessRepository businessRepository,
-        IApplicationUserTokenService tokenService
+        IApplicationUserTokenService tokenService,
+        IContactInfoValidationService contactInfoValidationService
     )
     {
         _userManager = userManager;
@@ -45,6 +47,7 @@ public class ApplicationUserService : IApplicationUserService
         _currentApplicationUserAccessor = currentApplicationUserAccessor;
         _businessRepository = businessRepository;
         _tokenService = tokenService;
+        _contactInfoValidationService = contactInfoValidationService;
     }
 
     public async Task<TokensDTO> AuthenticateApplicationUser(LoginApplicationUserDTO dto)
@@ -116,7 +119,7 @@ public class ApplicationUserService : IApplicationUserService
         else
         {
             var errors = string.Join(", ", result.Errors.Select(e => e.Description));
-            throw new PointOfSaleException(new FailedActionOnApplicationUserErrorMessage(errors));
+            throw new ValidationException(new FailedActionOnApplicationUserErrorMessage(errors));
         }
 
         return _applicationUserMappingService.MapApplicationUserDTO(applicationUser, dto.Role);
@@ -174,11 +177,13 @@ public class ApplicationUserService : IApplicationUserService
 
         if (updateApplicationUserDTO.Email is not null)
         {
+            _contactInfoValidationService.ValidateEmail(updateApplicationUserDTO.Email);
             user.Email = updateApplicationUserDTO.Email;
         }
 
         if (updateApplicationUserDTO.PhoneNumber is not null)
         {
+            _contactInfoValidationService.ValidatePhoneNumber(updateApplicationUserDTO.PhoneNumber);
             user.PhoneNumber = updateApplicationUserDTO.PhoneNumber;
         }
 
@@ -188,10 +193,26 @@ public class ApplicationUserService : IApplicationUserService
             await _userManager.AddPasswordAsync(user, updateApplicationUserDTO.Password);
         }
 
-        await _userManager.UpdateAsync(user);
+        var result = await _userManager.UpdateAsync(user);
+
+        if (!result.Succeeded)
+        {
+            var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+            throw new ValidationException(new FailedActionOnApplicationUserErrorMessage(errors));
+        }
+
         var role = (await _userManager.GetRolesAsync(user)).FirstOrDefault();
 
         return _applicationUserMappingService.MapApplicationUserDTO(user, role!);
+    }
+
+    public async Task<TokensDTO> RefreshApplicationUserTokens(string? refreshToken)
+    {
+        var user = await _tokenService.UseApplicationUserRefreshToken(refreshToken);
+        var role =(await _userManager.GetRolesAsync(user)).FirstOrDefault();
+        var accessToken = _tokenService.GetApplicationUserAccessToken(user, role!);
+        var newRefreshToken = await _tokenService.GetApplicationUserRefreshToken(user, role!);
+        return new TokensDTO(accessToken, newRefreshToken);
     }
 
     public async Task DeleteApplicationUser(int applicationUserId)

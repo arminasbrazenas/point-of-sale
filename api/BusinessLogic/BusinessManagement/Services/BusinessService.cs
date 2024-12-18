@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Identity;
+using PointOfSale.BusinessLogic.ApplicationUserManagement.Interfaces;
 using PointOfSale.BusinessLogic.BusinessManagement.DTOs;
 using PointOfSale.BusinessLogic.BusinessManagement.Interfaces;
 using PointOfSale.BusinessLogic.Shared.DTOs;
@@ -18,6 +19,7 @@ public class BusinessService : IBusinessService
     private readonly IBusinessValidationService _businessValidationService;
     private readonly IBusinessAuthorizationService _businessAuthorizationService;
     private readonly UserManager<ApplicationUser> _userManager;
+    private readonly IContactInfoValidationService _contactInfoValidationService;
 
     public BusinessService(
         IUnitOfWork unitOfWork,
@@ -25,7 +27,8 @@ public class BusinessService : IBusinessService
         IBusinessMappingService businessMappingService,
         IBusinessValidationService businessValidationService,
         IBusinessAuthorizationService businessAuthorizationService,
-        UserManager<ApplicationUser> userManager
+        UserManager<ApplicationUser> userManager,
+        IContactInfoValidationService contactInfoValidationService
     )
     {
         _unitOfWork = unitOfWork;
@@ -34,6 +37,7 @@ public class BusinessService : IBusinessService
         _businessValidationService = businessValidationService;
         _businessAuthorizationService = businessAuthorizationService;
         _userManager = userManager;
+        _contactInfoValidationService = contactInfoValidationService;
     }
 
     public async Task<BusinessDTO> CreateBusiness(CreateBusinessDTO createBusinessDTO)
@@ -107,7 +111,14 @@ public class BusinessService : IBusinessService
 
         if (updateBusinessDTO.PhoneNumber is not null)
         {
+            _contactInfoValidationService.ValidatePhoneNumber(updateBusinessDTO.PhoneNumber);
             business.TelephoneNumber = updateBusinessDTO.PhoneNumber;
+        }
+
+        if (updateBusinessDTO.Email is not null)
+        {
+            _contactInfoValidationService.ValidateEmail(updateBusinessDTO.Email);
+            business.Email = updateBusinessDTO.Email;
         }
 
         var startHour = business.WorkingHours.Start.Hour;
@@ -137,6 +148,9 @@ public class BusinessService : IBusinessService
         }
 
         _businessValidationService.ValidateTime(startHour, startMinute, endHour, endMinute);
+
+        business.WorkingHours.Start = new TimeOnly(startHour,startMinute);
+        business.WorkingHours.End = new TimeOnly(endHour,endMinute);
 
         await _unitOfWork.SaveChanges();
 

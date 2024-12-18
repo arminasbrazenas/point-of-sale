@@ -171,6 +171,7 @@ public static class ConfigureServicesExtensions
         IConfiguration configuration
     )
     {
+        services.AddScoped<IContactInfoValidationService, ContactInfoValidationService>();
         services.AddScoped<IApplicationUserRepository, ApplicationUserRepository>();
         services.AddScoped<IApplicationUserService, ApplicationUserService>();
         services.AddScoped<IApplicationUserMappingService, ApplicationUserMappingService>();
