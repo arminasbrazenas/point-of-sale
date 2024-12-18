@@ -1,12 +1,12 @@
-using PointOfSale.BusinessLogic.PaymentManagement.Interfaces;
+using PointOfSale.BusinessLogic.OrderManagement.Interfaces;
 
 namespace PointOfSale.Api.BackgroundServices;
 
-public class RefundsBackgroundService : BackgroundService
+public class ReservationNotificationsBackgroundService : BackgroundService
 {
     private readonly IServiceScopeFactory _serviceScopeFactory;
 
-    public RefundsBackgroundService(IServiceScopeFactory serviceScopeFactory)
+    public ReservationNotificationsBackgroundService(IServiceScopeFactory serviceScopeFactory)
     {
         _serviceScopeFactory = serviceScopeFactory;
     }
@@ -26,20 +26,20 @@ public class RefundsBackgroundService : BackgroundService
     private async Task Run(CancellationToken stoppingToken)
     {
         using var scope = _serviceScopeFactory.CreateScope();
-        var paymentService = scope.ServiceProvider.GetRequiredService<IPaymentService>();
+        var reservationService = scope.ServiceProvider.GetRequiredService<IReservationService>();
 
         while (!stoppingToken.IsCancellationRequested)
         {
             try
             {
-                await paymentService.CompletePendingRefunds();
+                await reservationService.SendUnsentNotifications();
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex);
             }
 
-            await Task.Delay(TimeSpan.FromSeconds(5), stoppingToken);
+            await Task.Delay(TimeSpan.FromSeconds(10), stoppingToken);
         }
     }
 }

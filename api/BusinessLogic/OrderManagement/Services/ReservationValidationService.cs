@@ -1,3 +1,4 @@
+using PhoneNumbers;
 using PointOfSale.BusinessLogic.OrderManagement.Interfaces;
 using PointOfSale.BusinessLogic.Shared.Exceptions;
 using PointOfSale.DataAccess.OrderManagement;
@@ -47,5 +48,25 @@ public class ReservationValidationService : IReservationValidationService
         }
 
         return lastName;
+    }
+
+    public string ValidatePhoneNumber(string phoneNumber)
+    {
+        if (string.IsNullOrWhiteSpace(phoneNumber))
+        {
+            throw new ValidationException(new CustomerPhoneNumberEmptyErrorMessage());
+        }
+
+        var phoneNumberUtil = PhoneNumberUtil.GetInstance();
+        try
+        {
+            phoneNumberUtil.Parse(phoneNumber, defaultRegion: null);
+        }
+        catch (NumberParseException)
+        {
+            throw new ValidationException(new InvalidPhoneNumberErrorMessage());
+        }
+
+        return phoneNumber;
     }
 }

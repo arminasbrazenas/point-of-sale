@@ -13,6 +13,18 @@ public class PaymentBackgroundService : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
+        try
+        {
+            await Run(stoppingToken);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+        }
+    }
+
+    private async Task Run(CancellationToken stoppingToken)
+    {
         using var scope = _serviceScopeFactory.CreateScope();
         var paymentService = scope.ServiceProvider.GetRequiredService<IPaymentService>();
 

@@ -19,4 +19,5 @@ public interface IReservationService
     Task CompleteReservation(int reservationId);
     Task MarkReservationInProgress(int reservationId);
     Task RevertInProgressReservation(int reservationId);
+    Task SendUnsentNotifications();
 }

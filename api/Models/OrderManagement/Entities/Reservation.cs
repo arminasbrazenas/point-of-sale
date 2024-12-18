@@ -15,6 +15,7 @@ public class Reservation : EntityBase<int>
     public required int EmployeeId { get; set; }
     public ApplicationUser Employee { get; set; }
     public required ReservationStatus Status { get; set; }
+    public required ReservationNotification Notification { get; set; }
     public required string Name { get; set; }
     public required decimal Price { get; set; }
     public required int BusinessId { get; set; }

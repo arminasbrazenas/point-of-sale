@@ -21,6 +21,7 @@ public class ReservationService : IReservationService
     private readonly IReservationValidationService _reservationValidationService;
     private readonly IServiceService _serviceService;
     private readonly IOrderManagementAuthorizationService _orderManagementAuthorizationService;
+    private readonly ISmsMessageService _iSmsMessageService;
 
     public ReservationService(
         IReservationMappingService reservationMappingService,
@@ -28,7 +29,8 @@ public class ReservationService : IReservationService
         IUnitOfWork unitOfWork,
         IReservationRepository reservationRepository,
         IServiceService serviceService,
-        IOrderManagementAuthorizationService orderManagementAuthorizationService
+        IOrderManagementAuthorizationService orderManagementAuthorizationService,
+        ISmsMessageService iSmsMessageService
     )
     {
         _reservationMappingService = reservationMappingService;
@@ -37,6 +39,7 @@ public class ReservationService : IReservationService
         _reservationRepository = reservationRepository;
         _serviceService = serviceService;
         _orderManagementAuthorizationService = orderManagementAuthorizationService;
+        _iSmsMessageService = iSmsMessageService;
     }
 
     public async Task<ReservationDTO> CreateReservation(CreateReservationDTO createReservationDto)
@@ -50,6 +53,9 @@ public class ReservationService : IReservationService
             createReservationDto.Customer.FirstName
         );
         var customerLastname = _reservationValidationService.ValidateLastName(createReservationDto.Customer.LastName);
+        var customerPhoneNumber = _reservationValidationService.ValidatePhoneNumber(
+            createReservationDto.Customer.PhoneNumber
+        );
 
         var reservation = new Reservation
         {
@@ -57,10 +63,16 @@ public class ReservationService : IReservationService
             Status = ReservationStatus.Active,
             EmployeeId = createReservationDto.EmployeeId,
             ServiceId = createReservationDto.ServiceId,
-            Customer = new ReservationCustomer { FirstName = customerFirstname, LastName = customerLastname },
+            Customer = new ReservationCustomer
+            {
+                FirstName = customerFirstname,
+                LastName = customerLastname,
+                PhoneNumber = customerPhoneNumber,
+            },
             BusinessId = createReservationDto.BusinessId,
             Name = service.Name,
             Price = service.Price,
+            Notification = new ReservationNotification { IdempotencyKey = Guid.NewGuid(), SentAt = null },
         };
 
         _reservationRepository.Add(reservation);
@@ -103,16 +115,32 @@ public class ReservationService : IReservationService
 
         if (updateReservationDto.Customer.FirstName is not null)
         {
-            reservation.Customer.FirstName = _reservationValidationService.ValidateFirstName(
-                updateReservationDto.Customer.FirstName
-            );
+            reservation.Customer = reservation.Customer with
+            {
+                FirstName = _reservationValidationService.ValidateFirstName(updateReservationDto.Customer.FirstName),
+            };
         }
 
         if (updateReservationDto.Customer.LastName is not null)
         {
-            reservation.Customer.LastName = _reservationValidationService.ValidateLastName(
-                updateReservationDto.Customer.LastName
-            );
+            reservation.Customer = reservation.Customer with
+            {
+                LastName = _reservationValidationService.ValidateLastName(updateReservationDto.Customer.LastName),
+            };
+        }
+
+        if (
+            updateReservationDto.Customer.PhoneNumber is not null
+            && reservation.Customer.PhoneNumber != updateReservationDto.Customer.PhoneNumber
+        )
+        {
+            reservation.Customer = reservation.Customer with
+            {
+                PhoneNumber = _reservationValidationService.ValidatePhoneNumber(
+                    updateReservationDto.Customer.PhoneNumber
+                ),
+            };
+            reservation.Notification = new ReservationNotification { IdempotencyKey = Guid.NewGuid(), SentAt = null };
         }
 
         await _unitOfWork.SaveChanges();
@@ -195,4 +223,27 @@ public class ReservationService : IReservationService
         reservation.Status = ReservationStatus.Active;
         await _unitOfWork.SaveChanges();
     }
+
+    public async Task SendUnsentNotifications()
+    {
+        var reservations = await _reservationRepository.GetWithUnsentNotifications();
+        foreach (var reservation in reservations)
+        {
+            var message =
+                $"You have booked an appointment at '{reservation.Business.Name}'.\n"
+                + $"Date: {FormatLocalDate(reservation.Date.Start)} - {FormatLocalDate(reservation.Date.End)}\n"
+                + $"Employee: {reservation.Employee.FirstName} {reservation.Employee.LastName}";
+
+            await _iSmsMessageService.SendSmsMessage(
+                reservation.Customer.PhoneNumber,
+                message,
+                reservation.Notification.IdempotencyKey
+            );
+
+            reservation.Notification = reservation.Notification with { SentAt = DateTimeOffset.UtcNow };
+            await _unitOfWork.SaveChanges();
+        }
+    }
+
+    private static string FormatLocalDate(DateTimeOffset date) => date.LocalDateTime.ToString("MM/dd/yyyy HH:mm");
 }

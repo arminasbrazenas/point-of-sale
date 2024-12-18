@@ -24,6 +24,8 @@ public class ReservationConfiguration : EntityBaseConfiguration<Reservation, int
             }
         );
 
+        builder.OwnsOne(r => r.Notification);
+
         builder
             .Property(r => r.Status)
             .HasConversion(new EnumToStringConverter<ReservationStatus>())
