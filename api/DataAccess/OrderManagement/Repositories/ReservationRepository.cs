@@ -59,4 +59,13 @@ public class ReservationRepository : RepositoryBase<Reservation, int>, IReservat
     {
         return await DbSet.Where(s => s.BusinessId == businessId).CountAsync();
     }
+
+    public async Task<List<Reservation>> GetWithUnsentNotifications()
+    {
+        return await DbSet
+            .Where(r => r.Notification.SentAt == null)
+            .Include(r => r.Business)
+            .Include(r => r.Employee)
+            .ToListAsync();
+    }
 }

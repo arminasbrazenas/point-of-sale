@@ -12,6 +12,7 @@ export const createReservationInputSchema = z.object({
   customer: z.object({
     firstName: z.string(),
     lastName: z.string(),
+    phoneNumber: z.string(),
   }),
 });
 

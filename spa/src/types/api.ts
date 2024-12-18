@@ -212,6 +212,7 @@ export type Service = Entity<{
 export type ReservationCustomer = {
   firstName: string;
   lastName: string;
+  phoneNumber: string;
 };
 
 export type ReservationDate = {

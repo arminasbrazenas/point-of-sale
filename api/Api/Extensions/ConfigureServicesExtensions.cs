@@ -1,6 +1,9 @@
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Amazon;
+using Amazon.Runtime;
+using Amazon.SimpleNotificationService;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -105,6 +108,20 @@ public static class ConfigureServicesExtensions
         services.AddScoped<IDiscountService, DiscountService>();
         services.AddScoped<IServiceService, ServiceService>();
         services.AddScoped<IReservationService, ReservationService>();
+
+        services.AddSingleton<ISmsMessageService, AwsSnsService>(_ =>
+        {
+            var awsCredentials = new BasicAWSCredentials(
+                Environment.GetEnvironmentVariable("AWS_SNS_ACCESS_KEY"),
+                Environment.GetEnvironmentVariable("AWS_SNS_SECRET_ACCESS_KEY")
+            );
+            var snsConfig = new AmazonSimpleNotificationServiceConfig { RegionEndpoint = RegionEndpoint.EUCentral1 };
+
+            var snsClient = new AmazonSimpleNotificationServiceClient(awsCredentials, snsConfig);
+            return new AwsSnsService(snsClient);
+        });
+
+        services.AddHostedService<ReservationNotificationsBackgroundService>();
 
         return services;
     }

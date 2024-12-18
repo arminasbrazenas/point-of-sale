@@ -61,6 +61,7 @@ export const UpdateReservation = ({ reservationId }: { reservationId: number }) 
       customer: {
         firstName: '',
         lastName: '',
+        phoneNumber: '',
       },
     },
     validate: zodResolver(createReservationInputSchema),
@@ -88,6 +89,10 @@ export const UpdateReservation = ({ reservationId }: { reservationId: number }) 
             reservation.customer.lastName == updatedReservation.customer.lastName
               ? undefined
               : updatedReservation.customer.lastName,
+          phoneNumber:
+            reservation.customer.phoneNumber == updatedReservation.customer.phoneNumber
+              ? undefined
+              : updatedReservation.customer.phoneNumber,
         },
       });
     },
@@ -106,6 +111,7 @@ export const UpdateReservation = ({ reservationId }: { reservationId: number }) 
     form.setFieldValue('startDate', new Date(reservation.date.start));
     form.setFieldValue('customer.firstName', reservation.customer.firstName);
     form.setFieldValue('customer.lastName', reservation.customer.lastName);
+    form.setFieldValue('customer.phoneNumber', reservation.customer.phoneNumber);
   }, [servicesQuery.data, reservationQuery.data]);
 
   useEffect(() => {
@@ -202,6 +208,13 @@ export const UpdateReservation = ({ reservationId }: { reservationId: number }) 
             withAsterisk
             key={form.key('customer.lastName')}
             {...form.getInputProps('customer.lastName')}
+          />
+          <TextInput
+            label="Phone number"
+            placeholder="Phone number"
+            withAsterisk
+            key={form.key('customer.phoneNumber')}
+            {...form.getInputProps('customer.phoneNumber')}
           />
 
           <Group justify="space-between" mt="xs">

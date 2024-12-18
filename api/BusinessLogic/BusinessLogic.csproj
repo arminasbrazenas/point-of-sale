@@ -10,6 +10,9 @@
       <ProjectReference Include="..\DataAccess\DataAccess.csproj" />
     </ItemGroup>
     <ItemGroup>
+      <PackageReference Include="AWSSDK.Core" Version="4.0.0-preview.4" />
+      <PackageReference Include="AWSSDK.SimpleNotificationService" Version="4.0.0-preview.4" />
+      <PackageReference Include="libphonenumber-csharp" Version="8.13.52" />
       <PackageReference Include="Stripe.net" Version="47.1.0" />
       <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.3.0" />
     </ItemGroup>

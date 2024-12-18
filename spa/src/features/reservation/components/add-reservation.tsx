@@ -29,6 +29,7 @@ export const AddReservation = () => {
       customer: {
         firstName: '',
         lastName: '',
+        phoneNumber: '',
       },
     },
     validate: zodResolver(createReservationInputSchema),
@@ -135,6 +136,13 @@ export const AddReservation = () => {
             withAsterisk
             key={form.key('customer.lastName')}
             {...form.getInputProps('customer.lastName')}
+          />
+          <TextInput
+            label="Phone number"
+            placeholder="Phone number"
+            withAsterisk
+            key={form.key('customer.phoneNumber')}
+            {...form.getInputProps('customer.phoneNumber')}
           />
           <Button type="submit" mt="xs" fullWidth loading={createReservationMutation.isPending}>
             Add
