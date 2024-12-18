@@ -18,6 +18,10 @@ public class BusinessMappingService : IBusinessMappingService
             Address = business.Address,
             Email = business.Email,
             PhoneNumber = business.TelephoneNumber,
+            StartHour = business.WorkingHours.Start.Hour,
+            StartMinute = business.WorkingHours.Start.Minute,
+            EndHour = business.WorkingHours.End.Hour,
+            EndMinute = business.WorkingHours.End.Minute,
         };
     }
 
