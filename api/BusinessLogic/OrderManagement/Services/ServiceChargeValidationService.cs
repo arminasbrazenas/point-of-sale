@@ -11,6 +11,11 @@ public class ServiceChargeValidationService : IServiceChargeValidationService
 {
     private readonly IServiceChargeRepository _serviceChargeRepository;
 
+    public ServiceChargeValidationService(IServiceChargeRepository serviceChargeRepository)
+    {
+        _serviceChargeRepository = serviceChargeRepository;
+    }
+
     public async Task<string> ValidateName(string name, int businessId)
     {
         if (string.IsNullOrWhiteSpace(name))
