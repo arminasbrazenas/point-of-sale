@@ -60,4 +60,12 @@ public static class OrderExtensions
     {
         return (price * tax.Rate).ToRoundedPrice();
     }
+
+    public static decimal RoundIfFixed(this decimal amount, PricingStrategy pricingStrategy) =>
+        pricingStrategy switch
+        {
+            PricingStrategy.Percentage => amount,
+            PricingStrategy.FixedAmount => amount.ToRoundedPrice(),
+            _ => throw new NotImplementedException(),
+        };
 }

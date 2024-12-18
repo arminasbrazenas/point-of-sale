@@ -47,7 +47,6 @@ public class BusinessValidationService : IBusinessValidationService
         }
 
         ValidateTime(dto.StartHour, dto.StartMinute, dto.EndHour, dto.EndMinute);
-        
     }
 
     public void ValidateTime(int startHour, int startMinute, int endHour, int endMinute)
@@ -74,10 +73,7 @@ public class BusinessValidationService : IBusinessValidationService
 
         if (startHour * 60 + startMinute > endHour * 60 + endMinute)
         {
-            throw new ValidationException(
-                new InvalidWorkingHoursErrorMessage()
-            );
+            throw new ValidationException(new InvalidWorkingHoursErrorMessage());
         }
-
     }
 }

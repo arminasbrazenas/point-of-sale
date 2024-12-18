@@ -7,6 +7,7 @@ namespace PointOfSale.DataAccess.OrderManagement.Interfaces;
 
 public interface IModifierRepository : IRepositoryBase<Modifier, int>
 {
+    Task<bool> ExistsWithName(string name, int businessId);
     Task<List<Modifier>> GetWithFilter(
         PaginationFilter paginationFilter,
         int businessId,

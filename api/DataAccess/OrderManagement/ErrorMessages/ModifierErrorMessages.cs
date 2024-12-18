@@ -39,3 +39,23 @@ public class ModifierOutOfStockErrorMessage : IPointOfSaleErrorMessage
 
     public string En => $"Modifier '{_modifierName}' is out of stock.";
 }
+
+public class ModifierQuantityMustNotBeNegativeErrorMessage : IPointOfSaleErrorMessage
+{
+    public string En => "Modifier quantity must not be negative.";
+}
+
+public class ModifierNameMustNotBeEmptyErrorMessage : IPointOfSaleErrorMessage
+{
+    public string En => "Modifier name must not be empty.";
+}
+
+public class ModifierNameTooLongErrorMessage : IPointOfSaleErrorMessage
+{
+    public string En => "Modifier name is too long.";
+}
+
+public class ModifierNameConflictErrorMessage : IPointOfSaleErrorMessage
+{
+    public string En => "Modifier with such name already exists.";
+}

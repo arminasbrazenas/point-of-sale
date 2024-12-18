@@ -44,16 +44,9 @@ public class ProductRepository : RepositoryBase<Product, int>, IProductRepositor
         return products;
     }
 
-    public async Task<Product> GetWithModifiers(int productId)
+    public Task<Product?> GetByNameOptional(string name, int businessId)
     {
-        var product = await DbSet.Include(p => p.Modifiers).Where(p => p.Id == productId).FirstOrDefaultAsync();
-
-        return product ?? throw new EntityNotFoundException(GetEntityNotFoundErrorMessage(productId));
-    }
-
-    public Task<Product?> GetByNameOptional(string name)
-    {
-        return DbSet.FirstOrDefaultAsync(p => p.Name == name);
+        return DbSet.FirstOrDefaultAsync(p => p.Name == name && p.BusinessId == businessId);
     }
 
     public async Task<List<Product>> GetPaged(PaginationFilter paginationFilter, int businessId)

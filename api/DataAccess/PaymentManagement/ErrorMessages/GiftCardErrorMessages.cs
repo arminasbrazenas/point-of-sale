@@ -31,3 +31,23 @@ public class GiftCardIsExpiredErrorMessage : IPointOfSaleErrorMessage
 {
     public string En => "Gift card is expired.";
 }
+
+public class GiftCardExpirationDateMustBeFutureDateErrorMessage : IPointOfSaleErrorMessage
+{
+    public string En => "Gift card expiration date must be in the future.";
+}
+
+public class GiftCardAmountMustBePositiveErrorMessage : IPointOfSaleErrorMessage
+{
+    public string En => "Gift card amount must be positive.";
+}
+
+public class GiftCardCodeMustNotBeEmptyErrorMessage : IPointOfSaleErrorMessage
+{
+    public string En => "Gift card code must not be empty.";
+}
+
+public class GiftCardCodeTooLongErrorMessage : IPointOfSaleErrorMessage
+{
+    public string En => "Gift card code is too long.";
+}

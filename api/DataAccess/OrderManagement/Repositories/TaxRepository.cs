@@ -13,9 +13,9 @@ public class TaxRepository : RepositoryBase<Tax, int>, ITaxRepository
     public TaxRepository(ApplicationDbContext dbContext)
         : base(dbContext) { }
 
-    public async Task<Tax?> GetByNameOptional(string name)
+    public async Task<Tax?> GetByNameOptional(string name, int businessId)
     {
-        return await DbSet.FirstOrDefaultAsync(t => t.Name == name);
+        return await DbSet.FirstOrDefaultAsync(t => t.Name == name && t.BusinessId == businessId);
     }
 
     public async Task<List<Tax>> GetPaged(int businessId, PaginationFilter paginationFilter)
@@ -24,13 +24,13 @@ public class TaxRepository : RepositoryBase<Tax, int>, ITaxRepository
         return await GetPaged(query, paginationFilter);
     }
 
-    protected override IPointOfSaleErrorMessage GetEntityNotFoundErrorMessage(int id)
-    {
-        return new TaxNotFoundErrorMessage(id);
-    }
-
     public async Task<int> GetTotalCount(int businessId)
     {
         return await DbSet.Where(t => t.BusinessId == businessId).CountAsync();
+    }
+
+    protected override IPointOfSaleErrorMessage GetEntityNotFoundErrorMessage(int id)
+    {
+        return new TaxNotFoundErrorMessage(id);
     }
 }

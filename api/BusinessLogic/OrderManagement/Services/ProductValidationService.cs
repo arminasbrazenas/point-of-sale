@@ -24,21 +24,19 @@ public class ProductValidationService : IProductValidationService
         _modifierRepository = modifierRepository;
     }
 
-    public async Task<string> ValidateName(string name)
+    public async Task<string> ValidateName(string name, int businessId)
     {
         if (string.IsNullOrWhiteSpace(name))
         {
             throw new ValidationException(new ProductNameEmptyErrorMessage());
         }
 
-        name = name.Trim();
         if (name.Length > Constants.ProductNameMaxLength)
         {
             throw new ValidationException(new ProductNameTooLongErrorMessage(Constants.ProductNameMaxLength));
         }
 
-        // TODO: check by (business id, name)
-        var existingProduct = await _productRepository.GetByNameOptional(name);
+        var existingProduct = await _productRepository.GetByNameOptional(name, businessId);
         if (existingProduct is not null)
         {
             throw new ValidationException(new ProductNameConflictErrorMessage(name));

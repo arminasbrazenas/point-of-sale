@@ -14,6 +14,11 @@ public class ModifierRepository : RepositoryBase<Modifier, int>, IModifierReposi
     public ModifierRepository(ApplicationDbContext dbContext)
         : base(dbContext) { }
 
+    public async Task<bool> ExistsWithName(string name, int businessId)
+    {
+        return await DbSet.AnyAsync(m => m.Name == name && m.BusinessId == businessId);
+    }
+
     public async Task<List<Modifier>> GetWithFilter(
         PaginationFilter paginationFilter,
         int businessId,
