@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.AspNetCore.Identity;
 using PointOfSale.Api.Extensions;
 using PointOfSale.Api.Middlewares;
@@ -44,10 +45,32 @@ app.UseHttpsRedirection();
 app.UseCors();
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
+app.UseMiddleware<HTTPLoggingMiddleware>();
 
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+var lifetimeLogger = app.Services.GetRequiredService<ILoggerFactory>()
+    .CreateLogger("ApplicationLifecycle");
+
+
+var lifetime = app.Services.GetRequiredService<IHostApplicationLifetime>();
+
+lifetime.ApplicationStarted.Register(() =>
+{
+    lifetimeLogger.LogInformation("Application has started at {Time}", DateTime.UtcNow);
+});
+
+lifetime.ApplicationStopping.Register(() =>
+{
+    lifetimeLogger.LogInformation("Application is stopping at {Time}", DateTime.UtcNow);
+});
+
+lifetime.ApplicationStopped.Register(() =>
+{
+    lifetimeLogger.LogInformation("Application has stopped at {Time}", DateTime.UtcNow);
+});
 
 app.Run();
