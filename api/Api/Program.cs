@@ -55,9 +55,13 @@ app.MapControllers();
 var lifetimeLogger = app.Services.GetRequiredService<ILoggerFactory>()
     .CreateLogger("ApplicationLifecycle");
 
-lifetimeLogger.LogInformation("Application has started at {Time}", DateTime.UtcNow);
 
 var lifetime = app.Services.GetRequiredService<IHostApplicationLifetime>();
+
+lifetime.ApplicationStarted.Register(() =>
+{
+    lifetimeLogger.LogInformation("Application has started at {Time}", DateTime.UtcNow);
+});
 
 lifetime.ApplicationStopping.Register(() =>
 {
