@@ -4,6 +4,7 @@ using PointOfSale.BusinessLogic.Shared.DTOs;
 using PointOfSale.BusinessLogic.Shared.Exceptions;
 using PointOfSale.BusinessLogic.Shared.Factories;
 using PointOfSale.DataAccess.OrderManagement.ErrorMessages;
+using PointOfSale.DataAccess.OrderManagement.Filters;
 using PointOfSale.DataAccess.OrderManagement.Interfaces;
 using PointOfSale.DataAccess.Shared.Interfaces;
 using PointOfSale.Models.OrderManagement.Entities;
@@ -177,11 +178,12 @@ public class ReservationService : IReservationService
 
     public async Task<PagedResponseDTO<ReservationDTO>> GetReservations(
         PaginationFilterDTO paginationFilterDTO,
-        int businessId
+        int businessId,
+        ReservationFilter? filter
     )
     {
         var paginationFilter = PaginationFilterFactory.Create(paginationFilterDTO);
-        var reservations = await _reservationRepository.GetPaged(paginationFilter, businessId);
+        var reservations = await _reservationRepository.GetPaged(paginationFilter, businessId, filter);
         var totalCount = await _reservationRepository.GetTotalCount(businessId);
         return _reservationMappingService.MapToPagedReservationDTO(reservations, paginationFilter, totalCount);
     }

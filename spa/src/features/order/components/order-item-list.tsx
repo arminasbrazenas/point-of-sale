@@ -1,16 +1,20 @@
 import { Button, Card, Checkbox, Group, Paper, Select, SimpleGrid, Stack, Text, TextInput } from '@mantine/core';
 import { EnhancedCreateOrderItemInput } from './order-product';
 import { OrderItem } from './order-item';
-import { toReadablePricingStrategy, toReadablePricingStrategyAmount } from '@/utilities';
+import { formatDate, toReadablePricingStrategy, toReadablePricingStrategyAmount } from '@/utilities';
 import { useState } from 'react';
-import { DiscountTarget, DiscountType, PricingStrategy, ServiceCharge } from '@/types/api';
+import { DiscountTarget, DiscountType, PricingStrategy, Reservation, ServiceCharge } from '@/types/api';
 import { CreateOrUpdateDiscountInput, createOrUpdateOrderDiscountInputSchema } from '../api/create-order';
 import { useForm, zodResolver } from '@mantine/form';
 import { EnhancedOrderDiscount } from './order-item-form';
 
 export type OrderItemListProps = {
   orderItems: EnhancedCreateOrderItemInput[];
-  onConfirm: (serviceChargeIds: number[], discounts: CreateOrUpdateDiscountInput[]) => void;
+  onConfirm: (
+    serviceChargeIds: number[],
+    discounts: CreateOrUpdateDiscountInput[],
+    reservationId: number | undefined,
+  ) => void;
   updateOrderItem: (orderItem: EnhancedCreateOrderItemInput) => void;
   removeOrderItem: (orderItem: EnhancedCreateOrderItemInput) => void;
   isLoading: boolean;
@@ -18,9 +22,12 @@ export type OrderItemListProps = {
   serviceCharges: ServiceCharge[];
   selectedServiceCharges: string[];
   discounts: CreateOrUpdateDiscountInput[];
+  reservations: Reservation[];
+  reservation?: Reservation;
 };
 
 export const OrderItemList = (props: OrderItemListProps) => {
+  const [selectedReservationId, setSelectedReservationId] = useState<number | undefined>(props.reservation?.id);
   const [selectedServiceChargeNames, setSelectedServiceChargeNames] = useState<string[]>(props.selectedServiceCharges);
   const [discounts, setDiscounts] = useState<EnhancedOrderDiscount[]>(
     props.discounts.map((d) => ({ ...d, id: crypto.randomUUID() })),
@@ -44,6 +51,7 @@ export const OrderItemList = (props: OrderItemListProps) => {
     props.onConfirm(
       serviceChargeIds,
       discounts.filter((d) => d.type === DiscountType.Flexible),
+      selectedReservationId,
     );
   };
 
@@ -63,13 +71,29 @@ export const OrderItemList = (props: OrderItemListProps) => {
     setDiscounts((prev) => prev.filter((d) => d.id != id));
   };
 
-  if (props.orderItems.length <= 0) {
-    return null;
-  }
-
   return (
     <Card withBorder>
-      <Text fw={600}>Order items</Text>
+      <Select
+        label="Reservation"
+        data={props.reservations.map((r) => ({
+          label: `${r.customer.firstName} ${r.customer.lastName} (${r.description} at ${formatDate(r.date.start)})`,
+          value: r.id.toString(),
+        }))}
+        value={selectedReservationId ? selectedReservationId.toString() : null}
+        onChange={(value) => {
+          if (!value) {
+            setSelectedReservationId(undefined);
+          } else {
+            setSelectedReservationId(parseInt(value));
+          }
+        }}
+      />
+
+      {props.orderItems.length > 0 && (
+        <Text fw={600} mt="md">
+          Order items
+        </Text>
+      )}
       <Stack gap="xs" mt="xs" mb="md">
         {props.orderItems.map((orderItem, idx) => (
           <OrderItem

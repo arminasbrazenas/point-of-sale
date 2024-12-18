@@ -7,6 +7,8 @@ import {
     PasswordInput,
     Paper,
     Divider,
+    Text,
+    Anchor
 } from '@mantine/core';
 import { useNavigate } from 'react-router-dom';
 import { useForm, zodResolver } from '@mantine/form';
@@ -69,6 +71,16 @@ export const LoginRoute = () => {
                     </Stack>
                 </form>
                 <Divider my="md" />
+                <Text>
+                    {'Want to join POS? '}
+                    <Anchor
+                        component="button"
+                        onClick={() => navigate('/register')}
+                        style={{ fontWeight: 500 }}
+                    >
+                        {'Sign up'}
+                    </Anchor>
+                </Text>
             </Paper>
         </Container>
     );

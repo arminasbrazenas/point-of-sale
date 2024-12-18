@@ -7,12 +7,13 @@ import { useNavigate } from 'react-router-dom';
 export const HomeRoute = () => {
   const navigate = useNavigate();
   const role = useAppStore((state) => state.applicationUser?.role || null);
+  const businessId = useAppStore((state) => state.applicationUser?.businessId || null);
 
   const hasAccessToBusinessManagement =
     role === Roles.BusinessOwner || role === Roles.Admin;
 
   const hasAccessToOrderManagement =
-    role === Roles.BusinessOwner || role === Roles.Employee;
+    (role === Roles.BusinessOwner && businessId != null)|| role === Roles.Employee;
 
   return (
     <Stack maw={400} gap="xs" m="md">

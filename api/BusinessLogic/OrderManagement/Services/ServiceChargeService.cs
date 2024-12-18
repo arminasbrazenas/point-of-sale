@@ -60,6 +60,7 @@ public class ServiceChargeService : IServiceChargeService
         int businessId
     )
     {
+        await _orderManagementAuthorizationService.AuthorizeApplicationUser(businessId);
         var paginationFilter = PaginationFilterFactory.Create(paginationFilterDTO);
         var serviceCharges = await _serviceChargeRepository.GetPagedWithTaxes(paginationFilter, businessId);
         var totalCount = await _serviceChargeRepository.GetTotalCount(businessId);

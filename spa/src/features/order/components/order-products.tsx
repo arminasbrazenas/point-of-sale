@@ -1,4 +1,4 @@
-import { Center, Pagination, SimpleGrid, Stack } from '@mantine/core';
+import { Card, Center, Pagination, Paper, Select, SimpleGrid, Stack } from '@mantine/core';
 import { useProducts } from '../../product/api/get-products';
 import { useMemo, useState } from 'react';
 import { EnhancedCreateOrderItemInput, OrderProduct } from './order-product';
@@ -9,11 +9,13 @@ import { paths } from '@/config/paths';
 import { OrderItemList } from './order-item-list';
 import { useUpdateOrder } from '../api/update-order';
 import { useServiceCharges } from '@/features/service-charge/api/get-service-charges';
-import { DiscountType } from '@/types/api';
+import { DiscountType, Reservation, ReservationStatus } from '@/types/api';
 import { useAppStore } from '@/lib/app-store';
+import { useReservations } from '@/features/reservation/api/get-reservations';
 
 type OrderProductsProps = {
   orderId?: number;
+  reservation?: Reservation;
   orderItems?: EnhancedCreateOrderItemInput[];
   selectedServiceCharges?: string[];
   discounts?: CreateOrUpdateDiscountInput[];
@@ -24,6 +26,10 @@ export const OrderProducts = (props: OrderProductsProps) => {
   const productsQuery = useProducts({ paginationFilter: { page, itemsPerPage: 50 } });
   const [orderItems, setOrderItems] = useState<EnhancedCreateOrderItemInput[]>(props.orderItems ?? []);
   const serviceChargesQuery = useServiceCharges({ paginationFilter: { page: 1, itemsPerPage: 50 } });
+  const activeReservationsQuery = useReservations({
+    paginationFilter: { itemsPerPage: 50, page: 1 },
+    filter: { status: ReservationStatus.Active },
+  });
   const navigate = useNavigate();
   const businessId = useAppStore((state) => state.applicationUser?.businessId);
   if (!businessId) {
@@ -74,7 +80,11 @@ export const OrderProducts = (props: OrderProductsProps) => {
     setOrderItems((prev) => prev.filter((x) => x.cartItemId !== orderItem.cartItemId));
   };
 
-  const createOrUpdateOrder = (serviceChargeIds: number[], discounts: CreateOrUpdateDiscountInput[]) => {
+  const createOrUpdateOrder = (
+    serviceChargeIds: number[],
+    discounts: CreateOrUpdateDiscountInput[],
+    reservationId: number | undefined,
+  ) => {
     const mappedItems = orderItems.map(
       (x): CreateOrUpdateOrderItemInput => ({
         productId: x.productId,
@@ -88,22 +98,34 @@ export const OrderProducts = (props: OrderProductsProps) => {
     if (props.orderId) {
       updateOrderMutation.mutate({
         orderId: props.orderId,
-        data: { orderItems: mappedItems, serviceChargeIds, discounts: flexibleDiscounts },
+        data: {
+          orderItems: mappedItems,
+          serviceChargeIds,
+          discounts: flexibleDiscounts,
+          reservationId: reservationId,
+        },
       });
     } else {
       createOrderMutation.mutate({
-        data: { orderItems: mappedItems, serviceChargeIds, discounts: flexibleDiscounts, businessId },
+        data: {
+          orderItems: mappedItems,
+          serviceChargeIds,
+          discounts: flexibleDiscounts,
+          businessId,
+          reservationId: reservationId,
+        },
       });
     }
   };
 
-  if (productsQuery.isLoading || serviceChargesQuery.isLoading) {
+  if (productsQuery.isLoading || serviceChargesQuery.isLoading || activeReservationsQuery.isLoading) {
     return <div>loading..</div>;
   }
 
   const products = productsQuery.data?.items;
   const serviceCharges = serviceChargesQuery.data?.items;
-  if (!products || !serviceCharges) {
+  const activeReservations = activeReservationsQuery.data?.items;
+  if (!products || !serviceCharges || !activeReservations) {
     return null;
   }
 
@@ -119,6 +141,8 @@ export const OrderProducts = (props: OrderProductsProps) => {
         serviceCharges={serviceCharges}
         selectedServiceCharges={props.selectedServiceCharges ?? []}
         discounts={props.discounts ?? []}
+        reservations={activeReservations}
+        reservation={props.reservation}
       />
 
       <SimpleGrid cols={4}>

@@ -8,6 +8,13 @@ namespace PointOfSale.BusinessLogic.OrderManagement.Services;
 
 public class OrderMappingService : IOrderMappingService
 {
+    private readonly IReservationMappingService _reservationMappingService;
+
+    public OrderMappingService(IReservationMappingService reservationMappingService)
+    {
+        _reservationMappingService = reservationMappingService;
+    }
+
     public OrderMinimalDTO MapToOrderMinimalDTO(Order order)
     {
         return new OrderMinimalDTO
@@ -15,6 +22,7 @@ public class OrderMappingService : IOrderMappingService
             Id = order.Id,
             Status = order.Status,
             CreatedAt = order.CreatedAt,
+            BusinessId = order.BusinessId,
         };
     }
 
@@ -43,6 +51,11 @@ public class OrderMappingService : IOrderMappingService
             - orderDiscounts.Sum(d => d.AppliedAmount)
             + serviceCharges.Sum(c => c.AppliedAmount);
 
+        if (order.Reservation is not null)
+        {
+            totalPrice += order.Reservation.Price;
+        }
+
         return new OrderDTO
         {
             Id = order.Id,
@@ -52,6 +65,10 @@ public class OrderMappingService : IOrderMappingService
             TotalPrice = totalPrice,
             ServiceCharges = serviceCharges,
             Discounts = orderDiscounts,
+            BusinessId = order.BusinessId,
+            Reservation = order.Reservation is null
+                ? null
+                : _reservationMappingService.MapToReservationDTO(order.Reservation),
         };
     }
 
@@ -65,6 +82,9 @@ public class OrderMappingService : IOrderMappingService
             OrderItems = orderDTO.OrderItems,
             Discounts = order.Discounts.Select(MapToOrderDiscountDTO).ToList(),
             ServiceCharges = orderDTO.ServiceCharges,
+            Reservation = order.Reservation is null
+                ? null
+                : _reservationMappingService.MapToReservationDTO(order.Reservation),
         };
     }
 

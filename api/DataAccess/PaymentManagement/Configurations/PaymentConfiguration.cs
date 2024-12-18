@@ -7,10 +7,12 @@ using PointOfSale.Models.PaymentManagement.Enums;
 
 namespace PointOfSale.DataAccess.PaymentManagement.Configurations;
 
-public class PaymentConfiguration : IEntityTypeConfiguration<Payment>
+public class PaymentConfiguration : EntityBaseConfiguration<Payment, int>
 {
-    public void Configure(EntityTypeBuilder<Payment> builder)
+    public override void Configure(EntityTypeBuilder<Payment> builder)
     {
+        base.Configure(builder);
+
         builder.HasKey(p => p.Id);
 
         builder
@@ -38,6 +40,18 @@ public class PaymentConfiguration : IEntityTypeConfiguration<Payment>
             .HasValue<GiftCardPayment>(PaymentMethod.GiftCard)
             .HasValue<OnlinePayment>(PaymentMethod.Online);
 
+        builder
+            .HasOne(o => o.Business)
+            .WithMany()
+            .HasForeignKey(o => o.BusinessId)
+            .IsRequired()
+            .OnDelete(DeleteBehavior.SetNull);
+        builder
+            .HasOne(e => e.Employee)
+            .WithMany()
+            .HasForeignKey(o => o.EmployeeId)
+            .IsRequired()
+            .OnDelete(DeleteBehavior.SetNull);
         builder.ToTable("OrderPayments", Constants.SchemaName);
     }
 }

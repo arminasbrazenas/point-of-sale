@@ -16,6 +16,7 @@ public class ServiceChargeMappingService : IServiceChargeMappingService
             Name = serviceCharge.Name,
             Amount = serviceCharge.Amount,
             PricingStrategy = serviceCharge.PricingStrategy,
+            BusinessId = serviceCharge.BusinessId,
         };
     }
 

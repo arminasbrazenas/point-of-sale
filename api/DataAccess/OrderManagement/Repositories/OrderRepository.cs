@@ -25,6 +25,7 @@ public class OrderRepository : RepositoryBase<Order, int>, IOrderRepository
         var order = await DbSet
             .Where(o => o.Id == orderId)
             .Include(o => o.Reservation)
+            .ThenInclude(o => o.Employee)
             .Include(o => o.ServiceCharges)
             .Include(o => o.Discounts)
             .Include(o => o.Items)
@@ -43,13 +44,8 @@ public class OrderRepository : RepositoryBase<Order, int>, IOrderRepository
         return new OrderNotFoundErrorMessage(id);
     }
 
-    public override async Task<int> GetTotalCount(int? businessId = null)
+    public async Task<int> GetTotalCount(int businessId)
     {
-        if (businessId.HasValue)
-        {
-            return await DbSet.Where(o => o.BusinessId == businessId).CountAsync();
-        }
-
-        return await base.GetTotalCount(businessId);
+        return await DbSet.Where(o => o.BusinessId == businessId).CountAsync();
     }
 }

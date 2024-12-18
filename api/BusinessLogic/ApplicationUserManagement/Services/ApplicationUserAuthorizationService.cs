@@ -48,22 +48,19 @@ public class ApplicationUserAuthorizationService : IApplicationUserAuthorization
         {
             if (currentUser.OwnedBusiness is null)
             {
-                Console.WriteLine("current user business is null");
                 throw new ApplicationUserAuthorizationException(new ApplicationUserUnauthorizedErrorMessage());
             }
             else
             {
-                var applicationUser = await _applicationUserRepository.GetUserByIdWithBusinessAsync(currentUserId);
+                var applicationUser = await _applicationUserRepository.GetUserByIdWithBusinessAsync(applicationUserId);
                 if (applicationUser is null)
                 {
-                    Console.WriteLine("application user is null");
                     throw new ApplicationUserAuthenticationException(
                         new ApplicationUserNotFoundErrorMessage(applicationUserId)
                     );
                 }
-                if (applicationUser.EmployerBusiness != currentUser.OwnedBusiness)
+                if (applicationUser.EmployerBusiness!.Id != currentUser.OwnedBusiness.Id)
                 {
-                    Console.WriteLine("businesses do not match");
                     throw new ApplicationUserAuthorizationException(new ApplicationUserUnauthorizedErrorMessage());
                 }
             }

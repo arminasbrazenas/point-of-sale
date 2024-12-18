@@ -66,4 +66,9 @@ public class ServiceRepository : RepositoryBase<Service, int>, IServiceRepositor
     {
         return new ServiceNotFoundErrorMessage(id);
     }
+
+    public async Task<int> GetTotalCount(int businessId)
+    {
+        return await DbSet.Where(s => s.BusinessId == businessId).CountAsync();
+    }
 }

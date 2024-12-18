@@ -21,6 +21,7 @@ import { Elements } from '@stripe/react-stripe-js';
 import { stripePromise } from '@/lib/stripe-client';
 import { StripeCheckout } from './stripe-checkout';
 import { useConfirmPaymentIntent } from '../api/confirm-payment-intent';
+import { useAppStore } from '@/lib/app-store';
 
 type OrderPaymentsProps = {
   orderId: number;
@@ -34,6 +35,25 @@ export const OrderPayments = (props: OrderPaymentsProps) => {
   const [paymentIntent, setPaymentIntent] = useState<PaymentIntent | null>(null);
 
   const confirmPaymentIntent = useConfirmPaymentIntent();
+
+  const userId = useAppStore((state) => {
+    const applicationUser = state.applicationUser;
+
+    if (!applicationUser || applicationUser.id === null) {
+      throw new Error('Application user with id is required to get discounts.');
+    }
+
+    return applicationUser.id;
+  });
+  const businessId = useAppStore((state) => {
+    const applicationUser = state.applicationUser;
+
+    if (!applicationUser || applicationUser.businessId === null) {
+      throw new Error('Application user with business is required to get discounts.');
+    }
+
+    return applicationUser.businessId;
+  });
 
   const payByCashMutation = usePayByCash({
     mutationConfig: {
@@ -99,6 +119,8 @@ export const OrderPayments = (props: OrderPaymentsProps) => {
     initialValues: {
       orderId: props.orderId,
       paymentAmount: 0,
+      businessId: businessId,
+      employeeId: userId,
     },
     validate: zodResolver(payByCashInputSchema),
   });
@@ -108,6 +130,8 @@ export const OrderPayments = (props: OrderPaymentsProps) => {
     initialValues: {
       orderId: props.orderId,
       giftCardCode: '',
+      businessId: businessId,
+      employeeId: userId,
     },
     validate: zodResolver(payByGiftCardInputSchema),
   });
@@ -117,6 +141,7 @@ export const OrderPayments = (props: OrderPaymentsProps) => {
     initialValues: {
       orderId: props.orderId,
       tipAmount: 0,
+      employeeId: userId
     },
     validate: zodResolver(addTipInputSchema),
   });
@@ -127,6 +152,8 @@ export const OrderPayments = (props: OrderPaymentsProps) => {
       orderId: props.orderId,
       paymentAmount: 0,
       tipAmount: 0,
+      businessId: businessId,
+      employeeId: userId,
     },
     validate: zodResolver(createOnlinePaymentIntentSchema),
   });

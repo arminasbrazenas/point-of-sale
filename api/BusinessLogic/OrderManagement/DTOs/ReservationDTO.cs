@@ -11,6 +11,7 @@ public record ReservationDTO
     public required ReservationCustomer Customer { get; init; }
     public required ServiceEmployeeDTO Employee { get; init; }
     public required int? ServiceId { get; init; }
+    public required ReservationStatus Status { get; init; }
+    public required decimal Price { get; init; }
     public required int BusinessId { get; init; }
-    public ReservationStatus Status { get; init; }
 }

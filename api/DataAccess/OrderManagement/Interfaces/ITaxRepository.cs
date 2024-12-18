@@ -7,5 +7,6 @@ namespace PointOfSale.DataAccess.OrderManagement.Interfaces;
 public interface ITaxRepository : IRepositoryBase<Tax, int>
 {
     Task<Tax?> GetByNameOptional(string name);
-    Task<List<Tax>> GetPaged(PaginationFilter paginationFilter);
+    Task<List<Tax>> GetPaged(int businessId, PaginationFilter paginationFilter);
+    Task<int> GetTotalCount(int businessId);
 }

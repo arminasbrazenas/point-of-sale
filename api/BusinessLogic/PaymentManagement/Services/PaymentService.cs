@@ -22,6 +22,7 @@ public class PaymentService : IPaymentService
     private readonly IGiftCardService _giftCardService;
     private readonly ITipRepository _tipRepository;
     private readonly IStripeService _stripeService;
+    private readonly IOrderManagementAuthorizationService _orderManagementAuthorizationService;
 
     public PaymentService(
         IOrderService orderService,
@@ -30,7 +31,8 @@ public class PaymentService : IPaymentService
         IPaymentMappingService paymentMappingService,
         IGiftCardService giftCardService,
         ITipRepository tipRepository,
-        IStripeService stripeService
+        IStripeService stripeService,
+        IOrderManagementAuthorizationService orderManagementAuthorizationService
     )
     {
         _orderService = orderService;
@@ -40,11 +42,17 @@ public class PaymentService : IPaymentService
         _giftCardService = giftCardService;
         _tipRepository = tipRepository;
         _stripeService = stripeService;
+        _orderManagementAuthorizationService = orderManagementAuthorizationService;
     }
 
     public async Task<CashPaymentDTO> PayByCash(PayByCashDTO payByCashDTO)
     {
+        await _orderManagementAuthorizationService.AuthorizeApplicationUser(payByCashDTO.BusinessId);
+
         var order = await _orderService.GetOrder(payByCashDTO.OrderId);
+
+        await _orderManagementAuthorizationService.AuthorizeApplicationUser(order.BusinessId);
+
         ValidateOrderIsCompleted(order);
         await ValidatePaymentAmount(order, payByCashDTO.PaymentAmount);
 
@@ -54,6 +62,8 @@ public class PaymentService : IPaymentService
             Method = PaymentMethod.Cash,
             Status = PaymentStatus.Succeeded,
             Amount = payByCashDTO.PaymentAmount,
+            BusinessId = payByCashDTO.BusinessId,
+            EmployeeId = payByCashDTO.EmployeeId,
         };
 
         _paymentRepository.Add(payment);
@@ -64,7 +74,12 @@ public class PaymentService : IPaymentService
 
     public async Task<GiftCardPaymentDTO> PayByGiftCard(PayByGiftCardDTO payByGiftCardDTO)
     {
+        await _orderManagementAuthorizationService.AuthorizeApplicationUser(payByGiftCardDTO.BusinessId);
+
         var order = await _orderService.GetOrder(payByGiftCardDTO.OrderId);
+
+        await _orderManagementAuthorizationService.AuthorizeApplicationUser(order.BusinessId);
+
         ValidateOrderIsCompleted(order);
 
         var giftCard = await _giftCardService.GetUsableGiftCardByCode(payByGiftCardDTO.GiftCardCode);
@@ -75,6 +90,8 @@ public class PaymentService : IPaymentService
             Status = PaymentStatus.Succeeded,
             Amount = giftCard.Amount,
             GiftCardCode = giftCard.Code,
+            BusinessId = payByGiftCardDTO.BusinessId,
+            EmployeeId = payByGiftCardDTO.EmployeeId,
         };
 
         await _unitOfWork.ExecuteInTransaction(async () =>
@@ -89,7 +106,9 @@ public class PaymentService : IPaymentService
 
     public async Task<PaymentIntentDTO> CreateOnlinePaymentIntent(CreatePaymentIntentDTO createPaymentIntentDTO)
     {
+        await _orderManagementAuthorizationService.AuthorizeApplicationUser(createPaymentIntentDTO.BusinessId);
         var order = await _orderService.GetOrder(createPaymentIntentDTO.OrderId);
+        await _orderManagementAuthorizationService.AuthorizeApplicationUser(order.BusinessId);
         ValidateOrderIsCompleted(order);
         await ValidatePaymentAmount(order, createPaymentIntentDTO.PaymentAmount);
 
@@ -102,9 +121,16 @@ public class PaymentService : IPaymentService
             Status = PaymentStatus.Pending,
             Amount = createPaymentIntentDTO.PaymentAmount,
             ExternalId = paymentIntent.PaymentIntentId,
+            BusinessId = createPaymentIntentDTO.BusinessId,
+            EmployeeId = createPaymentIntentDTO.BusinessId,
         };
 
-        var tip = new Tip { OrderId = order.Id, Amount = createPaymentIntentDTO.TipAmount };
+        var tip = new Tip
+        {
+            OrderId = order.Id,
+            Amount = createPaymentIntentDTO.TipAmount,
+            EmployeeId = createPaymentIntentDTO.EmployeeId,
+        };
 
         _paymentRepository.Add(payment);
         _tipRepository.Add(tip);
@@ -116,6 +142,7 @@ public class PaymentService : IPaymentService
     public async Task ConfirmOnlinePayment(string paymentIntentId)
     {
         var payment = await _paymentRepository.GetOnlinePaymentByExternalId(paymentIntentId);
+        await _orderManagementAuthorizationService.AuthorizeApplicationUser(payment.BusinessId);
         var stripePaymentStatus = await _stripeService.GetPaymentIntentStatus(paymentIntentId);
         if (stripePaymentStatus == PaymentStatus.Succeeded)
         {
@@ -155,12 +182,14 @@ public class PaymentService : IPaymentService
     public async Task<OrderPaymentsDTO> GetOrderPayments(int orderId)
     {
         var order = await _orderService.GetOrder(orderId);
+        await _orderManagementAuthorizationService.AuthorizeApplicationUser(order.BusinessId);
         return await GetOrderPayments(order);
     }
 
     public async Task CompleteOrderPayments(CompleteOrderPaymentsDTO completeOrderPaymentsDTO)
     {
         var order = await _orderService.GetOrder(completeOrderPaymentsDTO.OrderId);
+        await _orderManagementAuthorizationService.AuthorizeApplicationUser(order.BusinessId);
 
         ValidateOrderIsCompleted(order);
         await ValidateOrderIsFullyPaid(order);
@@ -171,9 +200,15 @@ public class PaymentService : IPaymentService
     public async Task<TipDTO> AddTip(AddTipDTO addTipDTO)
     {
         var order = await _orderService.GetOrderMinimal(addTipDTO.OrderId);
+        await _orderManagementAuthorizationService.AuthorizeApplicationUser(order.BusinessId);
         ValidateOrderIsCompleted(order);
 
-        var tip = new Tip { OrderId = order.Id, Amount = addTipDTO.TipAmount };
+        var tip = new Tip
+        {
+            OrderId = order.Id,
+            Amount = addTipDTO.TipAmount,
+            EmployeeId = addTipDTO.EmployeeId,
+        };
 
         _tipRepository.Add(tip);
         await _unitOfWork.SaveChanges();

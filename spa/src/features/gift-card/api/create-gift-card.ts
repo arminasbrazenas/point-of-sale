@@ -12,7 +12,7 @@ export const createGiftCardInputSchema = z.object({
 
 export type CreateGiftCardInput = z.infer<typeof createGiftCardInputSchema>;
 
-export const createGiftCard = ({ data }: { data: CreateGiftCardInput }): Promise<ServiceCharge> => {
+export const createGiftCard = ({ data }: { data: CreateGiftCardInput & { businessId: number }}): Promise<ServiceCharge> => {
   return api.post('/v1/gift-cards', data);
 };
 

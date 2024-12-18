@@ -11,4 +11,5 @@ public record ProductDTO
     public required List<TaxDTO> Taxes { get; set; }
     public required List<ModifierDTO> Modifiers { get; set; }
     public required List<DiscountDTO> Discounts { get; set; }
+    public required int BusinessId { get; init; }
 }

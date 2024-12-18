@@ -33,7 +33,6 @@ export const ReservationList = () => {
         <Table striped stickyHeader highlightOnHover>
           <Table.Thead>
             <Table.Tr>
-              <Table.Th>ID</Table.Th>
               <Table.Th>Description</Table.Th>
               <Table.Th>Customer</Table.Th>
               <Table.Th>Employee</Table.Th>
@@ -45,7 +44,6 @@ export const ReservationList = () => {
           <Table.Tbody>
             {reservations.map((r) => (
               <Table.Tr key={r.id} onClick={() => navigate(paths.employee.updateReservation.getHref(r.id))}>
-                <Table.Td>#{r.id}</Table.Td>
                 <Table.Td>{r.description}</Table.Td>
                 <Table.Td>{`${r.customer.firstName} ${r.customer.lastName}`}</Table.Td>
                 <Table.Td>{r.employee.fullName}</Table.Td>

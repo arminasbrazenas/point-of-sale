@@ -53,6 +53,7 @@ public class ModifierService : IModifierService
         int businessId
     )
     {
+        await _orderManagementAuthorizationService.AuthorizeApplicationUser(businessId);
         var paginationFilter = PaginationFilterFactory.Create(paginationFilterDTO);
         var modifiers = await _modifierRepository.GetWithFilter(paginationFilter, businessId);
         var totalCount = await _modifierRepository.GetTotalCount(businessId);
