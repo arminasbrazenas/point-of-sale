@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using PointOfSale.BusinessLogic.OrderManagement.DTOs;
 using PointOfSale.BusinessLogic.PaymentManagement.DTOs;
 using PointOfSale.BusinessLogic.PaymentManagement.Interfaces;
 
@@ -82,5 +83,14 @@ public class PaymentsController : ControllerBase
     {
         var orderPayments = await _paymentService.GetOrderPayments(orderId);
         return Ok(orderPayments);
+    }
+    
+    [HttpPost]
+    [Route("refund")]
+    public async Task<IActionResult> RefundOrderPayments(
+        [FromBody] RefundOrderPaymentsDTO refundOrderPaymentsDTO)
+    {
+        await _paymentService.RefundOrderPayments(refundOrderPaymentsDTO);
+        return Accepted();
     }
 }

@@ -2,11 +2,11 @@ using PointOfSale.BusinessLogic.PaymentManagement.Interfaces;
 
 namespace PointOfSale.Api.BackgroundServices;
 
-public class PaymentBackgroundService : BackgroundService
+public class RefundsBackgroundService : BackgroundService
 {
     private readonly IServiceScopeFactory _serviceScopeFactory;
 
-    public PaymentBackgroundService(IServiceScopeFactory serviceScopeFactory)
+    public RefundsBackgroundService(IServiceScopeFactory serviceScopeFactory)
     {
         _serviceScopeFactory = serviceScopeFactory;
     }
@@ -20,15 +20,14 @@ public class PaymentBackgroundService : BackgroundService
         {
             try
             {
-                await paymentService.ProcessPendingOnlinePayments();
-                await paymentService.CancelPendingOutdatedOnlinePayments();
+                await paymentService.CompletePendingRefunds();
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex);
             }
             
-            await Task.Delay(TimeSpan.FromSeconds(15), stoppingToken);
+            await Task.Delay(TimeSpan.FromSeconds(5), stoppingToken);
         }
     }
 }

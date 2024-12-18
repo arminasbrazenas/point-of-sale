@@ -3,6 +3,7 @@ export enum OrderStatus {
   Completed = 'Completed',
   Closed = 'Closed',
   Canceled = 'Canceled',
+  RefundInitiated = 'RefundInitiated',
   Refunded = 'Refunded',
 }
 

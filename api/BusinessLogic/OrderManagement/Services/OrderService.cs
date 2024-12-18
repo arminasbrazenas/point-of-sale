@@ -248,6 +248,18 @@ public class OrderService : IOrderService
         await _unitOfWork.SaveChanges();
     }
 
+    public async Task MarkRefunded(int orderId)
+    {
+        var order = await _orderRepository.Get(orderId);
+        if (order.Status != OrderStatus.Closed)
+        {
+            throw new ValidationException(new NonClosedOrderCannotBeRefundedErrorMessage());
+        }
+        
+        order.Status = OrderStatus.Refunded;
+        await _unitOfWork.SaveChanges();
+    }
+
     private async Task<List<OrderItem>> ReserveOrderItems(List<CreateOrUpdateOrderItemDTO> createOrderItemDTOs)
     {
         var productIds = createOrderItemDTOs.Select(x => x.ProductId);

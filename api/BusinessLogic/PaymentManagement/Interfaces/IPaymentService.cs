@@ -1,3 +1,4 @@
+using PointOfSale.BusinessLogic.OrderManagement.DTOs;
 using PointOfSale.BusinessLogic.PaymentManagement.DTOs;
 
 namespace PointOfSale.BusinessLogic.PaymentManagement.Interfaces;
@@ -14,4 +15,6 @@ public interface IPaymentService
     Task CompleteOrderPayments(CompleteOrderPaymentsDTO completeOrderPaymentsDTO);
     Task<TipDTO> AddTip(AddTipDTO addTipDTO);
     Task<List<TipDTO>> GetTips(int orderId);
+    Task RefundOrderPayments(RefundOrderPaymentsDTO refundOrderPaymentsDTO);
+    Task CompletePendingRefunds();
 }
