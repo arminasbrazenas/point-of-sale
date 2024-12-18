@@ -23,6 +23,7 @@ public class OrderService : IOrderService
     private readonly IOrderManagementAuthorizationService _orderAuthorizationService;
     private readonly IDiscountRepository _discountRepository;
     private readonly IReservationRepository _reservationRepository;
+    private readonly IReservationService _reservationService;
 
     public OrderService(
         IUnitOfWork unitOfWork,
@@ -33,7 +34,8 @@ public class OrderService : IOrderService
         IServiceChargeRepository serviceChargeRepository,
         IOrderManagementAuthorizationService orderAuthorizationService,
         IDiscountRepository discountRepository,
-        IReservationRepository reservationRepository
+        IReservationRepository reservationRepository,
+        IReservationService reservationService
     )
     {
         _unitOfWork = unitOfWork;
@@ -45,57 +47,66 @@ public class OrderService : IOrderService
         _orderAuthorizationService = orderAuthorizationService;
         _discountRepository = discountRepository;
         _reservationRepository = reservationRepository;
+        _reservationService = reservationService;
     }
 
     public async Task<OrderDTO> CreateOrder(CreateOrderDTO createOrderDTO)
     {
-        await _orderAuthorizationService.AuthorizeApplicationUser(createOrderDTO.BusinessId);
-
-        var reservation = createOrderDTO.ReservationId.HasValue
-            ? await _reservationRepository.Get(createOrderDTO.ReservationId.Value)
-            : null;
-
-        var orderItems = await ReserveOrderItems(createOrderDTO.OrderItems);
-        var orderDiscounts = await GetOrderDiscounts(orderItems, createOrderDTO.Discounts, reservation);
-        var serviceCharges = await GetOrderServiceCharges(
-            createOrderDTO.ServiceChargeIds,
-            orderItems,
-            orderDiscounts,
-            reservation
-        );
-
-        foreach (var orderItem in orderItems)
+        return await _unitOfWork.ExecuteInTransaction(async () =>
         {
-            if (orderItem.Product is not null)
-                await _orderAuthorizationService.AuthorizeApplicationUser(orderItem.Product.BusinessId);
+            await _orderAuthorizationService.AuthorizeApplicationUser(createOrderDTO.BusinessId);
 
-            foreach (var orderItemModifier in orderItem.Modifiers)
+            var reservation = createOrderDTO.ReservationId.HasValue
+                ? await _reservationRepository.GetWithRelatedData(createOrderDTO.ReservationId.Value)
+                : null;
+
+            if (reservation is not null)
             {
-                var modifier = await _modifierRepository.Get(orderItemModifier.Id);
-                await _orderAuthorizationService.AuthorizeApplicationUser(modifier.BusinessId);
+                await _reservationService.MarkReservationInProgress(reservation.Id);
             }
-        }
 
-        foreach (var serviceChargeId in createOrderDTO.ServiceChargeIds)
-        {
-            var serviceCharge = await _serviceChargeRepository.Get(serviceChargeId);
-            await _orderAuthorizationService.AuthorizeApplicationUser(serviceCharge.BusinessId);
-        }
+            var orderItems = await ReserveOrderItems(createOrderDTO.OrderItems);
+            var orderDiscounts = await GetOrderDiscounts(orderItems, createOrderDTO.Discounts, reservation);
+            var serviceCharges = await GetOrderServiceCharges(
+                createOrderDTO.ServiceChargeIds,
+                orderItems,
+                orderDiscounts,
+                reservation
+            );
 
-        var order = new Order
-        {
-            Items = orderItems,
-            Status = OrderStatus.Open,
-            BusinessId = createOrderDTO.BusinessId,
-            ServiceCharges = serviceCharges,
-            Discounts = orderDiscounts,
-            ReservationId = reservation?.Id,
-        };
+            foreach (var orderItem in orderItems)
+            {
+                if (orderItem.Product is not null)
+                    await _orderAuthorizationService.AuthorizeApplicationUser(orderItem.Product.BusinessId);
 
-        _orderRepository.Add(order);
-        await _unitOfWork.SaveChanges();
+                foreach (var orderItemModifier in orderItem.Modifiers)
+                {
+                    var modifier = await _modifierRepository.Get(orderItemModifier.Id);
+                    await _orderAuthorizationService.AuthorizeApplicationUser(modifier.BusinessId);
+                }
+            }
 
-        return _orderMappingService.MapToOrderDTO(order);
+            foreach (var serviceChargeId in createOrderDTO.ServiceChargeIds)
+            {
+                var serviceCharge = await _serviceChargeRepository.Get(serviceChargeId);
+                await _orderAuthorizationService.AuthorizeApplicationUser(serviceCharge.BusinessId);
+            }
+
+            var order = new Order
+            {
+                Items = orderItems,
+                Status = OrderStatus.Open,
+                BusinessId = createOrderDTO.BusinessId,
+                ServiceCharges = serviceCharges,
+                Discounts = orderDiscounts,
+                ReservationId = reservation?.Id,
+            };
+
+            _orderRepository.Add(order);
+            await _unitOfWork.SaveChanges();
+
+            return _orderMappingService.MapToOrderDTO(order);
+        });
     }
 
     public async Task<PagedResponseDTO<OrderMinimalDTO>> GetOrders(
@@ -196,17 +207,24 @@ public class OrderService : IOrderService
 
         await _orderAuthorizationService.AuthorizeApplicationUser(order.BusinessId);
 
-        await _orderAuthorizationService.AuthorizeApplicationUser(order.BusinessId);
-
         if (order.Status != OrderStatus.Open)
         {
             throw new ValidationException(new CannotCancelNonOpenOrderErrorMessage());
         }
 
-        await ReturnOrderItems(order.Items);
-        order.Status = OrderStatus.Canceled;
+        await _unitOfWork.ExecuteInTransaction(async () =>
+        {
+            await ReturnOrderItems(order.Items);
+            order.Status = OrderStatus.Canceled;
 
-        await _unitOfWork.SaveChanges();
+            if (order.ReservationId is not null)
+            {
+                await _reservationService.RevertInProgressReservation(order.ReservationId.Value);
+                order.ReservationId = null;
+            }
+
+            await _unitOfWork.SaveChanges();
+        });
     }
 
     public async Task<OrderReceiptDTO> GetOrderReceipt(int orderId)
@@ -229,8 +247,16 @@ public class OrderService : IOrderService
             throw new ValidationException(new CannotCompleteNonOpenOrderErrorMessage());
         }
 
-        order.Status = OrderStatus.Completed;
-        await _unitOfWork.SaveChanges();
+        await _unitOfWork.ExecuteInTransaction(async () =>
+        {
+            if (order.ReservationId is not null)
+            {
+                await _reservationService.CompleteReservation(order.ReservationId.Value);
+            }
+
+            order.Status = OrderStatus.Completed;
+            await _unitOfWork.SaveChanges();
+        });
     }
 
     public async Task CloseOrder(int orderId)
@@ -255,7 +281,7 @@ public class OrderService : IOrderService
         {
             throw new ValidationException(new NonClosedOrderCannotBeRefundedErrorMessage());
         }
-        
+
         order.Status = OrderStatus.Refunded;
         await _unitOfWork.SaveChanges();
     }

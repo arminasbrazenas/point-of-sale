@@ -38,6 +38,7 @@ export enum ReservationStatus {
   Active = 'Active',
   Canceled = 'Canceled',
   Completed = 'Completed',
+  InProgress = 'InProgress',
 }
 
 export type EntityBase = {

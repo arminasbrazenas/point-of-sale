@@ -16,4 +16,7 @@ public interface IReservationService
         int businessId,
         ReservationFilter? filter
     );
+    Task CompleteReservation(int reservationId);
+    Task MarkReservationInProgress(int reservationId);
+    Task RevertInProgressReservation(int reservationId);
 }

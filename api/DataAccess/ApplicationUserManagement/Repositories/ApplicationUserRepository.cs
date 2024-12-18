@@ -61,4 +61,15 @@ public class ApplicationUserRepository : IApplicationUserRepository
     {
         return await _context.Users.CountAsync();
     }
+
+    public async Task<List<ApplicationUser>> GetManyByIdsAsync(List<int> userIds)
+    {
+        var distinctIds = userIds.Distinct().ToList();
+        if (distinctIds.Count == 0)
+        {
+            return [];
+        }
+
+        return await _context.Users.Join(distinctIds, e => e.Id, id => id, (e, _) => e).ToListAsync();
+    }
 }

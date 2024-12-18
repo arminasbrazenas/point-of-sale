@@ -9,6 +9,7 @@ export const updateServiceInputSchema = z.object({
   name: z.string().optional(),
   price: z.coerce.number().optional(),
   durationInMinutes: z.coerce.number().optional(),
+  providedByEmployeesWithId: z.array(z.number()).optional(),
 });
 
 export type UpdateServiceInput = z.infer<typeof updateServiceInputSchema>;

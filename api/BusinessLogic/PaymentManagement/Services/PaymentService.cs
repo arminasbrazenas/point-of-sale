@@ -230,14 +230,16 @@ public class PaymentService : IPaymentService
             {
                 throw new ValidationException(new CannotRefundGiftCardPaymentErrorMessage());
             }
-            
+
             foreach (var payment in payments)
             {
                 payment.Status = payment.Method switch
                 {
                     PaymentMethod.Cash => PaymentStatus.Refunded,
                     PaymentMethod.Online => PaymentStatus.RefundInitiated,
-                    _ => throw new NotImplementedException($"Refunding for method '{payment.Method}' is not implemented.")
+                    _ => throw new NotImplementedException(
+                        $"Refunding for method '{payment.Method}' is not implemented."
+                    ),
                 };
             }
 
@@ -249,15 +251,15 @@ public class PaymentService : IPaymentService
     public async Task CompletePendingRefunds()
     {
         var initiatedRefunds = await _paymentRepository.GetInitiatedOnlineRefunds();
-        
+
         foreach (var payment in initiatedRefunds)
         {
             var completeRefundDTO = new RefundPaymentDTO
             {
                 Amount = payment.Amount,
-                PaymentIntentId = payment.ExternalId
+                PaymentIntentId = payment.ExternalId,
             };
-            
+
             await _stripeService.RefundPayment(completeRefundDTO);
 
             payment.Status = PaymentStatus.Refunded;

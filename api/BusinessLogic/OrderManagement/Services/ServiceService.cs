@@ -5,7 +5,6 @@ using PointOfSale.BusinessLogic.Shared.DTOs;
 using PointOfSale.BusinessLogic.Shared.Factories;
 using PointOfSale.DataAccess.BusinessManagement.Interfaces;
 using PointOfSale.DataAccess.OrderManagement.Interfaces;
-using PointOfSale.DataAccess.Shared.Filters;
 using PointOfSale.DataAccess.Shared.Interfaces;
 using PointOfSale.Models.OrderManagement.Entities;
 
@@ -44,10 +43,8 @@ public class ServiceService : IServiceService
         var name = await _serviceValidationService.ValidateName(createServiceDto.Name, createServiceDto.BusinessId);
         var durationInMinutes = _serviceValidationService.ValidateDurationInMinutes(createServiceDto.DurationInMinutes);
         var price = _serviceValidationService.ValidatePrice(createServiceDto.Price.ToRoundedPrice());
-        var providedByEmployees = await _applicationUserRepository.GetAllUsersWithBusinessAsync(
-            createServiceDto.BusinessId,
-            "Employee",
-            new PaginationFilter { ItemsPerPage = 50, Page = 1 }
+        var providedByEmployees = await _applicationUserRepository.GetManyByIdsAsync(
+            createServiceDto.ProvidedByEmployeesWithId
         );
 
         var service = new Service
@@ -56,7 +53,7 @@ public class ServiceService : IServiceService
             Duration = TimeSpan.FromMinutes(durationInMinutes),
             Price = price,
             BusinessId = createServiceDto.BusinessId,
-            ProvidedByEmployees = providedByEmployees.Select(x => x.User).ToList(),
+            ProvidedByEmployees = providedByEmployees,
         };
 
         _serviceRepository.Add(service);
@@ -85,6 +82,13 @@ public class ServiceService : IServiceService
         if (updateServiceDto.Price.HasValue)
         {
             service.Price = _serviceValidationService.ValidatePrice(updateServiceDto.Price.Value.ToRoundedPrice());
+        }
+
+        if (updateServiceDto.ProvidedByEmployeesWithId is not null)
+        {
+            service.ProvidedByEmployees = await _applicationUserRepository.GetManyByIdsAsync(
+                updateServiceDto.ProvidedByEmployeesWithId
+            );
         }
 
         _serviceRepository.Update(service);

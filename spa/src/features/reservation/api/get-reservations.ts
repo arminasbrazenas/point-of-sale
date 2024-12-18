@@ -31,7 +31,7 @@ export const getReservationsQueryOptions = (
 ) => {
   return queryOptions({
     queryKey: ['reservations', paginationFilter, businessId],
-    queryFn: () => getReservations(paginationFilter, businessId),
+    queryFn: () => getReservations(paginationFilter, businessId, filter),
   });
 };
 

@@ -26,7 +26,8 @@ public class StripeService : IStripeService
             Amount = (long)((paymentIntentDTO.PaymentAmount + paymentIntentDTO.TipAmount) * 100m),
             Currency = "eur",
             PaymentMethodTypes = ["card"],
-            Description = $"Payment for order #{paymentIntentDTO.OrderId} ({paymentIntentDTO.PaymentAmount}€ + {paymentIntentDTO.TipAmount}€ tip)",
+            Description =
+                $"Payment for order #{paymentIntentDTO.OrderId} ({paymentIntentDTO.PaymentAmount}€ + {paymentIntentDTO.TipAmount}€ tip)",
         };
 
         try
@@ -73,8 +74,6 @@ public class StripeService : IStripeService
         {
             await _refundService.CreateAsync(refundOptions);
         }
-        catch (StripeException ex) when (ex.StripeError.Code == "charge_already_refunded")
-        {
-        }
+        catch (StripeException ex) when (ex.StripeError.Code == "charge_already_refunded") { }
     }
 }

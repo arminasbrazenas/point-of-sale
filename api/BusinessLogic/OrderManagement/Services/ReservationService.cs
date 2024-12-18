@@ -159,4 +159,40 @@ public class ReservationService : IReservationService
         var totalCount = await _reservationRepository.GetTotalCount(businessId);
         return _reservationMappingService.MapToPagedReservationDTO(reservations, paginationFilter, totalCount);
     }
+
+    public async Task CompleteReservation(int reservationId)
+    {
+        var reservation = await _reservationRepository.Get(reservationId);
+        if (reservation.Status != ReservationStatus.InProgress)
+        {
+            throw new ValidationException(new ReservationIsNotInProgressErrorMessage());
+        }
+
+        reservation.Status = ReservationStatus.Completed;
+        await _unitOfWork.SaveChanges();
+    }
+
+    public async Task MarkReservationInProgress(int reservationId)
+    {
+        var reservation = await _reservationRepository.Get(reservationId);
+        if (reservation.Status != ReservationStatus.Active)
+        {
+            throw new ValidationException(new ReservationAlreadyInProgressErrorMessage());
+        }
+
+        reservation.Status = ReservationStatus.InProgress;
+        await _unitOfWork.SaveChanges();
+    }
+
+    public async Task RevertInProgressReservation(int reservationId)
+    {
+        var reservation = await _reservationRepository.Get(reservationId);
+        if (reservation.Status != ReservationStatus.InProgress)
+        {
+            throw new ValidationException(new ReservationIsNotInProgressErrorMessage());
+        }
+
+        reservation.Status = ReservationStatus.Active;
+        await _unitOfWork.SaveChanges();
+    }
 }

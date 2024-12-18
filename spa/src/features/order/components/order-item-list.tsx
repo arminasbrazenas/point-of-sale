@@ -71,23 +71,36 @@ export const OrderItemList = (props: OrderItemListProps) => {
     setDiscounts((prev) => prev.filter((d) => d.id != id));
   };
 
+  const formatReservationLabel = (r: Reservation) =>
+    `${r.customer.firstName} ${r.customer.lastName} (${r.description} at ${formatDate(r.date.start)} by ${
+      r.employee.fullName
+    })`;
+
   return (
     <Card withBorder>
-      <Select
-        label="Reservation"
-        data={props.reservations.map((r) => ({
-          label: `${r.customer.firstName} ${r.customer.lastName} (${r.description} at ${formatDate(r.date.start)})`,
-          value: r.id.toString(),
-        }))}
-        value={selectedReservationId ? selectedReservationId.toString() : null}
-        onChange={(value) => {
-          if (!value) {
-            setSelectedReservationId(undefined);
-          } else {
-            setSelectedReservationId(parseInt(value));
-          }
-        }}
-      />
+      {props.reservation ? (
+        <>
+          <Text fw={600}>Reservation</Text>
+          <Text>{formatReservationLabel(props.reservation)}</Text>
+        </>
+      ) : (
+        <Select
+          label="Reservation"
+          data={props.reservations.map((r) => ({
+            label: formatReservationLabel(r),
+            value: r.id.toString(),
+          }))}
+          value={selectedReservationId ? selectedReservationId.toString() : null}
+          onChange={(value) => {
+            if (!value) {
+              setSelectedReservationId(undefined);
+            } else {
+              setSelectedReservationId(parseInt(value));
+            }
+          }}
+          nothingFoundMessage="No active reservations..."
+        />
+      )}
 
       {props.orderItems.length > 0 && (
         <Text fw={600} mt="md">
