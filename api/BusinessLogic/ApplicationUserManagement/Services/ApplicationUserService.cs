@@ -211,6 +211,37 @@ public class ApplicationUserService : IApplicationUserService
         return new TokensDTO(accessToken, newRefreshToken);
     }
 
+    public async Task CreateAdminUser(RegisterApplicationUserDTO dto)
+    {
+        if (await _applicationUserRepository.DoesAdminExist())
+        {
+            return;
+        }
+        await _applicationUserValidationService.ValidateRegisterApplicationUserDTO(dto);
+
+        var applicationUser = new ApplicationUser
+        {
+            UserName = dto.Email,
+            Email = dto.Email,
+            FirstName = dto.FirstName,
+            LastName = dto.LastName,
+            PhoneNumber = dto.PhoneNumber,
+            EmployerBusinessId = dto.BusinessId,
+        };
+
+        var result = await _userManager.CreateAsync(applicationUser, dto.Password);
+
+        if (result.Succeeded)
+        {
+            await _userManager.AddToRoleAsync(applicationUser, "Admin");
+        }
+        else
+        {
+            var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+            throw new ValidationException(new FailedActionOnApplicationUserErrorMessage(errors));
+        }
+    }
+
     public async Task DeleteApplicationUser(int applicationUserId)
     {
         await _applicationUserAuthorizationService.AuthorizeApplicationUserAction(applicationUserId);

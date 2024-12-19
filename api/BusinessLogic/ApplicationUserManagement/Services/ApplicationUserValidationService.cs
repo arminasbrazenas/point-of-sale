@@ -26,6 +26,10 @@ public class ApplicationUserValidationService : IApplicationUserValidationServic
 
     public void ValidateApplicationUserRole(string role)
     {
+        if (string.Equals(role, "Admin", StringComparison.OrdinalIgnoreCase))
+        {
+            throw new ValidationException(new InvalidRoleErrorMessage(role));
+        }
         if (!Enum.IsDefined(typeof(Roles), role) && !Enum.TryParse<Roles>(role, ignoreCase: true, out _))
         {
             throw new ValidationException(new InvalidRoleErrorMessage(role));

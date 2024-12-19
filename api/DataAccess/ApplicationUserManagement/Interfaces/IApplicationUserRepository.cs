@@ -14,4 +14,5 @@ public interface IApplicationUserRepository
     );
     Task<int> GetTotalCountAsync(int? businessId);
     Task<List<ApplicationUser>> GetManyByIdsAsync(List<int> userIds);
+    Task<bool> DoesAdminExist();
 }

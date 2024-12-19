@@ -78,6 +78,23 @@ public class ApplicationUserRepository : IApplicationUserRepository
         return await _context.Users.Where(u => u.IsActive).CountAsync();
     }
 
+    public async Task<bool> DoesAdminExist()
+    {
+        var query =
+            from user in _context
+                .Users.Where(u => u.IsActive)
+                .Include(u => u.OwnedBusiness)
+                .Include(u => u.EmployerBusiness)
+            join userRole in _context.UserRoles on user.Id equals userRole.UserId
+            join role in _context.Roles on userRole.RoleId equals role.Id
+            where role.Name == "Admin"
+            orderby user.UserName
+            select new { user, RoleName = role.Name };
+
+        var count = await query.CountAsync();
+        return count > 0;
+    }
+
     public async Task<List<ApplicationUser>> GetManyByIdsAsync(List<int> userIds)
     {
         var distinctIds = userIds.Distinct().ToList();
