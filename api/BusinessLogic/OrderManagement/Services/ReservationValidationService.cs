@@ -1,4 +1,5 @@
 using PhoneNumbers;
+using PointOfSale.BusinessLogic.OrderManagement.DTOs;
 using PointOfSale.BusinessLogic.OrderManagement.Interfaces;
 using PointOfSale.BusinessLogic.Shared.Exceptions;
 using PointOfSale.DataAccess.OrderManagement;
@@ -68,5 +69,15 @@ public class ReservationValidationService : IReservationValidationService
         }
 
         return phoneNumber;
+    }
+
+    public int ValidateEmployeeId(ServiceDTO service, int employeeId)
+    {
+        if (!service.ProvidedByEmployees.Any(e => e.Id == employeeId))
+        {
+            throw new ValidationException(new EmployeeDoesNotProvideSelectedServiceErrorMessage());
+        }
+
+        return employeeId;
     }
 }

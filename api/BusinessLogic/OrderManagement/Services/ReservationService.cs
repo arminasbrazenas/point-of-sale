@@ -56,12 +56,13 @@ public class ReservationService : IReservationService
         var customerPhoneNumber = _reservationValidationService.ValidatePhoneNumber(
             createReservationDto.Customer.PhoneNumber
         );
+        var employeeId = _reservationValidationService.ValidateEmployeeId(service, createReservationDto.EmployeeId);
 
         var reservation = new Reservation
         {
             Date = new ReservationDate { Start = dateStart, End = dateEnd },
             Status = ReservationStatus.Active,
-            EmployeeId = createReservationDto.EmployeeId,
+            EmployeeId = employeeId,
             ServiceId = createReservationDto.ServiceId,
             Customer = new ReservationCustomer
             {
@@ -94,15 +95,21 @@ public class ReservationService : IReservationService
 
         if (updateReservationDto.ServiceId is not null)
         {
-            reservation.ServiceId = updateReservationDto.ServiceId.Value;
             var service = await _serviceService.GetService(updateReservationDto.ServiceId.Value);
+            _reservationValidationService.ValidateEmployeeId(
+                service,
+                updateReservationDto.EmployeeId ?? reservation.EmployeeId
+            );
+
+            reservation.ServiceId = updateReservationDto.ServiceId.Value;
             reservation.Name = service.Name;
             reservation.Price = service.Price;
         }
 
         if (updateReservationDto.EmployeeId is not null)
         {
-            reservation.EmployeeId = updateReservationDto.EmployeeId.Value;
+            var service = await _serviceService.GetService(reservation.ServiceId!.Value);
+            reservation.EmployeeId = _reservationValidationService.ValidateEmployeeId(service, updateReservationDto.EmployeeId.Value);
         }
 
         if (updateReservationDto.StartDate is not null)

@@ -12,6 +12,11 @@ public class ReservationWithoutServiceUpdateErrorMessage : IPointOfSaleErrorMess
     public string En => "This reservation can not be modified as its service no longer exists.";
 }
 
+public class EmployeeDoesNotProvideSelectedServiceErrorMessage : IPointOfSaleErrorMessage
+{
+    public string En => "Employee does not provide selected service.";
+}
+
 public class CannotModifyNonActiveReservationErrorMessage : IPointOfSaleErrorMessage
 {
     public string En => "Non-active reservation cannot be modified.";

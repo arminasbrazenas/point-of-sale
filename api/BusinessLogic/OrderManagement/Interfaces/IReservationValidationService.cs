@@ -1,3 +1,5 @@
+using PointOfSale.BusinessLogic.OrderManagement.DTOs;
+
 namespace PointOfSale.BusinessLogic.OrderManagement.Interfaces;
 
 public interface IReservationValidationService
@@ -6,4 +8,5 @@ public interface IReservationValidationService
     string ValidateFirstName(string firstName);
     string ValidateLastName(string lastName);
     string ValidatePhoneNumber(string phoneNumber);
+    int ValidateEmployeeId(ServiceDTO service, int employeeId);
 }
