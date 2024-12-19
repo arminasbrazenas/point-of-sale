@@ -16,7 +16,9 @@ public class ServiceRepository : RepositoryBase<Service, int>, IServiceRepositor
 
     public async Task<Service> GetWithRelatedData(int serviceId)
     {
-        var service = await DbSet.Include(s => s.ProvidedByEmployees).FirstOrDefaultAsync(s => s.Id == serviceId);
+        var service = await DbSet
+            .Include(s => s.ProvidedByEmployees.Where(e => e.IsActive))
+            .FirstOrDefaultAsync(s => s.Id == serviceId);
 
         if (service is null)
         {
@@ -35,9 +37,10 @@ public class ServiceRepository : RepositoryBase<Service, int>, IServiceRepositor
     {
         var query = DbSet
             .Where(s => s.BusinessId == businessId)
-            .Include(s => s.ProvidedByEmployees)
+            .Include(s => s.ProvidedByEmployees.Where(e => e.IsActive))
             .OrderBy(s => s.CreatedAt)
             .AsQueryable();
+        
         return await GetPaged(query, paginationFilter);
     }
 
