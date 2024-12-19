@@ -99,17 +99,21 @@ public class ServiceService : IServiceService
 
     public async Task DeleteService(int serviceId)
     {
+        var service = await _serviceRepository.Get(serviceId);
+        await _orderManagementAuthorizationService.AuthorizeApplicationUser(service.BusinessId);
         await _serviceRepository.Delete(serviceId);
     }
 
     public async Task<ServiceDTO> GetService(int serviceId)
     {
         var service = await _serviceRepository.GetWithRelatedData(serviceId);
+        await _orderManagementAuthorizationService.AuthorizeApplicationUser(service.BusinessId);
         return _serviceMappingService.MapToServiceDTO(service);
     }
 
     public async Task<PagedResponseDTO<ServiceDTO>> GetServices(PaginationFilterDTO paginationFilterDTO, int businessId)
     {
+        await _orderManagementAuthorizationService.AuthorizeApplicationUser(businessId);
         var paginationFilter = PaginationFilterFactory.Create(paginationFilterDTO);
         var services = await _serviceRepository.GetPaged(paginationFilter, businessId);
         var totalCount = await _serviceRepository.GetTotalCount(businessId);

@@ -150,6 +150,8 @@ public class ReservationService : IReservationService
 
     public async Task DeleteReservation(int reservationId)
     {
+        var reservation = await _reservationRepository.Get(reservationId);
+        await _orderManagementAuthorizationService.AuthorizeApplicationUser(reservation.BusinessId);
         await _reservationRepository.Delete(reservationId);
     }
 
@@ -173,6 +175,7 @@ public class ReservationService : IReservationService
     public async Task<ReservationDTO> GetReservation(int reservationId)
     {
         var reservation = await _reservationRepository.GetWithRelatedData(reservationId);
+        await _orderManagementAuthorizationService.AuthorizeApplicationUser(reservation.BusinessId);
         return _reservationMappingService.MapToReservationDTO(reservation);
     }
 
@@ -182,6 +185,7 @@ public class ReservationService : IReservationService
         ReservationFilter? filter
     )
     {
+        await _orderManagementAuthorizationService.AuthorizeApplicationUser(businessId);
         var paginationFilter = PaginationFilterFactory.Create(paginationFilterDTO);
         var reservations = await _reservationRepository.GetPaged(paginationFilter, businessId, filter);
         var totalCount = await _reservationRepository.GetTotalCount(businessId);
@@ -191,6 +195,7 @@ public class ReservationService : IReservationService
     public async Task CompleteReservation(int reservationId)
     {
         var reservation = await _reservationRepository.Get(reservationId);
+        await _orderManagementAuthorizationService.AuthorizeApplicationUser(reservation.BusinessId);
         if (reservation.Status != ReservationStatus.InProgress)
         {
             throw new ValidationException(new ReservationIsNotInProgressErrorMessage());
@@ -203,6 +208,7 @@ public class ReservationService : IReservationService
     public async Task MarkReservationInProgress(int reservationId)
     {
         var reservation = await _reservationRepository.Get(reservationId);
+        await _orderManagementAuthorizationService.AuthorizeApplicationUser(reservation.BusinessId);
         if (reservation.Status != ReservationStatus.Active)
         {
             throw new ValidationException(new ReservationAlreadyInProgressErrorMessage());
@@ -215,6 +221,7 @@ public class ReservationService : IReservationService
     public async Task RevertInProgressReservation(int reservationId)
     {
         var reservation = await _reservationRepository.Get(reservationId);
+        await _orderManagementAuthorizationService.AuthorizeApplicationUser(reservation.BusinessId);
         if (reservation.Status != ReservationStatus.InProgress)
         {
             throw new ValidationException(new ReservationIsNotInProgressErrorMessage());

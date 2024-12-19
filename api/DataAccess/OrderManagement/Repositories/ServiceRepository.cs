@@ -40,7 +40,7 @@ public class ServiceRepository : RepositoryBase<Service, int>, IServiceRepositor
             .Include(s => s.ProvidedByEmployees.Where(e => e.IsActive))
             .OrderBy(s => s.CreatedAt)
             .AsQueryable();
-        
+
         return await GetPaged(query, paginationFilter);
     }
 
