@@ -6,6 +6,7 @@ using PointOfSale.BusinessLogic.Shared.Exceptions;
 using PointOfSale.BusinessLogic.Shared.Factories;
 using PointOfSale.DataAccess.BusinessManagement.Interfaces;
 using PointOfSale.DataAccess.OrderManagement.ErrorMessages;
+using PointOfSale.DataAccess.OrderManagement.Extensions;
 using PointOfSale.DataAccess.OrderManagement.Filters;
 using PointOfSale.DataAccess.OrderManagement.Interfaces;
 using PointOfSale.DataAccess.Shared.Interfaces;
@@ -84,7 +85,7 @@ public class ReservationService : IReservationService
 
         var reservation = new Reservation
         {
-            Date = new ReservationDate { Start = dateStart, End = dateEnd },
+            Date = new ReservationDate { Start = dateStart.TrimMilliseconds(), End = dateEnd.TrimMilliseconds() },
             Status = ReservationStatus.Active,
             EmployeeId = employeeId,
             ServiceId = createReservationDto.ServiceId,
@@ -146,9 +147,9 @@ public class ReservationService : IReservationService
         if (updateReservationDto.StartDate is not null)
         {
             reservation.Date.Start = _reservationValidationService.ValidateDateStart(
-                updateReservationDto.StartDate.Value
+                updateReservationDto.StartDate.Value.TrimMilliseconds()
             );
-            reservation.Date.End = reservation.Date.Start + reservation.Service!.Duration;
+            reservation.Date.End = (reservation.Date.Start + reservation.Service!.Duration).TrimMilliseconds();
             dateServiceOrEmployeeChanged = true;
         }
 
