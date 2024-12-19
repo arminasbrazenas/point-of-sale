@@ -80,4 +80,36 @@ public class ReservationValidationService : IReservationValidationService
 
         return employeeId;
     }
+    
+    public void ValidateWorkHours(TimeOnly workStart, TimeOnly workEnd,
+        DateTimeOffset reservationStart, DateTimeOffset reservationEnd)
+    {
+        bool isWithinWorkingHours;
+        TimeOnly startTime = TimeOnly.FromDateTime(reservationStart.DateTime);
+        TimeOnly endTime = TimeOnly.FromDateTime(reservationEnd.DateTime);
+    
+        if (workStart == workEnd)
+        {
+            return;
+        }
+    
+        if (workStart <= workEnd)
+        {
+            isWithinWorkingHours = (startTime >= workStart && startTime <= workEnd) &&
+                                   (endTime >= workStart && endTime <= workEnd);
+        }
+        else
+        {
+            isWithinWorkingHours = ((startTime >= workStart || startTime <= workEnd) &&
+                                    (endTime >= workStart || endTime <= workEnd)) &&
+                                   !(startTime > workEnd && endTime < workStart);
+        }
+
+        if (!isWithinWorkingHours)
+        {
+            throw new ValidationException(new ReservationNotWithinWorkHoursErrorMessage());
+        }
+    
+    }
+
 }
