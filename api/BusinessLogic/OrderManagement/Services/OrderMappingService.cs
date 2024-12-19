@@ -68,6 +68,7 @@ public class OrderMappingService : IOrderMappingService
             ServiceCharges = serviceCharges,
             Discounts = orderDiscounts,
             BusinessId = order.BusinessId,
+            CreatedBy = $"{order.CreatedBy.FirstName} {order.CreatedBy.LastName}",
             Reservation = order.Reservation is null
                 ? null
                 : _reservationMappingService.MapToReservationDTO(order.Reservation),

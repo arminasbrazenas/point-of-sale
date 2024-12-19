@@ -3,7 +3,7 @@ import { MutationConfig } from '@/lib/react-query';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 export const confirmPaymentIntent = ({ paymentIntentId }: { paymentIntentId: string }): Promise<void> => {
-  return api.post(`/v1/payments/online/intents/${paymentIntentId}/confirm`);
+  return api.post(`/v1/payments/card/intents/${paymentIntentId}/confirm`);
 };
 
 type UseConfirmPaymentIntentOptions = {

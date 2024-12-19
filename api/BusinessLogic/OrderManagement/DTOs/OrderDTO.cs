@@ -7,4 +7,5 @@ public record OrderDTO : OrderMinimalDTO
     public required List<OrderServiceChargeDTO> ServiceCharges { get; init; }
     public required List<OrderDiscountDTO> Discounts { get; init; }
     public required ReservationDTO? Reservation { get; init; }
+    public required string CreatedBy { get; init; }
 }

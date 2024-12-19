@@ -37,7 +37,7 @@ public class ApplicationUserController : ControllerBase
     }
 
     [HttpGet]
-    [Authorize(Roles = "Admin,BusinessOwner")]
+    [Authorize(Roles = "Admin,BusinessOwner,Employee")]
     [Route("")]
     public async Task<IActionResult> GetApplicationUsers(
         [FromQuery] int? businessId,

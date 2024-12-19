@@ -12,10 +12,10 @@ import { PayByGiftCardInput, payByGiftCardInputSchema, usePayByGiftCard } from '
 import { AddTipInput, addTipInputSchema, useAddTip } from '../api/add-tip';
 import { useOrderTips } from '../api/get-order-tips';
 import {
-  CreateOnlinePaymentIntentInput,
-  createOnlinePaymentIntentSchema,
-  useCreateOnlinePaymentIntent,
-} from '../api/create-online-payment-intent';
+  CreateCardPaymentIntentInput,
+  createCardPaymentIntentSchema,
+  useCreateCardPaymentIntent,
+} from '../api/create-card-payment-intent';
 import { useState } from 'react';
 import { Elements } from '@stripe/react-stripe-js';
 import { stripePromise } from '@/lib/stripe-client';
@@ -103,12 +103,12 @@ export const OrderPayments = (props: OrderPaymentsProps) => {
     },
   });
 
-  const createCardPaymentIntentMutation = useCreateOnlinePaymentIntent({
+  const createCardPaymentIntentMutation = useCreateCardPaymentIntent({
     mutationConfig: {
       onSuccess: (result) => {
         showNotification({
           type: 'success',
-          title: 'Online payment intent created successfully.',
+          title: 'Card payment intent created successfully.',
         });
         setPaymentIntent(result);
       },
@@ -158,7 +158,7 @@ export const OrderPayments = (props: OrderPaymentsProps) => {
     validate: zodResolver(addTipInputSchema),
   });
 
-  const createCardPaymentIntentForm = useForm<CreateOnlinePaymentIntentInput>({
+  const createCardPaymentIntentForm = useForm<CreateCardPaymentIntentInput>({
     mode: 'uncontrolled',
     initialValues: {
       orderId: props.orderId,
@@ -167,7 +167,7 @@ export const OrderPayments = (props: OrderPaymentsProps) => {
       businessId: businessId,
       employeeId: userId,
     },
-    validate: zodResolver(createOnlinePaymentIntentSchema),
+    validate: zodResolver(createCardPaymentIntentSchema),
   });
 
   const payByCash = (values: PayByCashInput) => {
@@ -178,7 +178,7 @@ export const OrderPayments = (props: OrderPaymentsProps) => {
     payByGiftCardMutation.mutate({ data: values });
   };
 
-  const createCardPaymentIntent = (values: CreateOnlinePaymentIntentInput) => {
+  const createCardPaymentIntent = (values: CreateCardPaymentIntentInput) => {
     createCardPaymentIntentMutation.mutate({ data: values });
   };
 
@@ -190,10 +190,10 @@ export const OrderPayments = (props: OrderPaymentsProps) => {
     completeOrderPayments.mutate({ data: { orderId: props.orderId } });
   };
 
-  const onOnlinePaymentSuccess = (paymentIntent: PaymentIntent) => {
+  const onCardPaymentSuccess = (paymentIntent: PaymentIntent) => {
     showNotification({
       type: 'success',
-      title: 'Online payment succeeded.',
+      title: 'Card payment succeeded.',
     });
     confirmPaymentIntent.mutate({ paymentIntentId: paymentIntent.paymentIntentId });
     setPaymentIntent(null);
@@ -261,7 +261,7 @@ export const OrderPayments = (props: OrderPaymentsProps) => {
             {paymentIntent ? (
               <Elements stripe={stripePromise} options={{ clientSecret: paymentIntent.clientSecret }}>
                 <StripeCheckout
-                  onSuccess={onOnlinePaymentSuccess}
+                  onSuccess={onCardPaymentSuccess}
                   onFailure={onCardPaymentFailure}
                   paymentIntent={paymentIntent}
                 />

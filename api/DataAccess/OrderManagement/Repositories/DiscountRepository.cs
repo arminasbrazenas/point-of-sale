@@ -33,9 +33,9 @@ public class DiscountRepository : RepositoryBase<Discount, int>, IDiscountReposi
         return await GetPaged(query, paginationFilter);
     }
 
-    public async Task<List<Discount>> GetOrderDiscounts()
+    public async Task<List<Discount>> GetOrderDiscounts(int businessId)
     {
-        return await DbSet.Where(d => d.Target == DiscountTarget.Order).ToListAsync();
+        return await DbSet.Where(d => d.Target == DiscountTarget.Order && d.BusinessId == businessId).ToListAsync();
     }
 
     protected override IPointOfSaleErrorMessage GetEntityNotFoundErrorMessage(int id)

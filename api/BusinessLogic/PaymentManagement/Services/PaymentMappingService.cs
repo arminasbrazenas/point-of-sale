@@ -32,14 +32,14 @@ public class PaymentMappingService : IPaymentMappingService
         };
     }
 
-    public OnlinePaymentDTO MapToOnlinePaymentDTO(OnlinePayment payment)
+    public CardPaymentDTO MapToCardPaymentDTO(CardPayment payment)
     {
-        return new OnlinePaymentDTO
+        return new CardPaymentDTO
         {
             Id = payment.Id,
             Amount = payment.Amount,
             Status = payment.Status,
-            Method = PaymentMethod.Online,
+            Method = PaymentMethod.Card,
         };
     }
 
@@ -69,7 +69,7 @@ public class PaymentMappingService : IPaymentMappingService
         {
             PaymentMethod.Cash => MapToCashPaymentDTO((CashPayment)payment),
             PaymentMethod.GiftCard => MapToGiftCardPaymentDTO((GiftCardPayment)payment),
-            PaymentMethod.Online => MapToOnlinePaymentDTO((OnlinePayment)payment),
+            PaymentMethod.Card => MapToCardPaymentDTO((CardPayment)payment),
             _ => throw new NotImplementedException($"Payment method {payment.Method} mapping is not implemented."),
         };
 }

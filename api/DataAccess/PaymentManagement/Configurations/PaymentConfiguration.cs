@@ -38,7 +38,7 @@ public class PaymentConfiguration : EntityBaseConfiguration<Payment, int>
             .HasDiscriminator(p => p.Method)
             .HasValue<CashPayment>(PaymentMethod.Cash)
             .HasValue<GiftCardPayment>(PaymentMethod.GiftCard)
-            .HasValue<OnlinePayment>(PaymentMethod.Online);
+            .HasValue<CardPayment>(PaymentMethod.Card);
 
         builder
             .HasOne(o => o.Business)

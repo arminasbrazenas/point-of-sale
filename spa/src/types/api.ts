@@ -125,6 +125,7 @@ export type Order = Entity<{
   serviceCharges: OrderServiceCharge[];
   discounts: OrderDiscount[];
   reservation?: Reservation;
+  createdBy: string;
 }>;
 
 export type OrderReceipt = {

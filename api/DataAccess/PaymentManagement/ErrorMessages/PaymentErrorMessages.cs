@@ -7,9 +7,9 @@ public class PaymentNotFoundErrorMessage(int paymentId) : IPointOfSaleErrorMessa
     public string En => $"Payment with id {paymentId} was not found.";
 }
 
-public class OnlinePaymentNotFoundErrorMessage(string paymentId) : IPointOfSaleErrorMessage
+public class CardPaymentNotFoundErrorMessage(string paymentId) : IPointOfSaleErrorMessage
 {
-    public string En => $"Online payment with id {paymentId} was not found.";
+    public string En => $"Card payment with id {paymentId} was not found.";
 }
 
 public class CannotPayForNonCompletedOrderErrorMessage : IPointOfSaleErrorMessage

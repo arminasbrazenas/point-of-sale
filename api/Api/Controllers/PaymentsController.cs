@@ -35,20 +35,20 @@ public class PaymentsController : ControllerBase
     }
 
     [HttpPost]
-    [Route("online/intents")]
-    public async Task<ActionResult<PaymentIntentDTO>> CreateOnlinePaymentIntent(
+    [Route("card/intents")]
+    public async Task<ActionResult<PaymentIntentDTO>> CreateCardPaymentIntent(
         [FromBody] CreatePaymentIntentDTO createPaymentIntentDTO
     )
     {
-        var paymentIntent = await _paymentService.CreateOnlinePaymentIntent(createPaymentIntentDTO);
+        var paymentIntent = await _paymentService.CreateCardPaymentIntent(createPaymentIntentDTO);
         return Ok(paymentIntent);
     }
 
     [HttpPost]
-    [Route("online/intents/{paymentIntentId}/confirm")]
-    public async Task<IActionResult> ConfirmOnlinePayment([FromRoute] string paymentIntentId)
+    [Route("card/intents/{paymentIntentId}/confirm")]
+    public async Task<IActionResult> ConfirmCardPayment([FromRoute] string paymentIntentId)
     {
-        await _paymentService.ConfirmOnlinePayment(paymentIntentId);
+        await _paymentService.ConfirmCardPayment(paymentIntentId);
         return NoContent();
     }
 

@@ -34,8 +34,8 @@ public class PaymentBackgroundService : BackgroundService
         {
             try
             {
-                await paymentService.ProcessPendingOnlinePayments();
-                await paymentService.CancelPendingOutdatedOnlinePayments();
+                await paymentService.ProcessPendingCardPayments();
+                await paymentService.CancelPendingOutdatedCardPayments();
             }
             catch (Exception ex)
             {

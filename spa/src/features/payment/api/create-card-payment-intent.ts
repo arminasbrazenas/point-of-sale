@@ -4,7 +4,7 @@ import { PaymentIntent } from '@/types/api';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import z from 'zod';
 
-export const createOnlinePaymentIntentSchema = z.object({
+export const createCardPaymentIntentSchema = z.object({
   orderId: z.coerce.number(),
   paymentAmount: z.coerce.number(),
   tipAmount: z.coerce.number(),
@@ -12,21 +12,17 @@ export const createOnlinePaymentIntentSchema = z.object({
   employeeId: z.coerce.number(),
 });
 
-export type CreateOnlinePaymentIntentInput = z.infer<typeof createOnlinePaymentIntentSchema>;
+export type CreateCardPaymentIntentInput = z.infer<typeof createCardPaymentIntentSchema>;
 
-export const createOnlinePaymentIntent = ({
-  data,
-}: {
-  data: CreateOnlinePaymentIntentInput;
-}): Promise<PaymentIntent> => {
-  return api.post('/v1/payments/online/intents', data);
+export const createCardPaymentIntent = ({ data }: { data: CreateCardPaymentIntentInput }): Promise<PaymentIntent> => {
+  return api.post('/v1/payments/card/intents', data);
 };
 
-type UseCreateOnlinePaymentIntentOptions = {
-  mutationConfig?: MutationConfig<typeof createOnlinePaymentIntent>;
+type UseCreateCardPaymentIntentOptions = {
+  mutationConfig?: MutationConfig<typeof createCardPaymentIntent>;
 };
 
-export const useCreateOnlinePaymentIntent = ({ mutationConfig }: UseCreateOnlinePaymentIntentOptions = {}) => {
+export const useCreateCardPaymentIntent = ({ mutationConfig }: UseCreateCardPaymentIntentOptions = {}) => {
   const queryClient = useQueryClient();
 
   const { onSuccess, ...restConfig } = mutationConfig || {};
@@ -39,6 +35,6 @@ export const useCreateOnlinePaymentIntent = ({ mutationConfig }: UseCreateOnline
       onSuccess?.(...args);
     },
     ...restConfig,
-    mutationFn: createOnlinePaymentIntent,
+    mutationFn: createCardPaymentIntent,
   });
 };

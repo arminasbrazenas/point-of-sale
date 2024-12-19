@@ -69,7 +69,12 @@ public class OrderService : IOrderService
             }
 
             var orderItems = await ReserveOrderItems(createOrderDTO.OrderItems);
-            var orderDiscounts = await GetOrderDiscounts(orderItems, createOrderDTO.Discounts, reservation);
+            var orderDiscounts = await GetOrderDiscounts(
+                orderItems,
+                createOrderDTO.Discounts,
+                reservation,
+                createOrderDTO.BusinessId
+            );
             var serviceCharges = await _serviceChargeRepository.GetMany(createOrderDTO.ServiceChargeIds);
             var orderServiceCharges = GetOrderServiceCharges(
                 serviceCharges.Cast<IServiceCharge>().ToList(),
@@ -77,7 +82,7 @@ public class OrderService : IOrderService
                 orderDiscounts,
                 reservation
             );
-            
+
             var order = new Order
             {
                 Items = orderItems,
@@ -149,7 +154,7 @@ public class OrderService : IOrderService
                     PricingStrategy = d.PricingStrategy,
                 })
                 .ToList();
-            order.Discounts = await GetOrderDiscounts(order.Items, orderDiscounts, order.Reservation);
+            order.Discounts = await GetOrderDiscounts(order.Items, orderDiscounts, order.Reservation, order.BusinessId);
 
             // Recalculate order service charges
             order.ServiceCharges = GetOrderServiceCharges(
@@ -162,7 +167,12 @@ public class OrderService : IOrderService
 
         if (updateOrderDTO.Discounts is not null)
         {
-            order.Discounts = await GetOrderDiscounts(order.Items, updateOrderDTO.Discounts, order.Reservation);
+            order.Discounts = await GetOrderDiscounts(
+                order.Items,
+                updateOrderDTO.Discounts,
+                order.Reservation,
+                order.BusinessId
+            );
         }
 
         if (updateOrderDTO.ServiceChargeIds is not null)
@@ -412,10 +422,11 @@ public class OrderService : IOrderService
     private async Task<List<OrderDiscount>> GetOrderDiscounts(
         List<OrderItem> orderItems,
         List<CreateOrderDiscountDTO> createOrderDiscountDTOs,
-        Reservation? reservation
+        Reservation? reservation,
+        int businessId
     )
     {
-        var orderDiscounts = await _discountRepository.GetOrderDiscounts();
+        var orderDiscounts = await _discountRepository.GetOrderDiscounts(businessId);
         var price = GetOrderItemsPrice(orderItems, reservation);
 
         var predefinedDiscounts = orderDiscounts

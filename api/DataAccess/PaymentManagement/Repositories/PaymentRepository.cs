@@ -19,44 +19,42 @@ public class PaymentRepository : RepositoryBase<Payment, int>, IPaymentRepositor
         return await DbSet.Where(p => p.OrderId == orderId).ToListAsync();
     }
 
-    public async Task<List<OnlinePayment>> GetPendingOnlinePayments()
+    public async Task<List<CardPayment>> GetPendingCardPayments()
     {
         return await DbSet
-            .Where(p => p.Method == PaymentMethod.Online && p.Status == PaymentStatus.Pending)
-            .Select(p => (OnlinePayment)p)
+            .Where(p => p.Method == PaymentMethod.Card && p.Status == PaymentStatus.Pending)
+            .Select(p => (CardPayment)p)
             .ToListAsync();
     }
 
-    public async Task<List<OnlinePayment>> GetPendingOnlinePaymentsOlderThan(TimeSpan olderThan)
+    public async Task<List<CardPayment>> GetPendingCardPaymentsOlderThan(TimeSpan olderThan)
     {
         var dateLimit = DateTime.UtcNow.Subtract(olderThan);
         return await DbSet
-            .Where(p =>
-                p.Method == PaymentMethod.Online && p.Status == PaymentStatus.Pending && p.CreatedAt < dateLimit
-            )
-            .Select(p => (OnlinePayment)p)
+            .Where(p => p.Method == PaymentMethod.Card && p.Status == PaymentStatus.Pending && p.CreatedAt < dateLimit)
+            .Select(p => (CardPayment)p)
             .ToListAsync();
     }
 
-    public async Task<OnlinePayment> GetOnlinePaymentByExternalId(string externalId)
+    public async Task<CardPayment> GetCardPaymentByExternalId(string externalId)
     {
         var payment = await DbSet.FirstOrDefaultAsync(p =>
-            p.Method == PaymentMethod.Online && ((OnlinePayment)p).ExternalId == externalId
+            p.Method == PaymentMethod.Card && ((CardPayment)p).ExternalId == externalId
         );
 
         if (payment is null)
         {
-            throw new EntityNotFoundException(new OnlinePaymentNotFoundErrorMessage(externalId));
+            throw new EntityNotFoundException(new CardPaymentNotFoundErrorMessage(externalId));
         }
 
-        return (OnlinePayment)payment;
+        return (CardPayment)payment;
     }
 
-    public async Task<List<OnlinePayment>> GetInitiatedOnlineRefunds()
+    public async Task<List<CardPayment>> GetInitiatedCardRefunds()
     {
         return await DbSet
-            .Where(p => p.Method == PaymentMethod.Online && p.Status == PaymentStatus.RefundInitiated)
-            .Select(p => (OnlinePayment)p)
+            .Where(p => p.Method == PaymentMethod.Card && p.Status == PaymentStatus.RefundInitiated)
+            .Select(p => (CardPayment)p)
             .ToListAsync();
     }
 

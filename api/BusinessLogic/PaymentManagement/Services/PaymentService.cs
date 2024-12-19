@@ -102,7 +102,7 @@ public class PaymentService : IPaymentService
         return _paymentMappingService.MapToGiftCardPaymentDTO(payment);
     }
 
-    public async Task<PaymentIntentDTO> CreateOnlinePaymentIntent(CreatePaymentIntentDTO createPaymentIntentDTO)
+    public async Task<PaymentIntentDTO> CreateCardPaymentIntent(CreatePaymentIntentDTO createPaymentIntentDTO)
     {
         await _orderManagementAuthorizationService.AuthorizeApplicationUser(createPaymentIntentDTO.BusinessId);
 
@@ -113,10 +113,10 @@ public class PaymentService : IPaymentService
 
         var paymentIntent = await _stripeService.CreatePaymentIntent(createPaymentIntentDTO);
 
-        var payment = new OnlinePayment
+        var payment = new CardPayment
         {
             OrderId = order.Id,
-            Method = PaymentMethod.Online,
+            Method = PaymentMethod.Card,
             Status = PaymentStatus.Pending,
             Amount = createPaymentIntentDTO.PaymentAmount,
             ExternalId = paymentIntent.PaymentIntentId,
@@ -138,9 +138,9 @@ public class PaymentService : IPaymentService
         return paymentIntent;
     }
 
-    public async Task ConfirmOnlinePayment(string paymentIntentId)
+    public async Task ConfirmCardPayment(string paymentIntentId)
     {
-        var payment = await _paymentRepository.GetOnlinePaymentByExternalId(paymentIntentId);
+        var payment = await _paymentRepository.GetCardPaymentByExternalId(paymentIntentId);
 
         await _orderManagementAuthorizationService.AuthorizeApplicationUser(payment.BusinessId);
 
@@ -152,9 +152,9 @@ public class PaymentService : IPaymentService
         }
     }
 
-    public async Task ProcessPendingOnlinePayments()
+    public async Task ProcessPendingCardPayments()
     {
-        var pendingPayments = await _paymentRepository.GetPendingOnlinePayments();
+        var pendingPayments = await _paymentRepository.GetPendingCardPayments();
 
         foreach (var pendingPayment in pendingPayments)
         {
@@ -168,10 +168,10 @@ public class PaymentService : IPaymentService
         await _unitOfWork.SaveChanges();
     }
 
-    public async Task CancelPendingOutdatedOnlinePayments()
+    public async Task CancelPendingOutdatedCardPayments()
     {
         var olderThan = TimeSpan.FromMinutes(15);
-        var outdatedPayments = await _paymentRepository.GetPendingOnlinePaymentsOlderThan(olderThan);
+        var outdatedPayments = await _paymentRepository.GetPendingCardPaymentsOlderThan(olderThan);
 
         foreach (var outdatedPayment in outdatedPayments)
         {
@@ -237,7 +237,7 @@ public class PaymentService : IPaymentService
                 payment.Status = payment.Method switch
                 {
                     PaymentMethod.Cash => PaymentStatus.Refunded,
-                    PaymentMethod.Online => PaymentStatus.RefundInitiated,
+                    PaymentMethod.Card => PaymentStatus.RefundInitiated,
                     _ => throw new NotImplementedException(
                         $"Refunding for method '{payment.Method}' is not implemented."
                     ),
@@ -251,7 +251,7 @@ public class PaymentService : IPaymentService
 
     public async Task CompletePendingRefunds()
     {
-        var initiatedRefunds = await _paymentRepository.GetInitiatedOnlineRefunds();
+        var initiatedRefunds = await _paymentRepository.GetInitiatedCardRefunds();
 
         foreach (var payment in initiatedRefunds)
         {

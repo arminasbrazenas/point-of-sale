@@ -103,6 +103,7 @@ export const UpdateOrder = ({ orderId }: { orderId: number }) => {
         <Paper withBorder p="md">
           <Text fw={600}>Order #{order.id}</Text>
           <Text size="sm">Status: {order.status}</Text>
+          <Text size="sm">Created by: {order.createdBy}</Text>
           <Text size="sm">Created at: {formatDate(order.createdAt)}</Text>
 
           <Stack mt="lg" gap="xs">
