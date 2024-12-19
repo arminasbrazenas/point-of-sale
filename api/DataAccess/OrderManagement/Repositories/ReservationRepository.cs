@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using PointOfSale.DataAccess.OrderManagement.ErrorMessages;
+using PointOfSale.DataAccess.OrderManagement.Extensions;
 using PointOfSale.DataAccess.OrderManagement.Filters;
 using PointOfSale.DataAccess.OrderManagement.Interfaces;
 using PointOfSale.DataAccess.Shared.Exceptions;
@@ -67,5 +68,29 @@ public class ReservationRepository : RepositoryBase<Reservation, int>, IReservat
             .Include(r => r.Business)
             .Include(r => r.Employee)
             .ToListAsync();
+    }
+
+    public List<int> GetUpdatingBusyEmployeeIdsByTime(
+        int businessId,
+        int reservationId,
+        DateTimeOffset startDate,
+        DateTimeOffset endDate
+    )
+    {
+        return DbSet
+            .Where(r => r.Date.Start < endDate.TrimMilliseconds() && r.Date.End > startDate.TrimMilliseconds())
+            .Where(r => r.BusinessId == businessId)
+            .Where(r => r.Id != reservationId)
+            .Select(e => e.EmployeeId)
+            .ToList();
+    }
+
+    public List<int> GetCreatingBusyEmployeeIdsByTime(int businessId, DateTimeOffset startDate, DateTimeOffset endDate)
+    {
+        return DbSet
+            .Where(r => r.Date.Start < endDate.TrimMilliseconds() && r.Date.End > startDate.TrimMilliseconds())
+            .Where(r => r.BusinessId == businessId)
+            .Select(e => e.EmployeeId)
+            .ToList();
     }
 }

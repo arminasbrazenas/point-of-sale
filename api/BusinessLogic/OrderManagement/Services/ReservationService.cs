@@ -1,9 +1,12 @@
 using PointOfSale.BusinessLogic.OrderManagement.DTOs;
+using PointOfSale.BusinessLogic.OrderManagement.Extensions;
 using PointOfSale.BusinessLogic.OrderManagement.Interfaces;
 using PointOfSale.BusinessLogic.Shared.DTOs;
 using PointOfSale.BusinessLogic.Shared.Exceptions;
 using PointOfSale.BusinessLogic.Shared.Factories;
+using PointOfSale.DataAccess.BusinessManagement.Interfaces;
 using PointOfSale.DataAccess.OrderManagement.ErrorMessages;
+using PointOfSale.DataAccess.OrderManagement.Extensions;
 using PointOfSale.DataAccess.OrderManagement.Filters;
 using PointOfSale.DataAccess.OrderManagement.Interfaces;
 using PointOfSale.DataAccess.Shared.Interfaces;
@@ -22,6 +25,7 @@ public class ReservationService : IReservationService
     private readonly IServiceService _serviceService;
     private readonly IOrderManagementAuthorizationService _orderManagementAuthorizationService;
     private readonly ISmsMessageService _iSmsMessageService;
+    private readonly IBusinessRepository _businessRepository;
 
     public ReservationService(
         IReservationMappingService reservationMappingService,
@@ -30,7 +34,8 @@ public class ReservationService : IReservationService
         IReservationRepository reservationRepository,
         IServiceService serviceService,
         IOrderManagementAuthorizationService orderManagementAuthorizationService,
-        ISmsMessageService iSmsMessageService
+        ISmsMessageService iSmsMessageService,
+        IBusinessRepository businessRepository
     )
     {
         _reservationMappingService = reservationMappingService;
@@ -40,6 +45,7 @@ public class ReservationService : IReservationService
         _serviceService = serviceService;
         _orderManagementAuthorizationService = orderManagementAuthorizationService;
         _iSmsMessageService = iSmsMessageService;
+        _businessRepository = businessRepository;
     }
 
     public async Task<ReservationDTO> CreateReservation(CreateReservationDTO createReservationDto)
@@ -57,10 +63,29 @@ public class ReservationService : IReservationService
             createReservationDto.Customer.PhoneNumber
         );
         var employeeId = _reservationValidationService.ValidateEmployeeId(service, createReservationDto.EmployeeId);
+        var business = await _businessRepository.Get(createReservationDto.BusinessId);
+
+        _reservationValidationService.ValidateWorkHours(
+            business.WorkingHours.Start.TrimMilliseconds(),
+            business.WorkingHours.End.TrimMilliseconds(),
+            dateStart,
+            dateEnd
+        );
+
+        var busyEmployeeIds = _reservationRepository.GetCreatingBusyEmployeeIdsByTime(
+            createReservationDto.BusinessId,
+            dateStart,
+            dateEnd
+        );
+
+        if (busyEmployeeIds.Contains(employeeId))
+        {
+            throw new ValidationException(new EmployeeNotFreeErrorMessage());
+        }
 
         var reservation = new Reservation
         {
-            Date = new ReservationDate { Start = dateStart, End = dateEnd },
+            Date = new ReservationDate { Start = dateStart.TrimMilliseconds(), End = dateEnd.TrimMilliseconds() },
             Status = ReservationStatus.Active,
             EmployeeId = employeeId,
             ServiceId = createReservationDto.ServiceId,
@@ -88,6 +113,8 @@ public class ReservationService : IReservationService
 
         await _orderManagementAuthorizationService.AuthorizeApplicationUser(reservation.BusinessId);
 
+        bool dateServiceOrEmployeeChanged = false;
+
         if (reservation.Status != ReservationStatus.Active)
         {
             throw new ValidationException(new CannotModifyNonActiveReservationErrorMessage());
@@ -104,20 +131,26 @@ public class ReservationService : IReservationService
             reservation.ServiceId = updateReservationDto.ServiceId.Value;
             reservation.Name = service.Name;
             reservation.Price = service.Price;
+            dateServiceOrEmployeeChanged = true;
         }
 
         if (updateReservationDto.EmployeeId is not null)
         {
             var service = await _serviceService.GetService(reservation.ServiceId!.Value);
-            reservation.EmployeeId = _reservationValidationService.ValidateEmployeeId(service, updateReservationDto.EmployeeId.Value);
+            reservation.EmployeeId = _reservationValidationService.ValidateEmployeeId(
+                service,
+                updateReservationDto.EmployeeId.Value
+            );
+            dateServiceOrEmployeeChanged = true;
         }
 
         if (updateReservationDto.StartDate is not null)
         {
             reservation.Date.Start = _reservationValidationService.ValidateDateStart(
-                updateReservationDto.StartDate.Value
+                updateReservationDto.StartDate.Value.TrimMilliseconds()
             );
-            reservation.Date.End = reservation.Date.Start + reservation.Service!.Duration;
+            reservation.Date.End = (reservation.Date.Start + reservation.Service!.Duration).TrimMilliseconds();
+            dateServiceOrEmployeeChanged = true;
         }
 
         if (updateReservationDto.Customer.FirstName is not null)
@@ -148,6 +181,30 @@ public class ReservationService : IReservationService
                 ),
             };
             reservation.Notification = new ReservationNotification { IdempotencyKey = Guid.NewGuid(), SentAt = null };
+        }
+
+        if (dateServiceOrEmployeeChanged)
+        {
+            var business = await _businessRepository.Get(reservation.BusinessId);
+
+            _reservationValidationService.ValidateWorkHours(
+                business.WorkingHours.Start.TrimMilliseconds(),
+                business.WorkingHours.End.TrimMilliseconds(),
+                reservation.Date.Start,
+                reservation.Date.End
+            );
+
+            var busyEmployeeIds = _reservationRepository.GetUpdatingBusyEmployeeIdsByTime(
+                reservation.BusinessId,
+                reservation.Id,
+                reservation.Date.Start,
+                reservation.Date.End
+            );
+
+            if (busyEmployeeIds.Contains(reservation.EmployeeId))
+            {
+                throw new ValidationException(new EmployeeNotFreeErrorMessage());
+            }
         }
 
         await _unitOfWork.SaveChanges();

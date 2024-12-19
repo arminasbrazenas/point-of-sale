@@ -43,3 +43,13 @@ public class ReservationIsNotInProgressErrorMessage : IPointOfSaleErrorMessage
 {
     public string En => "Reservation is not in progress.";
 }
+
+public class EmployeeNotFreeErrorMessage : IPointOfSaleErrorMessage
+{
+    public string En => "This employee is busy, so he can not fulfill this reservation.";
+}
+
+public class ReservationNotWithinWorkHoursErrorMessage : IPointOfSaleErrorMessage
+{
+    public string En => "This reservation can not be fulfilled as it is not within work hours.";
+}
