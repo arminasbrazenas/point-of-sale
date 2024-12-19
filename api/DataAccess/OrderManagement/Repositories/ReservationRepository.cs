@@ -8,6 +8,7 @@ using PointOfSale.DataAccess.Shared.Filters;
 using PointOfSale.DataAccess.Shared.Interfaces;
 using PointOfSale.DataAccess.Shared.Repositories;
 using PointOfSale.Models.OrderManagement.Entities;
+using PointOfSale.Models.OrderManagement.Enums;
 
 namespace PointOfSale.DataAccess.OrderManagement.Repositories;
 
@@ -81,6 +82,7 @@ public class ReservationRepository : RepositoryBase<Reservation, int>, IReservat
             .Where(r => r.Date.Start < endDate.TrimMilliseconds() && r.Date.End > startDate.TrimMilliseconds())
             .Where(r => r.BusinessId == businessId)
             .Where(r => r.Id != reservationId)
+            .Where(r => r.Status == ReservationStatus.Active || r.Status == ReservationStatus.InProgress)
             .Select(e => e.EmployeeId)
             .ToList();
     }
@@ -90,6 +92,7 @@ public class ReservationRepository : RepositoryBase<Reservation, int>, IReservat
         return DbSet
             .Where(r => r.Date.Start < endDate.TrimMilliseconds() && r.Date.End > startDate.TrimMilliseconds())
             .Where(r => r.BusinessId == businessId)
+            .Where(r => r.Status == ReservationStatus.Active || r.Status == ReservationStatus.InProgress)
             .Select(e => e.EmployeeId)
             .ToList();
     }
