@@ -53,4 +53,3 @@ public class ReservationNotWithinWorkHoursErrorMessage : IPointOfSaleErrorMessag
 {
     public string En => "This reservation can not be fulfilled as it is not within work hours.";
 }
-

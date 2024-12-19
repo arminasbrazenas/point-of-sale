@@ -68,4 +68,9 @@ public static class OrderExtensions
             PricingStrategy.FixedAmount => amount.ToRoundedPrice(),
             _ => throw new NotImplementedException(),
         };
+
+    public static TimeOnly TrimMilliseconds(this TimeOnly v)
+    {
+        return new TimeOnly(v.Hour, v.Minute, v.Second);
+    }
 }

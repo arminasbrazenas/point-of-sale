@@ -1,4 +1,5 @@
 using PointOfSale.BusinessLogic.OrderManagement.DTOs;
+using PointOfSale.BusinessLogic.OrderManagement.Extensions;
 using PointOfSale.BusinessLogic.OrderManagement.Interfaces;
 using PointOfSale.BusinessLogic.Shared.DTOs;
 using PointOfSale.BusinessLogic.Shared.Exceptions;
@@ -62,16 +63,24 @@ public class ReservationService : IReservationService
         );
         var employeeId = _reservationValidationService.ValidateEmployeeId(service, createReservationDto.EmployeeId);
         var business = await _businessRepository.Get(createReservationDto.BusinessId);
-        
-        _reservationValidationService.ValidateWorkHours(business.WorkingHours.Start, business.WorkingHours.End, dateStart, dateEnd);
-    
-        var busyEmployeeIds = _reservationRepository.GetCreatingBusyEmployeeIdsByTime(createReservationDto.BusinessId, dateStart, dateEnd);
+
+        _reservationValidationService.ValidateWorkHours(
+            business.WorkingHours.Start.TrimMilliseconds(),
+            business.WorkingHours.End.TrimMilliseconds(),
+            dateStart,
+            dateEnd
+        );
+
+        var busyEmployeeIds = _reservationRepository.GetCreatingBusyEmployeeIdsByTime(
+            createReservationDto.BusinessId,
+            dateStart,
+            dateEnd
+        );
 
         if (busyEmployeeIds.Contains(employeeId))
         {
             throw new ValidationException(new EmployeeNotFreeErrorMessage());
         }
-
 
         var reservation = new Reservation
         {
@@ -102,7 +111,7 @@ public class ReservationService : IReservationService
         var reservation = await _reservationRepository.GetWithRelatedData(reservationId);
 
         await _orderManagementAuthorizationService.AuthorizeApplicationUser(reservation.BusinessId);
-        
+
         bool dateServiceOrEmployeeChanged = false;
 
         if (reservation.Status != ReservationStatus.Active)
@@ -127,7 +136,10 @@ public class ReservationService : IReservationService
         if (updateReservationDto.EmployeeId is not null)
         {
             var service = await _serviceService.GetService(reservation.ServiceId!.Value);
-            reservation.EmployeeId = _reservationValidationService.ValidateEmployeeId(service, updateReservationDto.EmployeeId.Value);
+            reservation.EmployeeId = _reservationValidationService.ValidateEmployeeId(
+                service,
+                updateReservationDto.EmployeeId.Value
+            );
             dateServiceOrEmployeeChanged = true;
         }
 
@@ -169,23 +181,30 @@ public class ReservationService : IReservationService
             };
             reservation.Notification = new ReservationNotification { IdempotencyKey = Guid.NewGuid(), SentAt = null };
         }
-        
+
         if (dateServiceOrEmployeeChanged)
         {
             var business = await _businessRepository.Get(reservation.BusinessId);
-        
-            _reservationValidationService.ValidateWorkHours(business.WorkingHours.Start, business.WorkingHours.End, reservation.Date.Start, reservation.Date.End);
 
-            var busyEmployeeIds = _reservationRepository.GetUpdatingBusyEmployeeIdsByTime(reservation.BusinessId, reservation.Id,
-                reservation.Date.Start, reservation.Date.End);
-        
+            _reservationValidationService.ValidateWorkHours(
+                business.WorkingHours.Start.TrimMilliseconds(),
+                business.WorkingHours.End.TrimMilliseconds(),
+                reservation.Date.Start,
+                reservation.Date.End
+            );
+
+            var busyEmployeeIds = _reservationRepository.GetUpdatingBusyEmployeeIdsByTime(
+                reservation.BusinessId,
+                reservation.Id,
+                reservation.Date.Start,
+                reservation.Date.End
+            );
+
             if (busyEmployeeIds.Contains(reservation.EmployeeId))
             {
                 throw new ValidationException(new EmployeeNotFreeErrorMessage());
             }
-        
         }
-
 
         await _unitOfWork.SaveChanges();
 

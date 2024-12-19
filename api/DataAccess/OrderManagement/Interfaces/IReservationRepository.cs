@@ -16,8 +16,12 @@ public interface IReservationRepository : IRepositoryBase<Reservation, int>
     Task<int> GetTotalCount(int businessId);
     Task<List<Reservation>> GetWithUnsentNotifications();
 
-    public List<int> GetUpdatingBusyEmployeeIdsByTime(int businessId, int reservationId, DateTimeOffset startDate,
-        DateTimeOffset endDate);
+    public List<int> GetUpdatingBusyEmployeeIdsByTime(
+        int businessId,
+        int reservationId,
+        DateTimeOffset startDate,
+        DateTimeOffset endDate
+    );
 
     public List<int> GetCreatingBusyEmployeeIdsByTime(int businessId, DateTimeOffset startDate, DateTimeOffset endDate);
 }
