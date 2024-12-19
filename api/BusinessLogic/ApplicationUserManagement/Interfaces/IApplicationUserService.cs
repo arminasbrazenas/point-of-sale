@@ -21,4 +21,5 @@ public interface IApplicationUserService
     );
     Task DeleteApplicationUser(int applicationUserId);
     Task<TokensDTO> RefreshApplicationUserTokens(string? refreshToken);
+    Task CreateAdminUser(RegisterApplicationUserDTO dto);
 }

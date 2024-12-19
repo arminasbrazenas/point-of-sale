@@ -1,7 +1,8 @@
-using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.AspNetCore.Identity;
 using PointOfSale.Api.Extensions;
 using PointOfSale.Api.Middlewares;
+using PointOfSale.BusinessLogic.ApplicationUserManagement.DTOs;
+using PointOfSale.BusinessLogic.ApplicationUserManagement.Interfaces;
 using PointOfSale.Models.ApplicationUserManagement.Enums;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -35,6 +36,19 @@ using (var scope = app.Services.CreateScope())
             await roleManager.CreateAsync(new IdentityRole<int>(role));
         }
     }
+
+    var userService = scope.ServiceProvider.GetRequiredService<IApplicationUserService>();
+    var adminDto = new RegisterApplicationUserDTO(
+        FirstName: builder.Configuration["AdminSettings:ADMIN_FIRST_NAME"]!,
+        LastName: builder.Configuration["AdminSettings:ADMIN_LAST_NAME"]!,
+        Email: builder.Configuration["AdminSettings:ADMIN_EMAIL"]!,
+        PhoneNumber: builder.Configuration["AdminSettings:ADMIN_PHONE_NUMBER"]!,
+        Password: builder.Configuration["AdminSettings:ADMIN_PASSWORD"]!,
+        BusinessId: null,
+        Role: "Admin"
+    );
+
+    await userService.CreateAdminUser(adminDto);
 }
 
 app.UseSwagger();
